@@ -1,0 +1,153 @@
+<div class="container">
+  <div class="header-section">
+    <h1>📊 Gestion de la Croissance</h1>
+    <button class="btn-primary" (click)="openCreateForm()">+ Ajouter Donnée</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <!-- Liste des races avec données de croissance -->
+  <div *ngIf="!showCreateForm && !showEditForm && races.length > 0" class="races-grid">
+    <div *ngFor="let race of races" class="race-card">
+      <div class="race-header" (click)="selectRace(race.id_race)">
+        <div class="race-info">
+          <h2>{{ race.nom_race }}</h2>
+          <span class="race-code">Race #{{ race.id_race }}</span>
+        </div>
+        <div class="race-stats">
+          <div class="stat">
+            <span class="stat-label">Poids Total</span>
+            <span class="stat-value">{{ getTotalWeight(race.id_race) }}g</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Nourriture Totale</span>
+            <span class="stat-value">{{ getTotalFood(race.id_race) }}g</span>
+          </div>
+          <button class="expand-btn" [class.expanded]="selectedRaceId === race.id_race">
+            {{ selectedRaceId === race.id_race ? '▼' : '▶' }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="selectedRaceId === race.id_race" class="croissance-table-container">
+        <table class="croissance-table">
+          <thead>
+            <tr>
+              <th>Semaine</th>
+              <th>Gain Poids (g)</th>
+              <th>Nourriture (g)</th>
+              <th>Poids Cumulé (g)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let crois of croissancesByRace[race.id_race]; let i = index">
+              <td><strong>Semaine {{ crois.semaine }}</strong></td>
+              <td>
+                <span class="value-badge gain">+{{ crois.gain_poids }}g</span>
+              </td>
+              <td>
+                <span class="value-badge food">{{ crois.nourriture }}g</span>
+              </td>
+              <td>
+                <span class="cumul-weight">
+                  {{ croissancesByRace[race.id_race].slice(0, i + 1).reduce((sum, c) => sum + c.gain_poids, 0) }}g
+                </span>
+              </td>
+              <td>
+                <button class="btn-icon" (click)="openEditForm(crois)" title="Modifier">✏️</button>
+                <button class="btn-icon-delete" (click)="deleteCroissance(crois.id_croissance)" title="Supprimer">🗑️</button>
+              </td>
+            </tr>
+            <tr *ngIf="!croissancesByRace[race.id_race] || croissancesByRace[race.id_race].length === 0">
+              <td colspan="5" class="empty-state">Aucune donnée de croissance pour cette race</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire de création -->
+  <div *ngIf="showCreateForm" class="form-container">
+    <div class="form-header">
+      <h2>Ajouter une Donnée de Croissance</h2>
+      <button class="btn-close" (click)="closeCreateForm()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="createCroissance()" class="form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Race *</label>
+          <select [(ngModel)]="newCroissance.id_race" name="id_race" required>
+            <option *ngFor="let race of races" [value]="race.id_race">
+              {{ race.nom_race }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Semaine *</label>
+          <input type="number" [(ngModel)]="newCroissance.semaine" name="semaine" min="0" max="52" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gain de Poids (g) *</label>
+          <input type="number" [(ngModel)]="newCroissance.gain_poids" name="gain_poids" min="0" step="0.1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Quantité Nourriture (g) *</label>
+          <input type="number" [(ngModel)]="newCroissance.nourriture" name="nourriture" min="0" step="0.1" required>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeCreateForm()">Annuler</button>
+        <button type="submit" class="btn-primary">Créer</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Formulaire de modification -->
+  <div *ngIf="showEditForm && editingCroissance" class="form-container">
+    <div class="form-header">
+      <h2>Modifier la Croissance</h2>
+      <button class="btn-close" (click)="closeEditForm()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="updateCroissance()" class="form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Race</label>
+          <input type="text" [value]="getRaceName(editingCroissance.id_race)" disabled>
+        </div>
+
+        <div class="form-group">
+          <label>Semaine</label>
+          <input type="number" [value]="editingCroissance.semaine" disabled>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gain de Poids (g) *</label>
+          <input type="number" [(ngModel)]="editingCroissance.gain_poids" name="gain_poids" min="0" step="0.1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Quantité Nourriture (g) *</label>
+          <input type="number" [(ngModel)]="editingCroissance.nourriture" name="nourriture" min="0" step="0.1" required>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeEditForm()">Annuler</button>
+        <button type="submit" class="btn-primary">Mettre à jour</button>
+      </div>
+    </form>
+  </div>
+</div>

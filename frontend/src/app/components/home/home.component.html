@@ -1,0 +1,74 @@
+<div class="home-container">
+  <div class="header">
+    <h1>🐔 Système de Gestion d'Élevage</h1>
+    <p class="subtitle">Application complète de gestion de lots de poulets avec calcul automatique de croissance</p>
+  </div>
+
+  <div class="cards-grid">
+    <!-- Lots -->
+    <div class="feature-card primary" (click)="navigateTo('/lots')">
+      <div class="card-icon">📦</div>
+      <h2>Lots de Poulets</h2>
+      <p>Visualiser et gérer vos lots avec calcul automatique du poids en fonction de l'âge</p>
+      <button class="btn-card">Accéder →</button>
+    </div>
+
+    <!-- Races -->
+    <div class="feature-card success" (click)="navigateTo('/races')">
+      <div class="card-icon">🐓</div>
+      <h2>Races</h2>
+      <p>Gérer les différentes races de poulets et leurs caractéristiques</p>
+      <button class="btn-card">Accéder →</button>
+    </div>
+
+    <!-- Croissance -->
+    <div class="feature-card info" (click)="navigateTo('/croissance')">
+      <div class="card-icon">📊</div>
+      <h2>Modèles de Croissance</h2>
+      <p>Définir et consulter les modèles de croissance par race et semaine</p>
+      <button class="btn-card">Accéder →</button>
+    </div>
+
+    <!-- Mortalités -->
+    <div class="feature-card warning" (click)="navigateTo('/mortalites')">
+      <div class="card-icon">⚠️</div>
+      <h2>Mortalités</h2>
+      <p>Enregistrer et suivre les mortalités par lot</p>
+      <button class="btn-card">Accéder →</button>
+    </div>
+  </div>
+
+  <div class="features-section">
+    <h3>✨ Fonctionnalités Principales</h3>
+    <div class="features-list">
+      <div class="feature-item">
+        <span class="feature-icon">⚡</span>
+        <div>
+          <h4>Calcul Automatique</h4>
+          <p>Le poids des poulets est calculé automatiquement selon leur âge et leur race</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📈</span>
+        <div>
+          <h4>Suivi Détaillé</h4>
+          <p>Tableaux de croissance complets avec historique semaine par semaine</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🎯</span>
+        <div>
+          <h4>Gestion Complète</h4>
+          <p>CRUD complet pour toutes les entités (lots, races, croissance, mortalités)</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">💾</span>
+        <div>
+          <h4>Base SQL Server</h4>
+          <p>Données persistantes et sécurisées avec SQL Server</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
