@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MotDePasseFort123!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MotDePasseFort123! -Q "SELECT 1" -C || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # Backend Node.js
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    environment:
+      - DB_SERVER=sqlserver
+      - DB_PORT=1433
+      - DB_USER=sa
+      - DB_PASSWORD=MotDePasseFort123!
+      - DB_DATABASE=AppDatabase
+      - PORT=3000
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Frontend Angular (optionnel - pour le développement en local, privilégier npm start)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: frontend
+  #   ports:
+  #     - "4200:4200"
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
