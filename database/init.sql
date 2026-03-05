@@ -1,46 +1,67 @@
--- Script d'initialisation de la base de données
--- Ce script crée la base de données et une table d'exemple
+CREATE TABLE Race (
+    id_race INT IDENTITY(1,1) PRIMARY KEY,
+    nom_race VARCHAR(50) NOT NULL,
+    pu_sakafo_g DECIMAL(10,2), 
+    pv_g DECIMAL(10,2),       
+    pv_oeuf DECIMAL(10,2),    
+    semaine_debut_ponte INT,
+    duree_incubation INT
+);
+CREATE TABLE Lot (
+    id_lot INT IDENTITY(1,1) PRIMARY KEY,
+    id_race INT NOT NULL,
+    date_entree DATE,
+    nombre_initial INT,
+    cout_achat DECIMAL(12,2),
 
--- Attendre que SQL Server soit prêt
-WAITFOR DELAY '00:00:05';
-GO
+    FOREIGN KEY (id_race) REFERENCES Race(id_race)
+);
+CREATE TABLE Croissance (
+    id_croissance INT IDENTITY(1,1) PRIMARY KEY,
+    id_race INT NOT NULL,
+    semaine INT,
+    gain_poids INT,
+    nourriture INT,
 
--- Créer la base de données si elle n'existe pas
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'AppDatabase')
-BEGIN
-    CREATE DATABASE AppDatabase;
-    PRINT 'Base de données AppDatabase créée avec succès';
-END
-GO
+    FOREIGN KEY (id_race) REFERENCES Race(id_race)
+);
+CREATE TABLE Distribution_Nourriture (
+    id_distribution INT IDENTITY(1,1) PRIMARY KEY,
+    id_lot INT NOT NULL,
+    date_distribution DATE,
+    quantite INT,
 
--- Utiliser la base de données
-USE AppDatabase;
-GO
+    FOREIGN KEY (id_lot) REFERENCES Lot(id_lot)
+);
+CREATE TABLE Oeuf (
+    id_oeuf INT IDENTITY(1,1) PRIMARY KEY,
+    id_lot INT NOT NULL,
+    date_recolte DATE,
+    nombre INT,
 
--- Créer une table d'exemple
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Examples')
-BEGIN
-    CREATE TABLE Examples (
-        id INT PRIMARY KEY IDENTITY(1,1),
-        name NVARCHAR(100) NOT NULL,
-        description NVARCHAR(500),
-        created_at DATETIME DEFAULT GETDATE(),
-        updated_at DATETIME DEFAULT GETDATE()
-    );
-    PRINT 'Table Examples créée avec succès';
-END
-GO
+    FOREIGN KEY (id_lot) REFERENCES Lot(id_lot)
+);
+CREATE TABLE Incubation (
+    id_incubation INT IDENTITY(1,1) PRIMARY KEY,
+    id_oeuf INT NOT NULL,
+    date_debut DATE,
+    nombre_oeufs INT,
 
--- Insérer des données d'exemple
-IF NOT EXISTS (SELECT * FROM Examples)
-BEGIN
-    INSERT INTO Examples (name, description) VALUES 
-        ('Exemple 1', 'Ceci est un premier exemple'),
-        ('Exemple 2', 'Ceci est un deuxième exemple'),
-        ('Exemple 3', 'Ceci est un troisième exemple');
-    PRINT 'Données d''exemple insérées avec succès';
-END
-GO
+    FOREIGN KEY (id_oeuf) REFERENCES Oeuf(id_oeuf)
+);
+CREATE TABLE Mortalite (
+    id_mortalite INT IDENTITY(1,1) PRIMARY KEY,
+    id_lot INT NOT NULL,
+    date_mort DATE,
+    nombre INT,
 
-PRINT 'Initialisation de la base de données terminée';
-GO
+    FOREIGN KEY (id_lot) REFERENCES Lot(id_lot)
+);
+ALTER TABLE Lot
+ADD id_incubation INT NULL;
+
+ALTER TABLE Lot
+ADD CONSTRAINT FK_Lot_Incubation
+FOREIGN KEY (id_incubation)
+REFERENCES Incubation(id_incubation);
+
