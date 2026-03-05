@@ -1,0 +1,5 @@
+Container ID: df424a1fd7ff
+Name: sqlserver
+Status: Up and running
+Port: 1433 (accessible at localhost:1433)
+SA Password: MotDePasseFort123!
