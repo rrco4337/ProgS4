@@ -1,0 +1,25 @@
+{
+  "name": "rattrapage-prog-fullstack",
+  "version": "1.0.0",
+  "description": "Projet Full-Stack avec Node.js, Angular et SQL Server",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm start --prefix frontend",
+    "start:backend": "npm start --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "db:init": "docker exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MotDePasseFort123! -C < database/init.sql"
+  },
+  "keywords": [
+    "nodejs",
+    "angular",
+    "typescript",
+    "sqlserver",
+    "fullstack"
+  ],
+  "author": "",
+  "license": "MIT"
+}
