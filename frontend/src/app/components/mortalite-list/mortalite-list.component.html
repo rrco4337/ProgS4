@@ -1,0 +1,86 @@
+<div class="container">
+  <div class="header-section">
+    <h1>⚠️ Gestion des Mortalités</h1>
+    <button class="btn-primary" (click)="openCreateForm()">+ Enregistrer Mortalité</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <!-- Liste des mortalités -->
+  <div *ngIf="!showCreateForm" class="table-container">
+    <table class="mortalite-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Lot</th>
+          <th>Race</th>
+          <th>Date du décès</th>
+          <th>Nombre de morts</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let mort of mortalites" [class.alert]="mort.nombre > 5">
+          <td><strong>#{{ mort.id_mortalite }}</strong></td>
+          <td>Lot #{{ mort.id_lot }}</td>
+          <td>{{ mort.nom_race }}</td>
+          <td>{{ formatDate(mort.date_mort) }}</td>
+          <td>
+            <span class="nombre-badge" [class.high]="mort.nombre > 5">
+              {{ mort.nombre }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-delete-small" (click)="deleteMortalite(mort.id_mortalite)">
+              🗑️ Supprimer
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="mortalites.length === 0">
+          <td colspan="6" class="empty-state">
+            ✅ Aucune mortalité enregistr ée
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Formulaire de création -->
+  <div *ngIf="showCreateForm" class="form-container">
+    <div class="form-header">
+      <h2>Enregistrer une Mortalité</h2>
+      <button class="btn-close" (click)="closeCreateForm()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="createMortalite()" class="mortalite-form">
+      <div class="form-group">
+        <label>Lot *</label>
+        <select [(ngModel)]="newMortalite.id_lot" name="id_lot" required>
+          <option *ngFor="let lot of lots" [value]="lot.id_lot">
+            Lot #{{ lot.id_lot }} - {{ lot.nom_race }} ({{ lot.nombre_initial }} poulets)
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Date du décès *</label>
+        <input type="date" [(ngModel)]="newMortalite.date_mort" name="date_mort" required>
+      </div>
+
+      <div class="form-group">
+        <label>Nombre de morts *</label>
+        <input type="number" [(ngModel)]="newMortalite.nombre" name="nombre" min="1" required>
+      </div>
+
+      <div class="warning-box" *ngIf="newMortalite.nombre && newMortalite.nombre > 5">
+        ⚠️ Attention : Nombre élevé de mortalités. Vérifiez les conditions d'élevage.
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeCreateForm()">Annuler</button>
+        <button type="submit" class="btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>

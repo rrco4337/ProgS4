@@ -1,0 +1,217 @@
+<div class="container">
+  <div class="header-section">
+    <h1>🐔 Gestion des Lots de Poulets</h1>
+    <button *ngIf="!selectedLot && !showCreateForm && !showEditForm" class="btn-primary" (click)="openCreateForm()">
+      + Nouveau Lot
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Chargement en cours...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <!-- Formulaire de création -->
+  <div *ngIf="showCreateForm" class="form-container">
+    <div class="form-header">
+      <h2>Créer un Nouveau Lot</h2>
+      <button class="btn-close" (click)="closeCreateForm()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="createLot()" class="form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Race *</label>
+          <select [(ngModel)]="newLot.id_race" name="id_race" required>
+            <option *ngFor="let race of races" [value]="race.id_race">
+              {{ race.nom_race }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Date d'entrée *</label>
+          <input type="date" [(ngModel)]="newLot.date_entree" name="date_entree" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre initial de poulets *</label>
+          <input type="number" [(ngModel)]="newLot.nombre_initial" name="nombre_initial" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Coût d'achat (Ar) *</label>
+          <input type="number" [(ngModel)]="newLot.cout_achat" name="cout_achat" min="0" step="0.01" required>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeCreateForm()">Annuler</button>
+        <button type="submit" class="btn-primary">Créer</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Formulaire d'édition -->
+  <div *ngIf="showEditForm && editingLot" class="form-container">
+    <div class="form-header">
+      <h2>Modifier le Lot #{{ editingLot.id_lot }}</h2>
+      <button class="btn-close" (click)="closeEditForm()">✕</button>
+    </div>
+    
+    <form (ngSubmit)="updateLot()" class="form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Race *</label>
+          <select [(ngModel)]="editingLot.id_race" name="id_race" required>
+            <option *ngFor="let race of races" [value]="race.id_race">
+              {{ race.nom_race }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Date d'entrée *</label>
+        <input type="date" [(ngModel)]="editingLot.date_entree" name="date_entree" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre initial de poulets *</label>
+        <input type="number" [(ngModel)]="editingLot.nombre_initial" name="nombre_initial" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Coût d'achat (Ar) *</label>
+        <input type="number" [(ngModel)]="editingLot.cout_achat" name="cout_achat" min="0" step="0.01" required>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeEditForm()">Annuler</button>
+        <button type="submit" class="btn-primary">Mettre à jour</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Liste des lots -->
+  <div *ngIf="!selectedLot && !showCreateForm && !showEditForm" class="lots-grid">
+    <div *ngFor="let lot of lots" class="lot-card">
+      <div class="lot-header" (click)="viewDetails(lot)">
+        <h2>{{ lot.nom_race }}</h2>
+        <span class="badge">Lot #{{ lot.id_lot }}</span>
+      </div>
+      <div class="lot-info" (click)="viewDetails(lot)">
+        <p><strong>Date d'entrée:</strong> {{ formatDate(lot.date_entree) }}</p>
+        <p><strong>Nombre initial:</strong> {{ lot.nombre_initial }} poulets</p>
+        <p><strong>Coût d'achat:</strong> {{ formatNumber(lot.cout_achat) }} Ar</p>
+      </div>
+      <div class="lot-actions">
+        <button class="btn-details" (click)="viewDetails(lot)">Voir détails →</button>
+        <button class="btn-edit" (click)="openEditForm(lot); $event.stopPropagation()">✏️</button>
+        <button class="btn-delete" (click)="deleteLot(lot.id_lot); $event.stopPropagation()">🗑️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Détails d'un lot -->
+  <div *ngIf="selectedLot" class="lot-details">
+    <button class="btn-back" (click)="closeDetails()">← Retour</button>
+    
+    <div class="details-header">
+      <h2>{{ selectedLot.nom_race }} - Lot #{{ selectedLot.id_lot }}</h2>
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-label">Âge</span>
+          <span class="stat-value">{{ selectedLot.age_semaines }} semaines</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Poulets actuels</span>
+          <span class="stat-value">{{ selectedLot.nombre_actuel }}</span>
+        </div>
+        <div class="stat-card warning">
+          <span class="stat-label">Mortalités</span>
+          <span class="stat-value">{{ selectedLot.mortalites }}</span>
+        </div>
+        <div class="stat-card success">
+          <span class="stat-label">Poids unitaire</span>
+          <span class="stat-value">{{ selectedLot.poids_unitaire }} g</span>
+        </div>
+        <div class="stat-card success">
+          <span class="stat-label">Poids total du lot</span>
+          <span class="stat-value">{{ formatNumber(selectedLot.poids_total / 1000) }} kg</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau de croissance -->
+    <div class="croissance-section">
+      <h3>📊 Modèle de Croissance</h3>
+      <div class="table-container">
+        <table class="croissance-table">
+          <thead>
+            <tr>
+              <th>Semaine</th>
+              <th>Gain de poids</th>
+              <th>Poids cumulé</th>
+              <th>Nourriture (cette semaine)</th>
+              <th>Nourriture cumulée</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let detail of selectedLot.detail_croissance" 
+                [class.current]="detail.semaine === selectedLot.age_semaines">
+              <td>
+                <strong>{{ detail.semaine }}</strong>
+                <span *ngIf="detail.semaine === 0" class="badge-small">Naissance</span>
+                <span *ngIf="detail.semaine === selectedLot.age_semaines" class="badge-small current">Actuel</span>
+              </td>
+              <td>
+                <span *ngIf="detail.semaine === 0">{{ detail.gain_poids }} g (initial)</span>
+                <span *ngIf="detail.semaine > 0">+{{ detail.gain_poids }} g</span>
+              </td>
+              <td><strong>{{ detail.poids_cumule }} g</strong></td>
+              <td>{{ detail.nourriture }} g</td>
+              <td>{{ detail.nourriture_cumulee }} g</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Explication -->
+    <div class="explanation">
+      <h4>💡 Explication du calcul</h4>
+      <div class="explanation-content">
+        <p><strong>Date d'entrée:</strong> {{ formatDate(selectedLot.date_entree) }}</p>
+        <p><strong>Âge actuel:</strong> {{ selectedLot.age_semaines }} semaines</p>
+        <p><strong>Calcul du poids:</strong></p>
+        <ul>
+          <li *ngFor="let detail of selectedLot.detail_croissance.slice(0, 3)">
+            <span *ngIf="detail.semaine === 0">
+              Semaine 0 : poussin = {{ detail.gain_poids }} g
+            </span>
+            <span *ngIf="detail.semaine > 0">
+              Semaine {{ detail.semaine }} : gain = +{{ detail.gain_poids }} g → 
+              {{ detail.poids_cumule - detail.gain_poids }} + {{ detail.gain_poids }} = {{ detail.poids_cumule }} g
+            </span>
+          </li>
+        </ul>
+        <p class="result">
+          <strong>Résultat:</strong> À {{ selectedLot.age_semaines }} semaines, chaque poulet pèse 
+          <strong>{{ selectedLot.poids_unitaire }} g</strong>
+        </p>
+        <p class="result">
+          <strong>Poids total du lot:</strong> {{ selectedLot.nombre_actuel }} poulets × {{ selectedLot.poids_unitaire }} g = 
+          <strong>{{ formatNumber(selectedLot.poids_total / 1000) }} kg</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
