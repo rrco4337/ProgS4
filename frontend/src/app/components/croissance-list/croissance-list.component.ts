@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CroissanceService } from '../../services/croissance.service';
@@ -11,7 +11,7 @@ import { Croissance, Race } from '../../models/elevage.model';
   templateUrl: './croissance-list.component.html',
   styleUrls: ['./croissance-list.component.css']
 })
-export class CroissanceListComponent implements AfterViewInit {
+export class CroissanceListComponent implements OnInit {
   croissances: Croissance[] = [];
   races: Race[] = [];
   loading = false;
@@ -37,10 +37,12 @@ export class CroissanceListComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngAfterViewInit() {
+  ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadRaces();
-      this.loadCroissances();
+      setTimeout(() => {
+        this.loadRaces();
+        this.loadCroissances();
+      }, 0);
     }
   }
 

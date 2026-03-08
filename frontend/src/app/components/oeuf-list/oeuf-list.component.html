@@ -1,0 +1,327 @@
+<div class="container">
+
+  <!-- En-tête -->
+  <div class="header-section">
+    <h1>🥚 Gestion des Œufs</h1>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="loading" class="loading">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+
+  <!-- Statistiques globales -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Œufs récoltés</span>
+      <span class="stat-value">{{ totalOeufsRecoltes }}</span>
+    </div>
+    <div class="stat-card incubation">
+      <span class="stat-label">En incubation</span>
+      <span class="stat-value">{{ totalOeufsIncubes }}</span>
+    </div>
+    <div class="stat-card vente">
+      <span class="stat-label">Vendus</span>
+      <span class="stat-value">{{ totalOeufsVendus }}</span>
+    </div>
+    <div class="stat-card revenu">
+      <span class="stat-label">Revenu total</span>
+      <span class="stat-value">{{ totalRevenuVentes.toLocaleString('fr-FR') }} Ar</span>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'recolte'" (click)="setTab('recolte')">
+      🪺 Récolte
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'incubation'" (click)="setTab('incubation')">
+      🔬 Incubation
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'ventes'" (click)="setTab('ventes')">
+      💰 Ventes
+    </button>
+  </div>
+
+  <!-- ─────────────────── ONGLET RÉCOLTE ─────────────────── -->
+  <div *ngIf="activeTab === 'recolte'" class="tab-content">
+
+    <div class="section-header">
+      <h2>Récoltes d'œufs</h2>
+      <button class="btn-primary" (click)="openRecolteForm()">+ Nouvelle récolte</button>
+    </div>
+
+    <!-- Formulaire récolte -->
+    <div *ngIf="showRecolteForm" class="form-container">
+      <h3>Enregistrer une récolte</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Lot</label>
+          <select [(ngModel)]="newRecolte.id_lot" class="form-control">
+            <option *ngFor="let lot of lots" [value]="lot.id_lot">
+              Lot #{{ lot.id_lot }} — {{ lot.nom_race }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date de récolte</label>
+          <input type="date" [(ngModel)]="newRecolte.date_recolte" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>Nombre d'œufs</label>
+          <input type="number" [(ngModel)]="newRecolte.nombre" min="1" class="form-control" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="createRecolte()">Enregistrer</button>
+        <button class="btn-secondary" (click)="cancelRecolteForm()">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Tableau récoltes -->
+    <div *ngIf="oeufs.length > 0" class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Lot</th>
+            <th>Date de récolte</th>
+            <th>Nombre d'œufs</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let oeuf of oeufs">
+            <td>{{ oeuf.id_oeuf }}</td>
+            <td>
+              <span class="badge-lot">Lot #{{ oeuf.id_lot }}</span>
+              {{ oeuf.nom_race }}
+            </td>
+            <td>{{ formatDate(oeuf.date_recolte) }}</td>
+            <td><strong>{{ oeuf.nombre }}</strong> œufs</td>
+            <td>
+              <button class="btn-danger-sm" (click)="deleteRecolte(oeuf.id_oeuf)">Supprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="oeufs.length === 0 && !loading" class="empty-state">
+      <p>Aucune récolte enregistrée. Commencez par ajouter une récolte.</p>
+    </div>
+  </div>
+
+  <!-- ─────────────────── ONGLET INCUBATION ─────────────────── -->
+  <div *ngIf="activeTab === 'incubation'" class="tab-content">
+
+    <div class="section-header">
+      <h2>Incubations</h2>
+      <button class="btn-primary" (click)="openIncubationForm()" [disabled]="oeufs.length === 0">
+        + Démarrer incubation
+      </button>
+    </div>
+
+    <!-- Schéma du processus -->
+    <div class="process-diagram">
+      <div class="process-step">🥚 Œuf</div>
+      <div class="process-arrow">→</div>
+      <div class="process-step">🔬 Incubation<br><small>(durée selon race)</small></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step">🐣 Poussin</div>
+      <div class="process-arrow">→</div>
+      <div class="process-step">📦 Nouveau lot</div>
+    </div>
+
+    <!-- Formulaire incubation -->
+    <div *ngIf="showIncubationForm" class="form-container">
+      <h3>Démarrer une incubation</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Récolte d'œufs</label>
+          <select [(ngModel)]="newIncubation.id_oeuf" class="form-control">
+            <option *ngFor="let oeuf of oeufs" [value]="oeuf.id_oeuf">
+              Récolte #{{ oeuf.id_oeuf }} — {{ oeuf.nom_race }} ({{ oeuf.nombre }} œufs — {{ formatDate(oeuf.date_recolte) }})
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date de début</label>
+          <input type="date" [(ngModel)]="newIncubation.date_debut" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>Nombre d'œufs à incuber</label>
+          <input type="number" [(ngModel)]="newIncubation.nombre_oeufs" min="1" class="form-control"
+                 [class.input-error]="incubationStockInsuffisant" />
+        </div>
+      </div>
+      <!-- Indicateur de stock -->
+      <div class="stock-indicator" [class.stock-ok]="stockPourIncubation > 0" [class.stock-zero]="stockPourIncubation <= 0">
+        <span class="stock-icon">{{ stockPourIncubation > 0 ? '✅' : '❌' }}</span>
+        Stock disponible pour ce lot :
+        <strong>{{ stockPourIncubation }} œuf(s)</strong>
+        <span *ngIf="incubationStockInsuffisant" class="stock-warning">
+          &mdash; Insuffisant ! Vous demandez {{ newIncubation.nombre_oeufs }} mais seulement {{ stockPourIncubation }} disponible(s).
+        </span>
+      </div>
+      <p class="form-hint">ℹ️ La date d'éclosion prévue est calculée automatiquement selon la durée d'incubation de la race.</p>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="createIncubation()" [disabled]="stockPourIncubation <= 0 || incubationStockInsuffisant">Démarrer</button>
+        <button class="btn-secondary" (click)="cancelIncubationForm()">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Tableau incubations -->
+    <div *ngIf="incubations.length > 0" class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Race / Lot source</th>
+            <th>Date début</th>
+            <th>Nb œufs</th>
+            <th>Éclosion prévue</th>
+            <th>Statut</th>
+            <th>Lot résultant</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inc of incubations" [class.eclot-bientot]="isEclotBientot(inc.date_eclosion_prevue) && inc.statut === 'en_cours'"
+              [class.eclot-retard]="isEclotRetard(inc.date_eclosion_prevue) && inc.statut === 'en_cours'">
+            <td>{{ inc.id_incubation }}</td>
+            <td>
+              <span class="badge-lot">Lot #{{ inc.id_lot }}</span>
+              {{ inc.nom_race }}
+            </td>
+            <td>{{ formatDate(inc.date_debut) }}</td>
+            <td><strong>{{ inc.nombre_oeufs }}</strong></td>
+            <td>{{ formatDate(inc.date_eclosion_prevue) }}</td>
+            <td>
+              <span class="badge" [class.badge-success]="inc.statut === 'eclot'" [class.badge-warning]="inc.statut === 'en_cours'">
+                {{ inc.statut === 'eclot' ? '🐣 Éclose' : '🔬 En cours' }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="inc.id_lot_resultat">Lot #{{ inc.id_lot_resultat }}</span>
+              <span *ngIf="!inc.id_lot_resultat">—</span>
+            </td>
+            <td>
+              <button *ngIf="inc.statut === 'en_cours'"
+                      class="btn-success-sm"
+                      (click)="ecloterIncubation(inc.id_incubation)"
+                      title="Confirmer l'éclosion et créer le lot de poussins">
+                🐣 Éclore
+              </button>
+              <button class="btn-danger-sm" (click)="deleteIncubation(inc.id_incubation)">Suppr.</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="incubations.length === 0 && !loading" class="empty-state">
+      <p>Aucune incubation en cours. Sélectionnez une récolte d'œufs pour démarrer.</p>
+    </div>
+  </div>
+
+  <!-- ─────────────────── ONGLET VENTES ─────────────────── -->
+  <div *ngIf="activeTab === 'ventes'" class="tab-content">
+
+    <div class="section-header">
+      <h2>Ventes d'œufs</h2>
+      <button class="btn-primary" (click)="openVenteForm()">+ Nouvelle vente</button>
+    </div>
+
+    <!-- Formulaire vente -->
+    <div *ngIf="showVenteForm" class="form-container">
+      <h3>Enregistrer une vente</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Lot</label>
+          <select [(ngModel)]="newVente.id_lot" class="form-control">
+            <option *ngFor="let lot of lots" [value]="lot.id_lot">
+              Lot #{{ lot.id_lot }} — {{ lot.nom_race }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date de vente</label>
+          <input type="date" [(ngModel)]="newVente.date_vente" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>Nombre d'œufs vendus</label>
+          <input type="number" [(ngModel)]="newVente.nombre_oeufs" min="1" class="form-control"
+                 [class.input-error]="venteStockInsuffisant" />
+        </div>
+        <div class="form-group">
+          <label>Prix unitaire (Ar / œuf)</label>
+          <input type="number" [(ngModel)]="newVente.prix_unitaire" min="1" class="form-control" />
+        </div>
+      </div>
+
+      <!-- Indicateur de stock -->
+      <div class="stock-indicator" [class.stock-ok]="stockPourVente > 0" [class.stock-zero]="stockPourVente <= 0">
+        <span class="stock-icon">{{ stockPourVente > 0 ? '✅' : '❌' }}</span>
+        Stock disponible pour ce lot :
+        <strong>{{ stockPourVente }} œuf(s)</strong>
+        <span *ngIf="venteStockInsuffisant" class="stock-warning">
+          &mdash; Insuffisant ! Vous demandez {{ newVente.nombre_oeufs }} mais seulement {{ stockPourVente }} disponible(s).
+        </span>
+      </div>
+
+      <!-- Aperçu du revenu -->
+      <div *ngIf="newVente.nombre_oeufs > 0 && newVente.prix_unitaire > 0" class="revenu-preview">
+        <span>💵 Revenu prévu :</span>
+        <strong>{{ newVente.nombre_oeufs }} × {{ newVente.prix_unitaire }} Ar = {{ revenuVentePrevu.toLocaleString('fr-FR') }} Ar</strong>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" (click)="createVente()" [disabled]="stockPourVente <= 0 || venteStockInsuffisant">Enregistrer</button>
+        <button class="btn-secondary" (click)="cancelVenteForm()">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Tableau ventes -->
+    <div *ngIf="ventes.length > 0" class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Lot</th>
+            <th>Date de vente</th>
+            <th>Nb œufs</th>
+            <th>Prix unitaire</th>
+            <th>Revenu total</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let vente of ventes">
+            <td>{{ vente.id_vente }}</td>
+            <td>
+              <span class="badge-lot">Lot #{{ vente.id_lot }}</span>
+              {{ vente.nom_race }}
+            </td>
+            <td>{{ formatDate(vente.date_vente) }}</td>
+            <td>{{ vente.nombre_oeufs }}</td>
+            <td>{{ vente.prix_unitaire }} Ar</td>
+            <td class="revenu-cell">{{ (vente.revenu_total || 0).toLocaleString('fr-FR') }} Ar</td>
+            <td>
+              <button class="btn-danger-sm" (click)="deleteVente(vente.id_vente)">Supprimer</button>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="5"><strong>Total</strong></td>
+            <td class="revenu-cell"><strong>{{ totalRevenuVentes.toLocaleString('fr-FR') }} Ar</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div *ngIf="ventes.length === 0 && !loading" class="empty-state">
+      <p>Aucune vente enregistrée.</p>
+    </div>
+  </div>
+
+</div>

@@ -315,6 +315,14 @@ h1 {
   background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
 }
 
+.stat-card.info {
+  background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
+}
+
+.stat-card.danger {
+  background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+}
+
 .stat-label {
   display: block;
   font-size: 0.85rem;
@@ -469,4 +477,129 @@ h1 {
   .form-row {
     grid-template-columns: 1fr;
   }
+}
+
+/* ══════════ Situation du lot ══════════ */
+
+.situation-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border-top: 5px solid #4caf50;
+}
+
+.situation-title {
+  background: linear-gradient(135deg, #2c3e50 0%, #3d5166 100%);
+  color: white;
+  padding: 1.1rem 1.6rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  letter-spacing: 0.03em;
+}
+
+.situation-icon {
+  font-size: 1.4rem;
+}
+
+.situation-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.situation-table thead th {
+  background: #f5f7fa;
+  padding: 0.75rem 1.2rem;
+  text-align: left;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #555;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.situation-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+.situation-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.situation-table td {
+  padding: 0.85rem 1.2rem;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  vertical-align: middle;
+}
+
+.situation-table td:first-child {
+  font-weight: 600;
+  width: 22%;
+  white-space: nowrap;
+}
+
+.situation-table td:nth-child(2) {
+  width: 22%;
+  font-size: 1.05rem;
+}
+
+.situation-table td:last-child {
+  color: #777;
+  font-size: 0.87rem;
+}
+
+/* Lignes colorées */
+.row-warning td { background: #fff8e1; }
+.row-cost    td { background: #fce4ec; }
+.row-revenue td { background: #e8f5e9; }
+
+.row-benefice-positif td {
+  background: #e8f5e9;
+  font-weight: 700;
+}
+
+.row-benefice-positif td:first-child,
+.row-benefice-positif td:nth-child(2) {
+  color: #1b5e20;
+}
+
+.row-benefice-negatif td {
+  background: #ffebee;
+  font-weight: 700;
+}
+
+.row-benefice-negatif td:first-child,
+.row-benefice-negatif td:nth-child(2) {
+  color: #b71c1c;
+}
+
+.benefice-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.benefice-badge.positif {
+  background: #c8e6c9;
+  color: #1b5e20;
+}
+
+.benefice-badge.negatif {
+  background: #ffcdd2;
+  color: #b71c1c;
+}
+
+@media (max-width: 768px) {
+  .situation-table td:last-child { display: none; }
+  .situation-table thead th:last-child { display: none; }
+  .situation-table td:first-child { width: 40%; }
 }

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LotService } from '../../services/lot.service';
@@ -11,7 +11,7 @@ import { Lot, Race, PoidsActuelResponse } from '../../models/elevage.model';
   templateUrl: './lot-list.component.html',
   styleUrls: ['./lot-list.component.css']
 })
-export class LotListComponent implements AfterViewInit {
+export class LotListComponent implements OnInit {
   lots: Lot[] = [];
   races: Race[] = [];
   selectedLot: PoidsActuelResponse | null = null;
@@ -36,10 +36,12 @@ export class LotListComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngAfterViewInit() {
+  ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadLots();
-      this.loadRaces();
+      setTimeout(() => {
+        this.loadLots();
+        this.loadRaces();
+      }, 0);
     }
   }
 
