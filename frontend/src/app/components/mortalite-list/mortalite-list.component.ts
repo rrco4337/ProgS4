@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MortaliteService } from '../../services/mortalite.service';
@@ -11,7 +11,7 @@ import { Mortalite, Lot } from '../../models/elevage.model';
   templateUrl: './mortalite-list.component.html',
   styleUrls: ['./mortalite-list.component.css']
 })
-export class MortaliteListComponent implements AfterViewInit {
+export class MortaliteListComponent implements OnInit {
   mortalites: any[] = [];
   lots: Lot[] = [];
   loading = false;
@@ -31,10 +31,12 @@ export class MortaliteListComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngAfterViewInit() {
+  ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadMortalites();
-      this.loadLots();
+      setTimeout(() => {
+        this.loadMortalites();
+        this.loadLots();
+      }, 0);
     }
   }
 

@@ -64,7 +64,7 @@ const getPoidsActuel = async (req, res) => {
         // Récupérer les infos du lot
         const lotResult = await pool.request()
             .input('id', sql.Int, id)
-            .query(`SELECT l.*, r.nom_race
+            .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf
                     FROM Lot l
                     INNER JOIN Race r ON l.id_race = r.id_race
                     WHERE l.id_lot = @id`);
@@ -92,10 +92,21 @@ const getPoidsActuel = async (req, res) => {
                     ORDER BY semaine`);
         
         const croissance = croissanceResult.recordset;
+
+        // Récupérer les mortalités (avant la boucle pour le calcul nourriture)
+        const mortaliteResult = await pool.request()
+            .input('id_lot', sql.Int, id)
+            .query(`SELECT ISNULL(SUM(nombre), 0) as total_morts 
+                    FROM Mortalite 
+                    WHERE id_lot = @id_lot`);
         
-        // Calculer le poids cumulé
+        const totalMorts = mortaliteResult.recordset[0].total_morts;
+        const nombreActuel = lot.nombre_initial - totalMorts;
+        
+        // Calculer le poids cumulé + nourriture + coût
         let poidsCumule = 0;
         let nourritureCumulee = 0;
+        let coutNourritureCumulee = 0;
         const detail = [];
         
         for (let i = 0; i <= Math.min(ageEnSemaines, croissance.length - 1); i++) {
@@ -106,39 +117,65 @@ const getPoidsActuel = async (req, res) => {
             }
             nourritureCumulee += croissance[i].nourriture;
             
+            // Calcul nourriture et coût pour la semaine (pour le lot entier)
+            const nourritureLot = croissance[i].nourriture * nombreActuel;
+            const coutSemaine = nourritureLot * lot.pu_sakafo_g;
+            coutNourritureCumulee += coutSemaine;
+            
             detail.push({
                 semaine: croissance[i].semaine,
                 gain_poids: croissance[i].gain_poids,
                 poids_cumule: poidsCumule,
                 nourriture: croissance[i].nourriture,
-                nourriture_cumulee: nourritureCumulee
+                nourriture_cumulee: nourritureCumulee,
+                nourriture_lot: nourritureLot,
+                cout_nourriture_semaine: coutSemaine,
+                cout_nourriture_cumulee: coutNourritureCumulee
             });
         }
         
-        // Récupérer les mortalités
-        const mortaliteResult = await pool.request()
-            .input('id_lot', sql.Int, id)
-            .query(`SELECT ISNULL(SUM(nombre), 0) as total_morts 
-                    FROM Mortalite 
-                    WHERE id_lot = @id_lot`);
-        
-        const totalMorts = mortaliteResult.recordset[0].total_morts;
-        const nombreActuel = lot.nombre_initial - totalMorts;
         const poidsTotal = poidsCumule * nombreActuel;
-        
+        const nourritureTotaleG = nourritureCumulee * nombreActuel;
+
+        // --- Œufs : total récolté pour ce lot ---
+        const oeufsResult = await pool.request()
+            .input('id_oeufs', sql.Int, id)
+            .query(`SELECT ISNULL(SUM(nombre), 0) AS total_oeufs FROM Oeuf WHERE id_lot = @id_oeufs`);
+        const totalOeufs = oeufsResult.recordset[0].total_oeufs;
+
+        // --- Situation financière ---
+        const valeurPoulets = nombreActuel * poidsCumule * (lot.pv_g || 0);
+        const valeurOeufs   = totalOeufs   * (lot.pv_oeuf || 0);
+        const benefice      = valeurPoulets + valeurOeufs
+                              - coutNourritureCumulee
+                              - (lot.cout_achat || 0);
+
+        const dateSituation = new Date().toISOString().split('T')[0];
+
         res.json({
             success: true,
             data: {
                 id_lot: lot.id_lot,
                 nom_race: lot.nom_race,
                 date_entree: lot.date_entree,
+                date_situation: dateSituation,
                 age_semaines: ageEnSemaines,
                 nombre_initial: lot.nombre_initial,
                 nombre_actuel: nombreActuel,
                 mortalites: totalMorts,
+                cout_achat: lot.cout_achat || 0,
                 poids_unitaire: poidsCumule,
                 poids_total: poidsTotal,
+                pu_sakafo_g: lot.pu_sakafo_g,
+                pv_g: lot.pv_g || 0,
+                pv_oeuf: lot.pv_oeuf || 0,
                 nourriture_cumulee: nourritureCumulee,
+                nourriture_totale_g: nourritureTotaleG,
+                cout_nourriture_total: coutNourritureCumulee,
+                total_oeufs: totalOeufs,
+                valeur_poulets: valeurPoulets,
+                valeur_oeufs: valeurOeufs,
+                benefice: benefice,
                 detail_croissance: detail
             }
         });
