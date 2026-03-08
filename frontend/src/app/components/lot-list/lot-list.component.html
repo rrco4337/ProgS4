@@ -208,6 +208,83 @@
     </div>
     <!-- ═════════════════════════════════════ -->
 
+    <!-- ══════════ RELATION LOT ↔ ŒUFS ══════════ -->
+    <div *ngIf="oeufsLot.length > 0" class="oeufs-lot-section">
+      <div class="oeufs-lot-header">
+        <h3>🥚 Récoltes d'œufs — Lot #{{ selectedLot.id_lot }}</h3>
+        <span class="oeufs-lot-badge">{{ selectedLot.total_oeufs }} œufs au total</span>
+      </div>
+
+      <div class="oeufs-lot-body">
+        <!-- Tableau des récoltes par date -->
+        <div class="oeufs-table-wrap">
+          <table class="oeufs-lot-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Lot</th>
+                <th>Œufs</th>
+                <th>Cumul</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let oeuf of oeufsLot; let i = index">
+                <td>{{ formatDate(oeuf.date_recolte) }}</td>
+                <td><span class="lot-tag">#{{ oeuf.id_lot }}</span></td>
+                <td>{{ oeuf.nombre }}</td>
+                <td class="cumul-cell">{{ getCumulOeufs(i) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="2"><strong>Total</strong></td>
+                <td><strong>{{ selectedLot.total_oeufs }}</strong></td>
+                <td><strong>{{ selectedLot.total_oeufs }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Formule du bénéfice -->
+        <div class="benefice-formula-box">
+          <div class="formula-title">📐 Formule du bénéfice</div>
+          <div class="formula-equation">
+            <div class="formula-term">
+              <span class="term-label">Valeur poulets</span>
+              <span class="term-detail">{{ selectedLot.nombre_actuel }} × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g }} Ar/g</span>
+              <span class="term-value">{{ formatNumber(selectedLot.valeur_poulets) }} Ar</span>
+            </div>
+            <span class="formula-op">+</span>
+            <div class="formula-term">
+              <span class="term-label">Valeur œufs</span>
+              <span class="term-detail">{{ selectedLot.total_oeufs }} œufs × {{ selectedLot.pv_oeuf }} Ar</span>
+              <span class="term-value">{{ formatNumber(selectedLot.valeur_oeufs) }} Ar</span>
+            </div>
+            <span class="formula-op">−</span>
+            <div class="formula-term">
+              <span class="term-label">Coût nourriture</span>
+              <span class="term-detail">cumulé sur {{ selectedLot.age_semaines }} semaines</span>
+              <span class="term-value">{{ formatNumber(selectedLot.cout_nourriture_total) }} Ar</span>
+            </div>
+            <span class="formula-op">−</span>
+            <div class="formula-term">
+              <span class="term-label">Coût d'achat</span>
+              <span class="term-detail">à l'entrée du lot</span>
+              <span class="term-value">{{ formatNumber(selectedLot.cout_achat) }} Ar</span>
+            </div>
+            <span class="formula-op">=</span>
+            <div class="formula-result"
+                 [class.positif]="selectedLot.benefice >= 0"
+                 [class.negatif]="selectedLot.benefice < 0">
+              <span class="result-label">{{ selectedLot.benefice >= 0 ? '▲ Bénéfice' : '▼ Perte' }}</span>
+              <span class="result-value">{{ formatNumber(selectedLot.benefice) }} Ar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ════════════════════════════════════════ -->
+
     <!-- Tableau de croissance -->
     <div class="croissance-section">
       <h3>📊 Modèle de Croissance &amp; Nourriture</h3>

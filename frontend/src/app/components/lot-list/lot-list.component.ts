@@ -3,7 +3,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LotService } from '../../services/lot.service';
 import { RaceService } from '../../services/race.service';
-import { Lot, Race, PoidsActuelResponse } from '../../models/elevage.model';
+import { OeufService } from '../../services/oeuf.service';
+import { Lot, Race, PoidsActuelResponse, Oeuf } from '../../models/elevage.model';
 
 @Component({
   selector: 'app-lot-list',
@@ -15,6 +16,7 @@ export class LotListComponent implements OnInit {
   lots: Lot[] = [];
   races: Race[] = [];
   selectedLot: PoidsActuelResponse | null = null;
+  oeufsLot: Oeuf[] = [];
   loading = false;
   error: string | null = null;
   showCreateForm = false;
@@ -32,6 +34,7 @@ export class LotListComponent implements OnInit {
   constructor(
     private lotService: LotService,
     private raceService: RaceService,
+    private oeufService: OeufService,
     @Inject(PLATFORM_ID) private platformId: Object,
     private cdr: ChangeDetectorRef
   ) {}
@@ -159,6 +162,7 @@ export class LotListComponent implements OnInit {
 
   viewDetails(lot: Lot) {
     this.loading = true;
+    this.oeufsLot = [];
     this.lotService.getPoidsActuel(lot.id_lot).subscribe({
       next: (response) => {
         if (response.success && response.data) {
@@ -172,10 +176,30 @@ export class LotListComponent implements OnInit {
         this.loading = false;
       }
     });
+    // Charger les récoltes d'œufs du lot (relation LOT ↔ ŒUFS)
+    this.oeufService.getByLot(lot.id_lot).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          // Trier par date ascendante pour affichage chronologique
+          this.oeufsLot = response.data.sort(
+            (a, b) => new Date(a.date_recolte).getTime() - new Date(b.date_recolte).getTime()
+          );
+        }
+      },
+      error: () => { this.oeufsLot = []; }
+    });
   }
 
   closeDetails() {
     this.selectedLot = null;
+    this.oeufsLot = [];
+  }
+
+  /** Cumul des œufs du lot jusqu'à la ligne i (inclus) */
+  getCumulOeufs(upToIndex: number): number {
+    return this.oeufsLot
+      .slice(0, upToIndex + 1)
+      .reduce((sum, o) => sum + o.nombre, 0);
   }
 
   formatDate(dateString: string): string {
