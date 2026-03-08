@@ -19,6 +19,7 @@ router.delete('/races/:id', raceController.delete);
 
 // Routes pour les lots
 router.get('/lots', lotController.getAll);
+router.get('/lots/situation-globale', lotController.getSituationGlobale);
 router.get('/lots/:id', lotController.getById);
 router.get('/lots/:id/poids', lotController.getPoidsActuel);
 router.post('/lots', lotController.create);

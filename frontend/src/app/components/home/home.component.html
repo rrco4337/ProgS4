@@ -4,6 +4,104 @@
     <p class="subtitle">Application complète de gestion de lots de poulets avec calcul automatique de croissance</p>
   </div>
 
+  <!-- Chargement -->
+  <div *ngIf="loading" class="loading-banner">Calcul en cours…</div>
+  <div *ngIf="error"   class="error-banner">{{ error }}</div>
+
+  <!-- ════════ SITUATION FINANCIÈRE GLOBALE ════════ -->
+  <div *ngIf="situation" class="finance-section">
+
+    <!-- Hero bénéfice total -->
+    <div class="benefice-hero"
+         [class.hero-positif]="situation.total_benefice >= 0"
+         [class.hero-negatif]="situation.total_benefice < 0">
+      <div class="hero-label">Bénéfice total de l'élevage</div>
+      <div class="hero-amount">{{ formatNumber(situation.total_benefice) }} Ar</div>
+      <div class="hero-sub">
+        <span>{{ situation.total_benefice >= 0 ? '▲ Bénéfice global' : '▼ Perte globale' }}</span>
+        &nbsp;&bull;&nbsp;
+        <span>Situation au {{ formatDate(situation.date_situation) }}</span>
+      </div>
+    </div>
+
+    <!-- Barre de stats résumé -->
+    <div class="global-stats-bar">
+      <div class="stat-pill">📦 {{ situation.nombre_lots }} lot{{ situation.nombre_lots > 1 ? 's' : '' }}</div>
+      <div class="stat-pill pill-green">▲ {{ situation.lots_en_benefice }} en bénéfice</div>
+      <div class="stat-pill pill-red"  *ngIf="situation.lots_en_perte > 0">▼ {{ situation.lots_en_perte }} en perte</div>
+      <div class="stat-pill">🐔 {{ formatNumber(situation.total_poulets_actuel) }} poulets</div>
+      <div class="stat-pill">🥚 {{ formatNumber(situation.total_oeufs) }} œufs</div>
+    </div>
+
+    <!-- Détail par lot -->
+    <div class="lots-finance-grid">
+      <div *ngFor="let lot of situation.detail_lots"
+           class="lot-finance-card"
+           [class.lfc-positif]="lot.benefice >= 0"
+           [class.lfc-negatif]="lot.benefice < 0"
+           (click)="navigateTo('/lots')">
+
+        <div class="lfc-header">
+          <span class="lfc-tag">#{{ lot.id_lot }}</span>
+          <span class="lfc-race">{{ lot.nom_race }}</span>
+          <span class="lfc-badge" [class.badge-pos]="lot.benefice >= 0" [class.badge-neg]="lot.benefice < 0">
+            {{ lot.benefice >= 0 ? '▲ Bénéf.' : '▼ Perte' }}
+          </span>
+        </div>
+
+        <div class="lfc-amount">{{ formatNumber(lot.benefice) }} Ar</div>
+
+        <div class="lfc-breakdown">
+          <div class="lfc-row">
+            <span>🐔 Poulets</span>
+            <span>{{ lot.nombre_actuel }}
+              <small *ngIf="lot.mortalites > 0" class="mort-hint">(-{{ lot.mortalites }}💀)</small>
+            </span>
+          </div>
+          <div class="lfc-row">
+            <span>💰 Val. poulets</span>
+            <span>{{ formatNumber(lot.valeur_poulets) }} Ar</span>
+          </div>
+          <div class="lfc-row">
+            <span>🥚 Val. œufs ({{ lot.total_oeufs }})</span>
+            <span>{{ formatNumber(lot.valeur_oeufs) }} Ar</span>
+          </div>
+          <div class="lfc-row lfc-row-cost">
+            <span>🌾 Nourriture</span>
+            <span>-{{ formatNumber(lot.cout_nourriture_total) }} Ar</span>
+          </div>
+          <div class="lfc-row lfc-row-cost">
+            <span>🛒 Achat</span>
+            <span>-{{ formatNumber(lot.cout_achat) }} Ar</span>
+          </div>
+        </div>
+
+        <div class="lfc-footer">Entrée le {{ formatDate(lot.date_entree) }}</div>
+      </div>
+    </div>
+
+    <!-- Totaux agrégés -->
+    <div class="totaux-row">
+      <div class="total-box">
+        <div class="total-label">Val. totale poulets</div>
+        <div class="total-value">{{ formatNumber(situation.total_valeur_poulets) }} Ar</div>
+      </div>
+      <div class="total-box">
+        <div class="total-label">Val. totale œufs</div>
+        <div class="total-value">{{ formatNumber(situation.total_valeur_oeufs) }} Ar</div>
+      </div>
+      <div class="total-box cost">
+        <div class="total-label">Coût nourriture</div>
+        <div class="total-value">{{ formatNumber(situation.total_cout_nourriture) }} Ar</div>
+      </div>
+      <div class="total-box cost">
+        <div class="total-label">Coût achat</div>
+        <div class="total-value">{{ formatNumber(situation.total_cout_achat) }} Ar</div>
+      </div>
+    </div>
+  </div>
+  <!-- ═══════════════════════════════════════ -->
+
   <div class="cards-grid">
     <!-- Lots -->
     <div class="feature-card primary" (click)="navigateTo('/lots')">
@@ -36,6 +134,14 @@
       <p>Enregistrer et suivre les mortalités par lot</p>
       <button class="btn-card">Accéder →</button>
     </div>
+
+    <!-- Œufs -->
+    <div class="feature-card eggs" (click)="navigateTo('/oeufs')">
+      <div class="card-icon">🥚</div>
+      <h2>Gestion des Œufs</h2>
+      <p>Récolte, incubation et vente des œufs par lot</p>
+      <button class="btn-card">Accéder →</button>
+    </div>
   </div>
 
   <div class="features-section">
@@ -63,10 +169,10 @@
         </div>
       </div>
       <div class="feature-item">
-        <span class="feature-icon">💾</span>
+        <span class="feature-icon">💰</span>
         <div>
-          <h4>Base SQL Server</h4>
-          <p>Données persistantes et sécurisées avec SQL Server</p>
+          <h4>Bénéfice en Temps Réel</h4>
+          <p>Bénéfice calculé automatiquement pour chaque lot et cumulé en page d'accueil</p>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Api } from './api';
-import { ApiResponse, Lot, PoidsActuelResponse } from '../models/elevage.model';
+import { ApiResponse, Lot, PoidsActuelResponse, SituationGlobale } from '../models/elevage.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +21,10 @@ export class LotService {
 
   getPoidsActuel(id: number): Observable<ApiResponse<PoidsActuelResponse>> {
     return this.api.get<ApiResponse<PoidsActuelResponse>>(`${this.endpoint}/${id}/poids`);
+  }
+
+  getSituationGlobale(): Observable<ApiResponse<SituationGlobale>> {
+    return this.api.get<ApiResponse<SituationGlobale>>(`${this.endpoint}/situation-globale`);
   }
 
   create(lot: Partial<Lot>): Observable<ApiResponse<Lot>> {

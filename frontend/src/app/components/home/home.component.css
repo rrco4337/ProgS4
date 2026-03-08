@@ -24,6 +24,333 @@
   margin: 0 auto;
 }
 
+/* ════════ Loading / Error ════════ */
+.loading-banner {
+  text-align: center;
+  padding: 1rem;
+  color: #7f8c8d;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
+
+.error-banner {
+  background: #fdecea;
+  color: #c0392b;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* ════════ Hero bénéfice total ════════ */
+.finance-section {
+  margin-bottom: 3rem;
+}
+
+.benefice-hero {
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.hero-positif {
+  background: linear-gradient(135deg, #1b5e20 0%, #388e3c 60%, #43a047 100%);
+  color: white;
+}
+
+.hero-negatif {
+  background: linear-gradient(135deg, #b71c1c 0%, #c62828 60%, #e53935 100%);
+  color: white;
+}
+
+.hero-label {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.85;
+  margin-bottom: 0.5rem;
+}
+
+.hero-amount {
+  font-size: 3.2rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+/* ════════ Barre stats résumé ════════ */
+.global-stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.stat-pill {
+  background: white;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.pill-green { border-color: #4caf50; color: #1b5e20; background: #f1f8e9; }
+.pill-red   { border-color: #e53935; color: #b71c1c; background: #fdecea; }
+
+/* ════════ Cards par lot ════════ */
+.lots-finance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.lot-finance-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.2rem;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-top: 5px solid transparent;
+}
+
+.lot-finance-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+}
+
+.lfc-positif { border-top-color: #4caf50; }
+.lfc-negatif { border-top-color: #e53935; }
+
+.lfc-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.lfc-tag {
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 6px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.lfc-race {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.92rem;
+  flex: 1;
+}
+
+.lfc-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 8px;
+}
+
+.badge-pos { background: #c8e6c9; color: #1b5e20; }
+.badge-neg { background: #ffcdd2; color: #b71c1c; }
+
+.lfc-amount {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 0.8rem;
+  color: #2c3e50;
+}
+
+.lfc-positif .lfc-amount { color: #2e7d32; }
+.lfc-negatif .lfc-amount { color: #c62828; }
+
+.lfc-breakdown {
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 0.6rem;
+}
+
+.lfc-row {
+  display: flex;
+  justify-content: space-between;
+  color: #555;
+}
+
+.lfc-row-cost { color: #c62828; }
+
+.mort-hint { color: #999; font-size: 0.78rem; }
+
+.lfc-footer {
+  margin-top: 0.8rem;
+  font-size: 0.78rem;
+  color: #aaa;
+  text-align: right;
+}
+
+/* ════════ Totaux agrégés ════════ */
+.totaux-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.total-box {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  text-align: center;
+  border-bottom: 3px solid #4caf50;
+}
+
+.total-box.cost { border-bottom-color: #e53935; }
+
+.total-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin-bottom: 0.4rem;
+}
+
+.total-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* ════════ Feature cards (inchangé) ════════ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  text-align: center;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.feature-card.primary { border-color: #3498db; }
+.feature-card.primary:hover { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; }
+
+.feature-card.success { border-color: #2ecc71; }
+.feature-card.success:hover { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; }
+
+.feature-card.info { border-color: #9b59b6; }
+.feature-card.info:hover { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; }
+
+.feature-card.warning { border-color: #e74c3c; }
+.feature-card.warning:hover { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
+
+.feature-card.eggs { border-color: #f39c12; }
+.feature-card.eggs:hover { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; }
+
+.card-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+.feature-card h2 { font-size: 1.4rem; margin-bottom: 1rem; font-weight: 600; }
+.feature-card p  { font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; opacity: 0.9; }
+
+.btn-card {
+  background: transparent;
+  border: 2px solid currentColor;
+  color: inherit;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.feature-card:hover .btn-card { background: white; color: #2c3e50; }
+
+/* ════════ Features section ════════ */
+.features-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.features-section h3 { font-size: 2rem; color: #2c3e50; margin-bottom: 2rem; text-align: center; }
+
+.features-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.feature-item { display: flex; gap: 1rem; align-items: start; }
+.feature-icon { font-size: 2.5rem; flex-shrink: 0; }
+.feature-item h4 { color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+.feature-item p  { color: #7f8c8d; margin: 0; font-size: 0.9rem; line-height: 1.5; }
+
+/* ════════ Responsive ════════ */
+@media (max-width: 768px) {
+  .header h1 { font-size: 2rem; }
+  .subtitle   { font-size: 1rem; }
+  .hero-amount { font-size: 2.2rem; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .features-list { grid-template-columns: 1fr; }
+  .totaux-row { grid-template-columns: 1fr 1fr; }
+  .lots-finance-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .lots-finance-grid { grid-template-columns: 1fr; }
+  .totaux-row { grid-template-columns: 1fr; }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 3rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
