@@ -58,7 +58,7 @@
         <label>Lot *</label>
         <select [(ngModel)]="newMortalite.id_lot" name="id_lot" required>
           <option *ngFor="let lot of lots" [value]="lot.id_lot">
-            Lot #{{ lot.id_lot }} - {{ lot.nom_race }} ({{ lot.nombre_initial }} poulets)
+            Lot #{{ lot.id_lot }} — {{ lot.nom_race }} · entrée {{ formatDate(lot.date_entree) }} ({{ lot.nombre_initial }} poulets)
           </option>
         </select>
       </div>

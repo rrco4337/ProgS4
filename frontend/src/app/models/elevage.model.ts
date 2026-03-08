@@ -89,6 +89,35 @@ export interface PoidsActuelResponse {
   detail_croissance: DetailCroissance[];
 }
 
+export interface SituationLotResume {
+  id_lot: number;
+  nom_race: string;
+  date_entree: string;
+  nombre_actuel: number;
+  mortalites: number;
+  total_oeufs: number;
+  valeur_poulets: number;
+  valeur_oeufs: number;
+  cout_nourriture_total: number;
+  cout_achat: number;
+  benefice: number;
+}
+
+export interface SituationGlobale {
+  date_situation: string;
+  nombre_lots: number;
+  lots_en_benefice: number;
+  lots_en_perte: number;
+  total_poulets_actuel: number;
+  total_oeufs: number;
+  total_valeur_poulets: number;
+  total_valeur_oeufs: number;
+  total_cout_nourriture: number;
+  total_cout_achat: number;
+  total_benefice: number;
+  detail_lots: SituationLotResume[];
+}
+
 export interface DetailCroissance {
   semaine: number;
   gain_poids: number;

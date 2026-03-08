@@ -603,3 +603,204 @@ h1 {
   .situation-table thead th:last-child { display: none; }
   .situation-table td:first-child { width: 40%; }
 }
+
+/* ══════════ Relation LOT ↔ ŒUFS + Formule bénéfice ══════════ */
+
+.oeufs-lot-section {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border-top: 5px solid #fbc02d;
+}
+
+.oeufs-lot-header {
+  background: linear-gradient(135deg, #e65100 0%, #f57c00 100%);
+  color: white;
+  padding: 1rem 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.oeufs-lot-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.oeufs-lot-badge {
+  background: rgba(255,255,255,0.2);
+  padding: 0.2rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.oeufs-lot-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  align-items: start;
+}
+
+/* ── Tableau récoltes ── */
+.oeufs-lot-table {
+  border-collapse: collapse;
+  min-width: 260px;
+}
+
+.oeufs-lot-table th {
+  background: #fff3e0;
+  padding: 0.55rem 0.9rem;
+  text-align: left;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #e65100;
+  border-bottom: 2px solid #ffe0b2;
+}
+
+.oeufs-lot-table td {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  border-bottom: 1px solid #fafafa;
+  color: #333;
+}
+
+.oeufs-lot-table tbody tr:hover td {
+  background: #fff8e1;
+}
+
+.lot-tag {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 6px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.cumul-cell {
+  font-weight: 700;
+  color: #e65100;
+}
+
+.oeufs-lot-table tfoot .total-row td {
+  background: #fff3e0;
+  font-size: 0.95rem;
+  border-top: 2px solid #ffcc02;
+  padding: 0.65rem 0.9rem;
+}
+
+/* ── Formule bénéfice ── */
+.benefice-formula-box {
+  background: #f9fbe7;
+  border: 1px solid #dce775;
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formula-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #33691e;
+}
+
+.formula-equation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.formula-term {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+}
+
+.term-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #555;
+}
+
+.term-detail {
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 0.1rem;
+}
+
+.term-value {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-top: 0.25rem;
+}
+
+.formula-op {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #999;
+  padding: 0 0.1rem;
+  align-self: center;
+}
+
+.formula-result {
+  border-radius: 12px;
+  padding: 0.6rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 130px;
+}
+
+.formula-result.positif {
+  background: #c8e6c9;
+  border: 2px solid #4caf50;
+}
+
+.formula-result.negatif {
+  background: #ffcdd2;
+  border: 2px solid #e53935;
+}
+
+.result-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.formula-result.positif .result-label { color: #1b5e20; }
+.formula-result.negatif .result-label { color: #b71c1c; }
+
+.result-value {
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin-top: 0.15rem;
+}
+
+.formula-result.positif .result-value { color: #1b5e20; }
+.formula-result.negatif .result-value { color: #b71c1c; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .oeufs-lot-body { grid-template-columns: 1fr; }
+  .formula-equation { flex-direction: column; align-items: stretch; }
+  .formula-op { text-align: center; }
+}
