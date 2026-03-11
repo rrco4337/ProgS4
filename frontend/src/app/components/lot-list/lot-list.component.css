@@ -559,6 +559,32 @@ h1 {
 .row-cost    td { background: #fce4ec; }
 .row-revenue td { background: #e8f5e9; }
 
+/* Lignes journalières (interpolation gain ÷ 7) */
+.row-jour td {
+  background: #f3e5f5;
+  font-size: 0.88rem;
+  border-left: 3px solid #9c27b0;
+}
+.row-jour td:first-child {
+  color: #6a1b9a;
+  font-weight: 600;
+}
+.badge-jour {
+  display: inline-block;
+  background: #9c27b0;
+  color: white;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-right: 4px;
+}
+.hint {
+  color: #888;
+  font-size: 0.78rem;
+  margin-left: 4px;
+}
+
 .row-benefice-positif td {
   background: #e8f5e9;
   font-weight: 700;

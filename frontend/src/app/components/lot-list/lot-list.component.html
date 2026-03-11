@@ -162,7 +162,10 @@
           <tr>
             <td>⚖️ Poids moyen</td>
             <td><strong>{{ selectedLot.poids_unitaire }} g</strong></td>
-            <td>À {{ selectedLot.age_semaines }} semaines selon modèle de croissance</td>
+            <td>
+              À {{ selectedLot.age_semaines }} sem. + {{ selectedLot.jours_en_cours }} j
+              ({{ selectedLot.age_jours }} jours au total)
+            </td>
           </tr>
           <tr>
             <td>📦 Poids total du lot</td>
@@ -292,33 +295,54 @@
         <table class="croissance-table">
           <thead>
             <tr>
-              <th>Semaine</th>
+              <th>Période</th>
               <th>Gain de poids</th>
               <th>Poids cumulé</th>
-              <th>Nourriture/poulet</th>
+              <th>Nourriture / animal</th>
               <th>Nourriture lot total</th>
-              <th>Coût semaine</th>
+              <th>Coût période</th>
               <th>Coût cumulé</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let detail of selectedLot.detail_croissance" 
-                [class.current]="detail.semaine === selectedLot.age_semaines">
-              <td>
-                <strong>{{ detail.semaine }}</strong>
-                <span *ngIf="detail.semaine === 0" class="badge-small">Naissance</span>
-                <span *ngIf="detail.semaine === selectedLot.age_semaines" class="badge-small current">Actuel</span>
-              </td>
-              <td>
-                <span *ngIf="detail.semaine === 0">{{ detail.gain_poids }} g (initial)</span>
-                <span *ngIf="detail.semaine > 0">+{{ detail.gain_poids }} g</span>
-              </td>
-              <td><strong>{{ detail.poids_cumule }} g</strong></td>
-              <td>{{ detail.nourriture }} g</td>
-              <td>{{ formatNumber(detail.nourriture_lot) }} g</td>
-              <td>{{ formatNumber(detail.cout_nourriture_semaine) }} Ar</td>
-              <td><strong>{{ formatNumber(detail.cout_nourriture_cumulee) }} Ar</strong></td>
-            </tr>
+            <!-- Semaines complètes -->
+            <ng-container *ngFor="let detail of selectedLot.detail_croissance; let last = last">
+              <tr *ngIf="detail.type === 'semaine'"
+                  [class.current]="last">
+                <td>
+                  <strong>Semaine {{ detail.semaine }}</strong>
+                  <span *ngIf="detail.semaine === 0" class="badge-small">Naissance</span>
+                  <span *ngIf="last && detail.type === 'semaine'" class="badge-small current">Actuel</span>
+                </td>
+                <td>
+                  <span *ngIf="detail.semaine === 0">{{ detail.gain_poids }} g (initial)</span>
+                  <span *ngIf="(detail.semaine || 0) > 0">+{{ detail.gain_poids }} g</span>
+                </td>
+                <td><strong>{{ detail.poids_cumule }} g</strong></td>
+                <td>{{ detail.nourriture }} g</td>
+                <td>{{ formatNumber(detail.nourriture_lot) }} g</td>
+                <td>{{ formatNumber(detail.cout_nourriture_semaine || 0) }} Ar</td>
+                <td><strong>{{ formatNumber(detail.cout_nourriture_cumulee) }} Ar</strong></td>
+              </tr>
+
+              <!-- Jours de la semaine en cours (interpolation journalière) -->
+              <tr *ngIf="detail.type === 'jour'"
+                  [class.current]="last"
+                  class="row-jour">
+                <td>
+                  <span class="badge-jour">Sem. {{ detail.semaine }} — Jour {{ detail.jour }}</span>
+                  <span *ngIf="last" class="badge-small current">Aujourd'hui</span>
+                </td>
+                <td>+{{ detail.gain_poids_jour }} g/j
+                  <small class="hint">({{ (detail.gain_poids_jour || 0) * 7 | number:'1.1-1' }} g/sem ÷ 7)</small>
+                </td>
+                <td><strong>{{ detail.poids_cumule }} g</strong></td>
+                <td>{{ detail.nourriture_jour }} g/j</td>
+                <td>{{ formatNumber(detail.nourriture_lot) }} g</td>
+                <td>{{ formatNumber(detail.cout_nourriture_jour || 0) }} Ar</td>
+                <td><strong>{{ formatNumber(detail.cout_nourriture_cumulee) }} Ar</strong></td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>
@@ -329,21 +353,26 @@
       <h4>💡 Explication du calcul</h4>
       <div class="explanation-content">
         <p><strong>Date d'entrée:</strong> {{ formatDate(selectedLot.date_entree) }}</p>
-        <p><strong>Âge actuel:</strong> {{ selectedLot.age_semaines }} semaines</p>
-        <p><strong>Calcul du poids:</strong></p>
+        <p><strong>Âge actuel:</strong> {{ selectedLot.age_semaines }} semaines + {{ selectedLot.jours_en_cours }} jour(s) ({{ selectedLot.age_jours }} jours au total)</p>
+        <p><strong>Calcul du poids (interpolation journalière) :</strong></p>
         <ul>
-          <li *ngFor="let detail of selectedLot.detail_croissance.slice(0, 3)">
-            <span *ngIf="detail.semaine === 0">
+          <li *ngFor="let detail of selectedLot.detail_croissance.slice(0, 4)">
+            <span *ngIf="detail.type === 'semaine' && detail.semaine === 0">
               Semaine 0 : poussin = {{ detail.gain_poids }} g
             </span>
-            <span *ngIf="detail.semaine > 0">
-              Semaine {{ detail.semaine }} : gain = +{{ detail.gain_poids }} g → 
-              {{ detail.poids_cumule - detail.gain_poids }} + {{ detail.gain_poids }} = {{ detail.poids_cumule }} g
+            <span *ngIf="detail.type === 'semaine' && (detail.semaine || 0) > 0">
+              Semaine {{ detail.semaine }} : +{{ detail.gain_poids }} g → {{ detail.poids_cumule }} g
+            </span>
+            <span *ngIf="detail.type === 'jour'">
+              Sem. {{ detail.semaine }} Jour {{ detail.jour }} :
+              +{{ detail.gain_poids_jour }} g
+              (= {{ (detail.gain_poids_jour || 0) * 7 | number:'1.1-1' }} g/sem ÷ 7)
+              → <strong>{{ detail.poids_cumule }} g</strong>
             </span>
           </li>
         </ul>
         <p class="result">
-          <strong>Résultat:</strong> À {{ selectedLot.age_semaines }} semaines, chaque poulet pèse 
+          <strong>Résultat:</strong> À J{{ selectedLot.age_jours }}, chaque poulet pèse
           <strong>{{ selectedLot.poids_unitaire }} g</strong>
         </p>
         <p class="result">
@@ -360,7 +389,7 @@
             {{ detail.nourriture }} g/poulet × {{ selectedLot.nombre_actuel }} poulets
             = <strong>{{ formatNumber(detail.nourriture_lot) }} g</strong>
             × {{ selectedLot.pu_sakafo_g }} Ar/g
-            = <strong>{{ formatNumber(detail.cout_nourriture_semaine) }} Ar</strong>
+            = <strong>{{ formatNumber(detail.cout_nourriture_semaine || 0) }} Ar</strong>
           </li>
         </ul>
         <p class="result">

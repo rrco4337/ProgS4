@@ -56,6 +56,8 @@ const getById = async (req, res) => {
 };
 
 // ─── Helper interne : calcule la situation complète d'UN lot ─────────────────
+// Le gain de poids hebdomadaire est distribué sur 7 jours (gain/7 par jour),
+// car le poids moyen varie chaque jour au sein d'une même semaine.
 async function _calculerSituationLot(pool, id) {
     const lotResult = await pool.request()
         .input('id', sql.Int, id)
@@ -69,7 +71,10 @@ async function _calculerSituationLot(pool, id) {
 
     const dateEntree = new Date(lot.date_entree);
     const aujourdhui = new Date();
-    const ageEnSemaines = Math.floor((aujourdhui - dateEntree) / (1000 * 60 * 60 * 24 * 7));
+    // Calcul en jours pour interpolation journalière
+    const ageEnJours       = Math.floor((aujourdhui - dateEntree) / (1000 * 60 * 60 * 24));
+    const semaines_completes = Math.floor(ageEnJours / 7);
+    const jours_en_cours     = ageEnJours % 7; // jours écoulés dans la semaine en cours
 
     const croissanceResult = await pool.request()
         .input('id_race', sql.Int, lot.id_race)
@@ -87,25 +92,59 @@ async function _calculerSituationLot(pool, id) {
     let coutNourritureCumulee = 0;
     const detail = [];
 
-    for (let i = 0; i <= Math.min(ageEnSemaines, croissance.length - 1); i++) {
+    // ── Semaines complètes ────────────────────────────────────────────────────
+    const semaineMax = Math.min(semaines_completes, croissance.length - 1);
+    for (let i = 0; i <= semaineMax; i++) {
+        // S0 = poids initial (pas un gain), S1+ = gain ajouté au cumul
         poidsCumule = i === 0 ? croissance[i].gain_poids : poidsCumule + croissance[i].gain_poids;
         nourritureCumulee += croissance[i].nourriture;
         const nourritureLot = croissance[i].nourriture * nombreActuel;
-        const coutSemaine = nourritureLot * lot.pu_sakafo_g;
+        const coutSemaine   = nourritureLot * lot.pu_sakafo_g;
         coutNourritureCumulee += coutSemaine;
         detail.push({
+            type: 'semaine',
             semaine: croissance[i].semaine,
             gain_poids: croissance[i].gain_poids,
-            poids_cumule: poidsCumule,
+            poids_cumule: parseFloat(poidsCumule.toFixed(2)),
             nourriture: croissance[i].nourriture,
-            nourriture_cumulee: nourritureCumulee,
-            nourriture_lot: nourritureLot,
-            cout_nourriture_semaine: coutSemaine,
-            cout_nourriture_cumulee: coutNourritureCumulee
+            nourriture_cumulee: parseFloat(nourritureCumulee.toFixed(2)),
+            nourriture_lot: parseFloat(nourritureLot.toFixed(2)),
+            cout_nourriture_semaine: parseFloat(coutSemaine.toFixed(2)),
+            cout_nourriture_cumulee: parseFloat(coutNourritureCumulee.toFixed(2))
         });
     }
 
-    const poidsTotal = poidsCumule * nombreActuel;
+    // ── Semaine en cours : interpolation journalière (gain ÷ 7) ──────────────
+    // Le poids varie chaque jour → gain_poids / 7 par jour
+    // La nourriture est également proratisée : nourriture / 7 par jour
+    const prochaineSemaine = semaines_completes + 1;
+    if (jours_en_cours > 0 && prochaineSemaine < croissance.length) {
+        const c = croissance[prochaineSemaine];
+        const gainJournalier        = c.gain_poids / 7;
+        const nourritureJournaliere = c.nourriture  / 7;
+
+        for (let j = 1; j <= jours_en_cours; j++) {
+            poidsCumule       += gainJournalier;
+            nourritureCumulee += nourritureJournaliere;
+            const nourritureLotJour = nourritureJournaliere * nombreActuel;
+            const coutJour          = nourritureLotJour * lot.pu_sakafo_g;
+            coutNourritureCumulee  += coutJour;
+            detail.push({
+                type: 'jour',
+                semaine: prochaineSemaine,
+                jour: j,
+                gain_poids_jour:        parseFloat(gainJournalier.toFixed(4)),
+                poids_cumule:           parseFloat(poidsCumule.toFixed(2)),
+                nourriture_jour:        parseFloat(nourritureJournaliere.toFixed(4)),
+                nourriture_cumulee:     parseFloat(nourritureCumulee.toFixed(2)),
+                nourriture_lot:         parseFloat(nourritureLotJour.toFixed(2)),
+                cout_nourriture_jour:   parseFloat(coutJour.toFixed(2)),
+                cout_nourriture_cumulee:parseFloat(coutNourritureCumulee.toFixed(2))
+            });
+        }
+    }
+
+    const poidsTotal       = poidsCumule * nombreActuel;
     const nourritureTotaleG = nourritureCumulee * nombreActuel;
 
     const oeufsResult = await pool.request()
@@ -122,23 +161,25 @@ async function _calculerSituationLot(pool, id) {
         nom_race: lot.nom_race,
         date_entree: lot.date_entree,
         date_situation: new Date().toISOString().split('T')[0],
-        age_semaines: ageEnSemaines,
+        age_jours: ageEnJours,
+        age_semaines: semaines_completes,
+        jours_en_cours,
         nombre_initial: lot.nombre_initial,
         nombre_actuel: nombreActuel,
         mortalites: totalMorts,
         cout_achat: lot.cout_achat || 0,
-        poids_unitaire: poidsCumule,
-        poids_total: poidsTotal,
+        poids_unitaire: parseFloat(poidsCumule.toFixed(2)),
+        poids_total: parseFloat(poidsTotal.toFixed(2)),
         pu_sakafo_g: lot.pu_sakafo_g,
         pv_g: lot.pv_g || 0,
         pv_oeuf: lot.pv_oeuf || 0,
-        nourriture_cumulee: nourritureCumulee,
-        nourriture_totale_g: nourritureTotaleG,
-        cout_nourriture_total: coutNourritureCumulee,
+        nourriture_cumulee: parseFloat(nourritureCumulee.toFixed(2)),
+        nourriture_totale_g: parseFloat(nourritureTotaleG.toFixed(2)),
+        cout_nourriture_total: parseFloat(coutNourritureCumulee.toFixed(2)),
         total_oeufs: totalOeufs,
-        valeur_poulets: valeurPoulets,
-        valeur_oeufs: valeurOeufs,
-        benefice,
+        valeur_poulets: parseFloat(valeurPoulets.toFixed(2)),
+        valeur_oeufs: parseFloat(valeurOeufs.toFixed(2)),
+        benefice: parseFloat(benefice.toFixed(2)),
         detail_croissance: detail
     };
 }

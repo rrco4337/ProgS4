@@ -69,7 +69,9 @@ export interface PoidsActuelResponse {
   nom_race: string;
   date_entree: string;
   date_situation: string;
+  age_jours: number;
   age_semaines: number;
+  jours_en_cours: number;
   nombre_initial: number;
   nombre_actuel: number;
   mortalites: number;
@@ -118,15 +120,23 @@ export interface SituationGlobale {
   detail_lots: SituationLotResume[];
 }
 
+// Entrée hebdomadaire (type = 'semaine') ou journalière (type = 'jour')
 export interface DetailCroissance {
+  type: 'semaine' | 'jour';
   semaine: number;
-  gain_poids: number;
   poids_cumule: number;
-  nourriture: number;
   nourriture_cumulee: number;
   nourriture_lot: number;
-  cout_nourriture_semaine: number;
   cout_nourriture_cumulee: number;
+  // Champs spécifiques aux semaines complètes
+  gain_poids?: number;
+  nourriture?: number;
+  cout_nourriture_semaine?: number;
+  // Champs spécifiques aux jours (semaine en cours)
+  jour?: number;
+  gain_poids_jour?: number;
+  nourriture_jour?: number;
+  cout_nourriture_jour?: number;
 }
 
 export interface ApiResponse<T> {
