@@ -119,6 +119,7 @@
         <p><strong>Date d'entrée:</strong> {{ formatDate(lot.date_entree) }}</p>
         <p><strong>Nombre initial:</strong> {{ lot.nombre_initial }} poulets</p>
         <p><strong>Coût d'achat:</strong> {{ formatNumber(lot.cout_achat) }} Ar</p>
+        <p><strong>Production max:</strong> {{ getProductionMaximale(lot).toLocaleString('fr-FR') }} œufs</p>
       </div>
       <div class="lot-actions">
         <button class="btn-details" (click)="viewDetails(lot)">Voir détails</button>
@@ -159,6 +160,28 @@
         <div class="finance-label">{{ selectedLot.benefice >= 0 ? 'Bénéfice Net' : 'Perte Nette' }}</div>
         <div class="finance-amount">{{ formatNumber(selectedLot.benefice) }} Ar</div>
         <div class="finance-detail">CA − Coûts totaux</div>
+      </div>
+    </div>
+
+    <!-- ══════════ PRODUCTION D'ŒUFS ══════════ -->
+    <div class="production-highlight">
+      <div class="production-card">
+        <div class="production-icon">🥚</div>
+        <div class="production-label">Production Maximale</div>
+        <div class="production-amount">{{ getProductionMaximale(selectedLot).toLocaleString('fr-FR') }} œufs</div>
+        <div class="production-detail">{{ selectedLot.nombre_initial }} poules × {{ getRaceForLot(selectedLot)?.capacite_ponte || 0 }} œufs/vie</div>
+      </div>
+      <div class="production-card">
+        <div class="production-icon">📦</div>
+        <div class="production-label">Œufs Récoltés</div>
+        <div class="production-amount">{{ getTotalOeufsRecoltes(selectedLot.id_lot).toLocaleString('fr-FR') }} œufs</div>
+        <div class="production-detail">{{ getPourcentageProduction(selectedLot).toFixed(1) }}% du potentiel</div>
+      </div>
+      <div class="production-card">
+        <div class="production-icon">⏳</div>
+        <div class="production-label">Potentiel Restant</div>
+        <div class="production-amount">{{ getOeufsRestants(selectedLot).toLocaleString('fr-FR') }} œufs</div>
+        <div class="production-detail">{{ (100 - getPourcentageProduction(selectedLot)).toFixed(1) }}% restant</div>
       </div>
     </div>
 

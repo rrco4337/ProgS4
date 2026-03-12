@@ -220,6 +220,49 @@ export class LotListComponent implements OnInit {
       .reduce((sum, o) => sum + o.nombre, 0);
   }
 
+  /** Obtenir la race d'un lot */
+  getRaceForLot(lot: Lot | PoidsActuelResponse): Race | undefined {
+    if ('id_race' in lot) {
+      // C'est un objet Lot
+      return this.races.find(r => r.id_race === lot.id_race);
+    } else {
+      // C'est un PoidsActuelResponse, on utilise nom_race
+      return this.races.find(r => r.nom_race === lot.nom_race);
+    }
+  }
+
+  /** Calculer la production maximale d'œufs pour un lot */
+  getProductionMaximale(lot: Lot | PoidsActuelResponse): number {
+    const race = this.getRaceForLot(lot);
+    if (!race) return 0;
+    return lot.nombre_initial * race.capacite_ponte;
+  }
+
+  /** Calculer le total d'œufs récoltés pour un lot */
+  getTotalOeufsRecoltes(lotId: number): number {
+    return this.oeufsLot
+      .filter(oeuf => oeuf.id_lot === lotId)
+      .reduce((sum, oeuf) => sum + oeuf.nombre, 0);
+  }
+
+  /** Calculer le pourcentage de production actuelle par rapport au maximum */
+  getPourcentageProduction(lot: Lot | PoidsActuelResponse): number {
+    const productionMax = this.getProductionMaximale(lot);
+    if (productionMax === 0) return 0;
+    
+    const lotId = ('id_lot' in lot) ? lot.id_lot : 0;
+    const totalRecolte = this.getTotalOeufsRecoltes(lotId);
+    return (totalRecolte / productionMax) * 100;
+  }
+
+  /** Estimer les œufs restants à produire */
+  getOeufsRestants(lot: Lot | PoidsActuelResponse): number {
+    const productionMax = this.getProductionMaximale(lot);
+    const lotId = ('id_lot' in lot) ? lot.id_lot : 0;
+    const totalRecolte = this.getTotalOeufsRecoltes(lotId);
+    return Math.max(0, productionMax - totalRecolte);
+  }
+
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR');

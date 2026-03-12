@@ -1,4 +1,5 @@
 const { getConnection, sql } = require('../config/database');
+const { autoIncubationService } = require('../services/autoIncubationService');
 
 // Récupérer toutes les incubations
 const getAll = async (req, res) => {
@@ -161,4 +162,67 @@ const deleteIncubation = async (req, res) => {
     }
 };
 
-module.exports = { getAll, create, ecloter, delete: deleteIncubation };
+// Déclencher manuellement l'éclosion automatique
+const processAutoEclosions = async (req, res) => {
+    try {
+        console.log('🚀 Déclenchement manuel du traitement automatique des éclosions');
+        const result = await autoIncubationService.processAutoEclosions();
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Erreur lors du traitement manuel des éclosions automatiques:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message,
+            message: 'Erreur lors du traitement automatique des éclosions'
+        });
+    }
+};
+
+// Obtenir le statut du service d'éclosion automatique
+const getAutoIncubationStatus = async (req, res) => {
+    try {
+        const status = autoIncubationService.getStatus();
+        
+        // Récupérer aussi les incubations en cours qui vont éclore bientôt
+        const pool = await getConnection();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        const nextEclosionsResult = await pool.request()
+            .input('tomorrow', sql.Date, tomorrowStr)
+            .query(`
+                SELECT i.id_incubation, i.date_eclosion_prevue, i.nombre_oeufs,
+                       r.nom_race, o.id_lot as id_lot_origine
+                FROM Incubation i
+                INNER JOIN Oeuf o ON i.id_oeuf = o.id_oeuf
+                INNER JOIN Lot l ON o.id_lot = l.id_lot
+                INNER JOIN Race r ON l.id_race = r.id_race
+                WHERE i.statut = 'en_cours' 
+                AND i.date_eclosion_prevue <= @tomorrow
+                ORDER BY i.date_eclosion_prevue ASC
+            `);
+
+        res.json({
+            success: true,
+            data: {
+                ...status,
+                nextEclosions: nextEclosionsResult.recordset,
+                nextEclosionsCount: nextEclosionsResult.recordset.length
+            }
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération du statut d\'auto-incubation:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+module.exports = { 
+    getAll, 
+    create, 
+    ecloter, 
+    delete: deleteIncubation,
+    processAutoEclosions,
+    getAutoIncubationStatus 
+};

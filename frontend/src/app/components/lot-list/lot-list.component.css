@@ -685,6 +685,61 @@ h1 {
   }
 }
 
+/* ══════════ Production highlight cards ══════════ */
+.production-highlight {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.production-card {
+  border-radius: 16px;
+  padding: 1.8rem;
+  text-align: center;
+  border: 1px solid #2a2a2f;
+  transition: transform 0.2s ease;
+  background: linear-gradient(135deg, #2d1b69 0%, #5b21b6 100%);
+  border-color: #8b5cf6;
+}
+
+.production-card:hover {
+  transform: translateY(-3px);
+}
+
+.production-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.production-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #c4b5fd;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.production-amount {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.3rem;
+  color: #ddd6fe;
+}
+
+.production-detail {
+  font-size: 0.8rem;
+  color: #c4b5fd;
+}
+
+@media (max-width: 768px) {
+  .production-highlight {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ══════════ Situation du lot ══════════ */
 
 .situation-card {

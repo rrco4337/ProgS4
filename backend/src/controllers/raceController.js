@@ -81,7 +81,7 @@ const getCroissance = async (req, res) => {
 // Créer une nouvelle race
 const create = async (req, res) => {
     try {
-        const { nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation } = req.body;
+        const { nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation, capacite_ponte } = req.body;
         const pool = await getConnection();
         const result = await pool.request()
             .input('nom_race', sql.VarChar, nom_race)
@@ -90,8 +90,9 @@ const create = async (req, res) => {
             .input('pv_oeuf', sql.Decimal(10, 2), pv_oeuf)
             .input('semaine_debut_ponte', sql.Int, semaine_debut_ponte)
             .input('duree_incubation', sql.Int, duree_incubation)
-            .query(`INSERT INTO Race (nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation) 
-                    VALUES (@nom_race, @pu_sakafo_g, @pv_g, @pv_oeuf, @semaine_debut_ponte, @duree_incubation); 
+            .input('capacite_ponte', sql.Int, capacite_ponte || 300)
+            .query(`INSERT INTO Race (nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation, capacite_ponte) 
+                    VALUES (@nom_race, @pu_sakafo_g, @pv_g, @pv_oeuf, @semaine_debut_ponte, @duree_incubation, @capacite_ponte); 
                     SELECT SCOPE_IDENTITY() AS id`);
         
         res.status(201).json({
@@ -103,7 +104,8 @@ const create = async (req, res) => {
                 pv_g,
                 pv_oeuf,
                 semaine_debut_ponte,
-                duree_incubation
+                duree_incubation,
+                capacite_ponte: capacite_ponte || 300
             }
         });
     } catch (error) {
@@ -119,7 +121,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation } = req.body;
+        const { nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation, capacite_ponte } = req.body;
         const pool = await getConnection();
         const result = await pool.request()
             .input('id', sql.Int, id)
@@ -129,13 +131,15 @@ const update = async (req, res) => {
             .input('pv_oeuf', sql.Decimal(10, 2), pv_oeuf)
             .input('semaine_debut_ponte', sql.Int, semaine_debut_ponte)
             .input('duree_incubation', sql.Int, duree_incubation)
+            .input('capacite_ponte', sql.Int, capacite_ponte || 300)
             .query(`UPDATE Race 
                     SET nom_race = @nom_race, 
                         pu_sakafo_g = @pu_sakafo_g, 
                         pv_g = @pv_g, 
                         pv_oeuf = @pv_oeuf,
                         semaine_debut_ponte = @semaine_debut_ponte,
-                        duree_incubation = @duree_incubation
+                        duree_incubation = @duree_incubation,
+                        capacite_ponte = @capacite_ponte
                     WHERE id_race = @id`);
         
         if (result.rowsAffected[0] === 0) {
@@ -147,7 +151,7 @@ const update = async (req, res) => {
         
         res.json({
             success: true,
-            data: { id_race: id, nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation }
+            data: { id_race: id, nom_race, pu_sakafo_g, pv_g, pv_oeuf, semaine_debut_ponte, duree_incubation, capacite_ponte: capacite_ponte || 300 }
         });
     } catch (error) {
         console.error('Erreur update race:', error);

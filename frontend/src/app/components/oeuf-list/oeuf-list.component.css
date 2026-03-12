@@ -315,6 +315,135 @@ h1 {
   border: 1px solid #2a2a2f;
 }
 
+/* ─── Auto-Éclosion ──────────────────────────────────── */
+.auto-status-card {
+  background: #141416;
+  border-radius: 12px;
+  border: 1px solid #2a2a2f;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.auto-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1a1a1d;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #2a2a2f;
+}
+
+.auto-status-header h3 {
+  margin: 0;
+  color: #f3f4f6;
+  font-size: 1.1rem;
+}
+
+.auto-status-content {
+  padding: 1.5rem;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #2a2a2f;
+}
+
+.status-item:last-child {
+  border-bottom: none;
+}
+
+.status-label {
+  color: #d1d5db;
+  font-weight: 500;
+}
+
+.status-value {
+  font-weight: 600;
+}
+
+.action-section {
+  background: #141416;
+  border-radius: 12px;
+  border: 1px solid #2a2a2f;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.action-section h3 {
+  margin: 0 0 1rem 0;
+  color: #f3f4f6;
+}
+
+.action-description {
+  color: #9ca3af;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.next-eclosions-section,
+.results-section,
+.info-section {
+  background: #141416;
+  border-radius: 12px;
+  border: 1px solid #2a2a2f;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.next-eclosions-section h3,
+.results-section h3,
+.info-section h3 {
+  margin: 0 0 1.5rem 0;
+  color: #f3f4f6;
+}
+
+.info-content {
+  color: #d1d5db;
+}
+
+.info-content ol {
+  padding-left: 1.2rem;
+}
+
+.info-content li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.tips {
+  background: #111827;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  border: 1px solid #2a2a2f;
+}
+
+.tips h4 {
+  margin: 0 0 0.75rem 0;
+  color: #fbbf24;
+}
+
+.tips ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.tips li {
+  margin-bottom: 0.5rem;
+  color: #e5e7eb;
+}
+
+/* Classes d'utilité pour les couleurs */
+.text-green-600 { color: #16a34a; }
+.text-red-600 { color: #dc2626; }
+.text-orange-600 { color: #ea580c; }
+.text-yellow-600 { color: #ca8a04; }
+.text-blue-500 { color: #3b82f6; }
+.text-gray-500 { color: #6b7280; }
+
 /* ─── Responsive ─────────────────────────────────────── */
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }

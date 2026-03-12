@@ -6,6 +6,7 @@ export interface Race {
   pv_oeuf: number;
   semaine_debut_ponte: number;
   duree_incubation: number;
+  capacite_ponte: number;
 }
 
 export interface Lot {

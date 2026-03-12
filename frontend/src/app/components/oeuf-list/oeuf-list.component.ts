@@ -5,6 +5,7 @@ import { OeufService } from '../../services/oeuf.service';
 import { IncubationService } from '../../services/incubation.service';
 import { VenteOeufService } from '../../services/vente-oeuf.service';
 import { LotService } from '../../services/lot.service';
+import { AutoIncubationService } from '../../services/auto-incubation.service';
 import { Oeuf, Incubation, VenteOeuf, Lot } from '../../models/elevage.model';
 
 @Component({
@@ -15,13 +16,19 @@ import { Oeuf, Incubation, VenteOeuf, Lot } from '../../models/elevage.model';
 })
 export class OeufListComponent implements OnInit {
   // Onglet actif
-  activeTab: 'recolte' | 'incubation' | 'ventes' = 'recolte';
+  activeTab: 'recolte' | 'incubation' | 'ventes' | 'auto-eclosion' = 'recolte';
 
   // Données
   oeufs: any[] = [];
   incubations: any[] = [];
   ventes: any[] = [];
   lots: Lot[] = [];
+
+  // Auto-éclosion
+  autoEclosionStatus: any = null;
+  autoEclosionProcessing = false;
+  autoEclosionResults: any[] = [];
+  showAutoEclosionSection = false;
 
   loading = false;
   error: string | null = null;
@@ -45,6 +52,7 @@ export class OeufListComponent implements OnInit {
     private incubationService: IncubationService,
     private venteService: VenteOeufService,
     private lotService: LotService,
+    private autoIncubationService: AutoIncubationService,
     @Inject(PLATFORM_ID) private platformId: Object,
     private cdr: ChangeDetectorRef
   ) {}
@@ -60,10 +68,15 @@ export class OeufListComponent implements OnInit {
     }
   }
 
-  setTab(tab: 'recolte' | 'incubation' | 'ventes') {
+  setTab(tab: 'recolte' | 'incubation' | 'ventes' | 'auto-eclosion') {
     this.activeTab = tab;
     this.error = null;
     this.successMessage = null;
+    
+    // Charger le statut d'auto-éclosion si on va sur cet onglet
+    if (tab === 'auto-eclosion') {
+      this.loadAutoEclosionStatus();
+    }
   }
 
   // ─── Chargement ───────────────────────────────────────────
@@ -335,6 +348,131 @@ export class OeufListComponent implements OnInit {
   isEclotRetard(dateEclosion: string): boolean {
     if (!dateEclosion) return false;
     return new Date(dateEclosion).getTime() < Date.now();
+  }
+
+  // ─── Auto-éclosion ────────────────────────────────────────────
+
+  loadAutoEclosionStatus() {
+    this.autoIncubationService.getAutoIncubationStatus().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.autoEclosionStatus = res.data;
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erreur chargement statut auto-éclosion:', err);
+        this.error = 'Erreur chargement statut auto-éclosion';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  processAutoEclosions() {
+    this.autoEclosionProcessing = true;
+    this.error = null;
+    this.successMessage = null;
+    
+    this.autoIncubationService.processAutoEclosions().subscribe({
+      next: (res) => {
+        this.autoEclosionProcessing = false;
+        
+        if (res.success && res.data) {
+          this.autoEclosionResults = res.data.results || [];
+          
+          if (res.data.processed > 0) {
+            this.successMessage = `✅ ${res.data.processed} éclosion(s) traitée(s) avec succès !`;
+            
+            // Recharger toutes les données car de nouveaux lots ont été créés
+            this.loadIncubations();
+            this.loadLots();
+            this.loadAutoEclosionStatus();
+          } else {
+            this.successMessage = 'ℹ️ Aucune incubation à traiter pour le moment.';
+          }
+          
+          if (res.data.failed > 0) {
+            this.error = `⚠️ ${res.data.failed} échec(s) lors du traitement.`;
+          }
+        }
+        
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.autoEclosionProcessing = false;
+        this.error = 'Erreur lors du traitement automatique des éclosions';
+        console.error('Erreur traitement auto-éclosion:', err);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getAutoEclosionStatusText(): string {
+    if (!this.autoEclosionStatus) return 'Chargement...';
+    
+    if (this.autoEclosionStatus.isProcessing) {
+      return '🔄 Traitement en cours...';
+    }
+    
+    if (this.autoEclosionStatus.cronJobActive) {
+      return '✅ Service actif - Vérification automatique 4 fois/jour';
+    }
+    
+    return '❌ Service inactif';
+  }
+
+  getAutoEclosionStatusClass(): string {
+    if (!this.autoEclosionStatus) return 'text-gray-500';
+    
+    if (this.autoEclosionStatus.isProcessing) {
+      return 'text-blue-500';
+    }
+    
+    if (this.autoEclosionStatus.cronJobActive) {
+      return 'text-green-600';
+    }
+    
+    return 'text-red-500';
+  }
+
+  isEclosionDue(dateEclosion: string): boolean {
+    if (!dateEclosion) return false;
+    const today = new Date().toISOString().split('T')[0];
+    return dateEclosion <= today;
+  }
+
+  getDaysUntilEclosion(dateEclosion: string): number {
+    if (!dateEclosion) return 0;
+    const diff = new Date(dateEclosion).getTime() - new Date().getTime();
+    return Math.ceil(diff / (24 * 60 * 60 * 1000));
+  }
+
+  getEclosionStatusText(incubation: any): string {
+    const diffDays = this.getDaysUntilEclosion(incubation.date_eclosion_prevue);
+    
+    if (diffDays < 0) {
+      return `⚠️ En retard (${Math.abs(diffDays)} jour${Math.abs(diffDays) > 1 ? 's' : ''})`;
+    } else if (diffDays === 0) {
+      return '🎯 Aujourd\'hui !';
+    } else if (diffDays === 1) {
+      return '🔜 Demain';
+    } else {
+      return `⏰ Dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+    }
+  }
+
+  getEclosionStatusClass(incubation: any): string {
+    const diffDays = this.getDaysUntilEclosion(incubation.date_eclosion_prevue);
+    
+    if (diffDays < 0) {
+      return 'text-red-600 font-semibold';
+    } else if (diffDays === 0) {
+      return 'text-orange-600 font-semibold';
+    } else if (diffDays <= 2) {
+      return 'text-yellow-600 font-medium';
+    } else {
+      return 'text-green-600';
+    }
   }
 
   getLotLabel(idLot: number): string {
