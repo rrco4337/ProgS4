@@ -19,12 +19,14 @@ export class LotService {
     return this.api.get<ApiResponse<Lot>>(`${this.endpoint}/${id}`);
   }
 
-  getPoidsActuel(id: number): Observable<ApiResponse<PoidsActuelResponse>> {
-    return this.api.get<ApiResponse<PoidsActuelResponse>>(`${this.endpoint}/${id}/poids`);
+  getPoidsActuel(id: number, date?: string): Observable<ApiResponse<PoidsActuelResponse>> {
+    const suffix = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.api.get<ApiResponse<PoidsActuelResponse>>(`${this.endpoint}/${id}/poids${suffix}`);
   }
 
-  getSituationGlobale(): Observable<ApiResponse<SituationGlobale>> {
-    return this.api.get<ApiResponse<SituationGlobale>>(`${this.endpoint}/situation-globale`);
+  getSituationGlobale(date?: string): Observable<ApiResponse<SituationGlobale>> {
+    const suffix = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.api.get<ApiResponse<SituationGlobale>>(`${this.endpoint}/situation-globale${suffix}`);
   }
 
   create(lot: Partial<Lot>): Observable<ApiResponse<Lot>> {

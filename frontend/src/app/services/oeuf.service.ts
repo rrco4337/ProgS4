@@ -21,8 +21,9 @@ export class OeufService {
     return this.api.get<ApiResponse<Oeuf[]>>(this.endpoint);
   }
 
-  getByLot(idLot: number): Observable<ApiResponse<Oeuf[]>> {
-    return this.api.get<ApiResponse<Oeuf[]>>(`${this.endpoint}/lot/${idLot}`);
+  getByLot(idLot: number, date?: string): Observable<ApiResponse<Oeuf[]>> {
+    const suffix = date ? `?date=${encodeURIComponent(date)}` : '';
+    return this.api.get<ApiResponse<Oeuf[]>>(`${this.endpoint}/lot/${idLot}${suffix}`);
   }
 
   getStockByLot(idLot: number): Observable<ApiResponse<StockOeuf>> {

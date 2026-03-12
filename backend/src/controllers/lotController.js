@@ -1,5 +1,21 @@
 const { getConnection, sql } = require('../config/database');
 
+function _normaliserDateReference(dateValue) {
+    if (!dateValue) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return today;
+    }
+
+    const referenceDate = new Date(dateValue);
+    if (Number.isNaN(referenceDate.getTime())) {
+        return null;
+    }
+
+    referenceDate.setHours(0, 0, 0, 0);
+    return referenceDate;
+}
+
 // Récupérer tous les lots avec leurs informations de race
 const getAll = async (req, res) => {
     try {
@@ -58,7 +74,7 @@ const getById = async (req, res) => {
 // ─── Helper interne : calcule la situation complète d'UN lot ─────────────────
 // Le gain de poids hebdomadaire est distribué sur 7 jours (gain/7 par jour),
 // car le poids moyen varie chaque jour au sein d'une même semaine.
-async function _calculerSituationLot(pool, id) {
+async function _calculerSituationLot(pool, id, dateReference) {
     const lotResult = await pool.request()
         .input('id', sql.Int, id)
         .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf
@@ -70,7 +86,15 @@ async function _calculerSituationLot(pool, id) {
     const lot = lotResult.recordset[0];
 
     const dateEntree = new Date(lot.date_entree);
-    const aujourdhui = new Date();
+    dateEntree.setHours(0, 0, 0, 0);
+    const aujourdhui = _normaliserDateReference(dateReference);
+    if (!aujourdhui) {
+        throw new Error('Date de référence invalide');
+    }
+    if (aujourdhui < dateEntree) {
+        return null;
+    }
+
     // Calcul en jours pour interpolation journalière
     const ageEnJours       = Math.floor((aujourdhui - dateEntree) / (1000 * 60 * 60 * 24));
     const semaines_completes = Math.floor(ageEnJours / 7);
@@ -83,7 +107,10 @@ async function _calculerSituationLot(pool, id) {
 
     const mortaliteResult = await pool.request()
         .input('id_lot', sql.Int, id)
-        .query(`SELECT ISNULL(SUM(nombre), 0) as total_morts FROM Mortalite WHERE id_lot = @id_lot`);
+        .input('date_reference', sql.Date, aujourdhui)
+        .query(`SELECT ISNULL(SUM(nombre), 0) as total_morts
+                FROM Mortalite
+                WHERE id_lot = @id_lot AND date_mort <= @date_reference`);
     const totalMorts = mortaliteResult.recordset[0].total_morts;
     const nombreActuel = lot.nombre_initial - totalMorts;
 
@@ -149,7 +176,10 @@ async function _calculerSituationLot(pool, id) {
 
     const oeufsResult = await pool.request()
         .input('id_oeufs', sql.Int, id)
-        .query(`SELECT ISNULL(SUM(nombre), 0) AS total_oeufs FROM Oeuf WHERE id_lot = @id_oeufs`);
+        .input('date_reference', sql.Date, aujourdhui)
+        .query(`SELECT ISNULL(SUM(nombre), 0) AS total_oeufs
+                FROM Oeuf
+                WHERE id_lot = @id_oeufs AND date_recolte <= @date_reference`);
     const totalOeufs = oeufsResult.recordset[0].total_oeufs;
 
     const valeurPoulets = nombreActuel * poidsCumule * (lot.pv_g || 0);
@@ -160,7 +190,7 @@ async function _calculerSituationLot(pool, id) {
         id_lot: lot.id_lot,
         nom_race: lot.nom_race,
         date_entree: lot.date_entree,
-        date_situation: new Date().toISOString().split('T')[0],
+        date_situation: aujourdhui.toISOString().split('T')[0],
         age_jours: ageEnJours,
         age_semaines: semaines_completes,
         jours_en_cours,
@@ -188,7 +218,16 @@ async function _calculerSituationLot(pool, id) {
 const getPoidsActuel = async (req, res) => {
     try {
         const { id } = req.params;
+        const { date } = req.query;
         const pool = await getConnection();
+        const dateReference = _normaliserDateReference(date);
+
+        if (!dateReference) {
+            return res.status(400).json({
+                success: false,
+                error: 'Date de référence invalide'
+            });
+        }
         
         // Récupérer les infos du lot
         const lotResult = await pool.request()
@@ -205,9 +244,9 @@ const getPoidsActuel = async (req, res) => {
             });
         }
         
-        const situation = await _calculerSituationLot(pool, id);
+        const situation = await _calculerSituationLot(pool, id, dateReference);
         if (!situation) {
-            return res.status(404).json({ success: false, error: 'Lot non trouvé' });
+            return res.status(400).json({ success: false, error: 'La date sélectionnée est antérieure à la date d’entrée du lot' });
         }
         res.json({ success: true, data: situation });
     } catch (error) {
@@ -222,13 +261,21 @@ const getPoidsActuel = async (req, res) => {
 // Situation financière globale de tous les lots
 const getSituationGlobale = async (req, res) => {
     try {
+        const { date } = req.query;
         const pool = await getConnection();
+        const dateReference = _normaliserDateReference(date);
+
+        if (!dateReference) {
+            return res.status(400).json({ success: false, error: 'Date de référence invalide' });
+        }
+
         const lotsResult = await pool.request()
-            .query(`SELECT id_lot FROM Lot ORDER BY id_lot`);
+            .input('date_reference', sql.Date, dateReference)
+            .query(`SELECT id_lot FROM Lot WHERE date_entree <= @date_reference ORDER BY id_lot`);
         const ids = lotsResult.recordset.map(r => r.id_lot);
 
         // Calcul en parallèle pour tous les lots
-        const situations = await Promise.all(ids.map(id => _calculerSituationLot(pool, id)));
+        const situations = await Promise.all(ids.map(id => _calculerSituationLot(pool, id, dateReference)));
         const valides = situations.filter(Boolean);
 
         const total_benefice          = valides.reduce((s, l) => s + l.benefice, 0);
@@ -258,7 +305,7 @@ const getSituationGlobale = async (req, res) => {
         res.json({
             success: true,
             data: {
-                date_situation: new Date().toISOString().split('T')[0],
+                date_situation: dateReference.toISOString().split('T')[0],
                 nombre_lots: valides.length,
                 lots_en_benefice,
                 lots_en_perte,

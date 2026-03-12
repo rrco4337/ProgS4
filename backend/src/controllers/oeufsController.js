@@ -21,10 +21,23 @@ const getAll = async (req, res) => {
 const getByLot = async (req, res) => {
     try {
         const { id_lot } = req.params;
+        const { date } = req.query;
         const pool = await getConnection();
-        const result = await pool.request()
-            .input('id_lot', sql.Int, id_lot)
-            .query(`SELECT * FROM Oeuf WHERE id_lot = @id_lot ORDER BY date_recolte DESC`);
+        const request = pool.request()
+            .input('id_lot', sql.Int, id_lot);
+
+        let query = `SELECT * FROM Oeuf WHERE id_lot = @id_lot`;
+        if (date) {
+            const dateReference = new Date(date);
+            if (Number.isNaN(dateReference.getTime())) {
+                return res.status(400).json({ success: false, error: 'Date de filtre invalide' });
+            }
+            request.input('date_reference', sql.Date, dateReference);
+            query += ` AND date_recolte <= @date_reference`;
+        }
+
+        query += ` ORDER BY date_recolte DESC`;
+        const result = await request.query(query);
         res.json({ success: true, data: result.recordset });
     } catch (error) {
         console.error('Erreur getByLot oeufs:', error);

@@ -16,11 +16,13 @@ export class LotListComponent implements OnInit {
   lots: Lot[] = [];
   races: Race[] = [];
   selectedLot: PoidsActuelResponse | null = null;
+  selectedLotCard: Lot | null = null;
   oeufsLot: Oeuf[] = [];
   loading = false;
   error: string | null = null;
   showCreateForm = false;
   showEditForm = false;
+  selectedDate = '';
 
   newLot: Partial<Lot> = {
     id_race: 0,
@@ -42,10 +44,19 @@ export class LotListComponent implements OnInit {
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       setTimeout(() => {
+        this.selectedDate = this.getTodayIsoDate();
         this.loadLots();
         this.loadRaces();
       }, 0);
     }
+  }
+
+  get filteredLots(): Lot[] {
+    if (!this.selectedDate) {
+      return this.lots;
+    }
+
+    return this.lots.filter((lot) => lot.date_entree <= this.selectedDate);
   }
 
   loadLots() {
@@ -80,7 +91,7 @@ export class LotListComponent implements OnInit {
 
   openCreateForm() {
     this.showCreateForm = true;
-    const today = new Date().toISOString().split('T')[0];
+    const today = this.getTodayIsoDate();
     this.newLot = {
       id_race: this.races.length > 0 ? this.races[0].id_race : 0,
       date_entree: today,
@@ -161,9 +172,15 @@ export class LotListComponent implements OnInit {
   }
 
   viewDetails(lot: Lot) {
+    this.selectedLotCard = lot;
+    this.loadLotDetails(lot.id_lot);
+  }
+
+  loadLotDetails(idLot: number) {
     this.loading = true;
+    this.error = null;
     this.oeufsLot = [];
-    this.lotService.getPoidsActuel(lot.id_lot).subscribe({
+    this.lotService.getPoidsActuel(idLot, this.selectedDate).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.selectedLot = response.data;
@@ -177,7 +194,7 @@ export class LotListComponent implements OnInit {
       }
     });
     // Charger les récoltes d'œufs du lot (relation LOT ↔ ŒUFS)
-    this.oeufService.getByLot(lot.id_lot).subscribe({
+    this.oeufService.getByLot(idLot, this.selectedDate).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           // Trier par date ascendante pour affichage chronologique
@@ -190,8 +207,26 @@ export class LotListComponent implements OnInit {
     });
   }
 
+  onSelectedDateChange() {
+    if (this.selectedLotCard && this.selectedLotCard.date_entree > this.selectedDate) {
+      this.closeDetails();
+      this.error = 'Le lot sélectionné n’existait pas encore à cette date.';
+      return;
+    }
+
+    if (this.selectedLotCard) {
+      this.loadLotDetails(this.selectedLotCard.id_lot);
+    }
+  }
+
+  resetSelectedDate() {
+    this.selectedDate = this.getTodayIsoDate();
+    this.onSelectedDateChange();
+  }
+
   closeDetails() {
     this.selectedLot = null;
+    this.selectedLotCard = null;
     this.oeufsLot = [];
   }
 
@@ -209,5 +244,9 @@ export class LotListComponent implements OnInit {
 
   formatNumber(num: number): string {
     return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  private getTodayIsoDate(): string {
+    return new Date().toISOString().split('T')[0];
   }
 }

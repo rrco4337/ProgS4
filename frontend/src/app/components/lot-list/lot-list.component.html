@@ -14,6 +14,23 @@
     {{ error }}
   </div>
 
+  <div class="filter-bar" *ngIf="!showCreateForm && !showEditForm">
+    <div class="filter-group">
+      <label for="date-situation">Date d'analyse</label>
+      <input
+        id="date-situation"
+        type="date"
+        [(ngModel)]="selectedDate"
+        name="selectedDate"
+        (ngModelChange)="onSelectedDateChange()"
+      >
+    </div>
+    <div class="filter-help">
+      Le détail du lot est recalculé à cette date : entrée des poulets, mortalités, œufs récoltés, poids moyen, bénéfice et effectif restant.
+    </div>
+    <button type="button" class="btn-secondary" (click)="resetSelectedDate()">Aujourd'hui</button>
+  </div>
+
   <!-- Formulaire de création -->
   <div *ngIf="showCreateForm" class="form-container">
     <div class="form-header">
@@ -101,8 +118,12 @@
   </div>
 
   <!-- Liste des lots -->
+  <div *ngIf="!selectedLot && !showCreateForm && !showEditForm && filteredLots.length === 0" class="empty-state">
+    Aucun lot n'est disponible à la date du {{ formatDate(selectedDate) }}.
+  </div>
+
   <div *ngIf="!selectedLot && !showCreateForm && !showEditForm" class="lots-grid">
-    <div *ngFor="let lot of lots" class="lot-card">
+    <div *ngFor="let lot of filteredLots" class="lot-card">
       <div class="lot-header" (click)="viewDetails(lot)">
         <h2>{{ lot.nom_race }}</h2>
         <span class="badge">Lot #{{ lot.id_lot }}</span>
@@ -147,12 +168,12 @@
           <tr>
             <td>📦 Lot</td>
             <td><strong>#{{ selectedLot.id_lot }}</strong></td>
-            <td>Race : {{ selectedLot.nom_race }} — Entrée le {{ formatDate(selectedLot.date_entree) }}</td>
+            <td>Race : {{ selectedLot.nom_race }} — Entrée le {{ formatDate(selectedLot.date_entree) }} — Snapshot au {{ formatDate(selectedLot.date_situation) }}</td>
           </tr>
           <tr>
             <td>🐔 Nombre de poulets</td>
             <td><strong>{{ selectedLot.nombre_actuel }}</strong></td>
-            <td>{{ selectedLot.nombre_initial }} initial − {{ selectedLot.mortalites }} morts</td>
+            <td>{{ selectedLot.nombre_initial }} initial − {{ selectedLot.mortalites }} morts enregistrés jusqu'au {{ formatDate(selectedLot.date_situation) }}</td>
           </tr>
           <tr class="row-warning">
             <td>💀 Morts</td>
@@ -180,7 +201,7 @@
           <tr>
             <td>🥚 Nombre d'œufs</td>
             <td><strong>{{ selectedLot.total_oeufs }}</strong></td>
-            <td>Total récolté depuis l'entrée du lot</td>
+            <td>Total récolté entre le {{ formatDate(selectedLot.date_entree) }} et le {{ formatDate(selectedLot.date_situation) }}</td>
           </tr>
           <tr class="row-revenue">
             <td>🥚 Valeur des œufs</td>
@@ -353,6 +374,7 @@
       <h4>💡 Explication du calcul</h4>
       <div class="explanation-content">
         <p><strong>Date d'entrée:</strong> {{ formatDate(selectedLot.date_entree) }}</p>
+        <p><strong>Date d'analyse:</strong> {{ formatDate(selectedLot.date_situation) }}</p>
         <p><strong>Âge actuel:</strong> {{ selectedLot.age_semaines }} semaines + {{ selectedLot.jours_en_cours }} jour(s) ({{ selectedLot.age_jours }} jours au total)</p>
         <p><strong>Calcul du poids (interpolation journalière) :</strong></p>
         <ul>
