@@ -11,7 +11,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "db:init": "docker exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MotDePasseFort123! -C < database/init.sql"
+    "db:init": "docker exec -i sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'MotDePasseFort123!' < database/init.sql"
   },
   "keywords": [
     "nodejs",

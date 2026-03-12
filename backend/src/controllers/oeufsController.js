@@ -1,9 +1,11 @@
 const { getConnection, sql } = require('../config/database');
 
-// Récupérer toutes les récoltes d'oeufs
+// FONCTION 1: Recuperer toutes les recoltes d'oeufs
+// Montre toutes les fois ou on a ramasse des oeufs
 const getAll = async (req, res) => {
     try {
         const pool = await getConnection();
+        // On recupere les oeufs avec les infos du lot et de la race
         const result = await pool.request()
             .query(`SELECT o.*, l.date_entree, r.nom_race
                     FROM Oeuf o
@@ -17,11 +19,14 @@ const getAll = async (req, res) => {
     }
 };
 
-// Récoltes par lot
+// FONCTION 2: Recoltes pour un lot specifique
+// Montre tous les oeufs recoltes d'un groupe d'animaux
 const getByLot = async (req, res) => {
     try {
+        // On recupere le numero du lot depuis l'URL
         const { id_lot } = req.params;
         const pool = await getConnection();
+        // On filtre pour ce lot seulement
         const result = await pool.request()
             .input('id_lot', sql.Int, id_lot)
             .query(`SELECT * FROM Oeuf WHERE id_lot = @id_lot ORDER BY date_recolte DESC`);
@@ -32,16 +37,20 @@ const getByLot = async (req, res) => {
     }
 };
 
-// Enregistrer une récolte
+// FONCTION 3: Enregistrer une nouvelle recolte d'oeufs
+// Pour sauvegarder quand on ramasse des oeufs
 const create = async (req, res) => {
     try {
+        // On recupere les donnees envoyees par le client
         const { id_lot, date_recolte, nombre } = req.body;
 
+        // Verification: il faut tous les champs obligatoires
         if (!id_lot || !date_recolte || !nombre) {
             return res.status(400).json({ success: false, error: 'Champs id_lot, date_recolte et nombre requis' });
         }
 
         const pool = await getConnection();
+        // On insere la nouvelle recolte dans la base
         const result = await pool.request()
             .input('id_lot', sql.Int, id_lot)
             .input('date_recolte', sql.Date, date_recolte)
@@ -50,6 +59,7 @@ const create = async (req, res) => {
                     VALUES (@id_lot, @date_recolte, @nombre);
                     SELECT SCOPE_IDENTITY() AS id`);
 
+        // On confirme que c'est bien enregistre
         res.status(201).json({
             success: true,
             data: {
@@ -65,12 +75,13 @@ const create = async (req, res) => {
     }
 };
 
-// Stock disponible par lot
-// stock = total récolté - total incubé (en cours ou éclose) - total vendu
+// FONCTION 4: Calculer le stock d'oeufs disponibles pour un lot
+// LOGIQUE: oeufs recoltes - oeufs mis en incubation - oeufs vendus = stock restant
 const getStockByLot = async (req, res) => {
     try {
         const { id_lot } = req.params;
         const pool = await getConnection();
+        // Requete complexe pour calculer le stock
         const result = await pool.request()
             .input('id_lot', sql.Int, id_lot)
             .query(`

@@ -1,9 +1,11 @@
 const { getConnection, sql } = require('../config/database');
 
-// Récupérer toutes les races
+// FONCTION 1: Recuperer toutes les races d'animaux
+// Liste toutes les especes disponibles avec leurs caracteristiques
 const getAll = async (req, res) => {
     try {
         const pool = await getConnection();
+        // Requete simple pour avoir toutes les races
         const result = await pool.request()
             .query('SELECT * FROM Race ORDER BY id_race');
         
@@ -20,15 +22,18 @@ const getAll = async (req, res) => {
     }
 };
 
-// Récupérer une race par ID
+// FONCTION 2: Recuperer une race specifique par son numero
+// Utile pour voir les details d'une seule race
 const getById = async (req, res) => {
     try {
+        // On recupere le numero de la race depuis l'URL
         const { id } = req.params;
         const pool = await getConnection();
         const result = await pool.request()
             .input('id', sql.Int, id)
             .query('SELECT * FROM Race WHERE id_race = @id');
         
+        // Si la race n'existe pas, on renvoie une erreur
         if (result.recordset.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -49,11 +54,13 @@ const getById = async (req, res) => {
     }
 };
 
-// Récupérer le modèle de croissance d'une race
+// FONCTION 3: Recuperer le modele de croissance d'une race
+// Montre comment les animaux de cette race grandissent semaine par semaine
 const getCroissance = async (req, res) => {
     try {
         const { id } = req.params;
         const pool = await getConnection();
+        // On recupere les donnees de croissance dans l'ordre des semaines
         const result = await pool.request()
             .input('id', sql.Int, id)
             .query('SELECT * FROM Croissance WHERE id_race = @id ORDER BY semaine');

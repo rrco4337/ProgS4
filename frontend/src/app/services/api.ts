@@ -14,8 +14,15 @@ export class Api {
 
   // Méthode GET générique
   get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`)
-      .pipe(catchError(this.handleError));
+    const url = `${this.apiUrl}/${endpoint}`;
+    console.log(`[API] GET ${url}`);
+    return this.http.get<T>(url)
+      .pipe(
+        catchError((error) => {
+          console.error(`[API] GET ${url} failed:`, error);
+          return this.handleError(error);
+        })
+      );
   }
 
   // Méthode POST générique
@@ -39,6 +46,14 @@ export class Api {
   // Gestion des erreurs
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Une erreur est survenue';
+    
+    console.error('[API] Error details:', {
+      status: error.status,
+      statusText: error.statusText,
+      message: error.message,
+      error: error.error,
+      url: error.url
+    });
     
     if (error.error instanceof ErrorEvent) {
       // Erreur côté client

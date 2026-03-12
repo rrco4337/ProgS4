@@ -2,7 +2,7 @@
 
   <!-- En-tête -->
   <div class="header-section">
-    <h1>🥚 Gestion des Œufs</h1>
+    <h1>Gestion des Œufs</h1>
   </div>
 
   <!-- Messages -->
@@ -33,13 +33,13 @@
   <!-- Onglets -->
   <div class="tabs">
     <button class="tab-btn" [class.active]="activeTab === 'recolte'" (click)="setTab('recolte')">
-      🪺 Récolte
+      Récolte
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'incubation'" (click)="setTab('incubation')">
-      🔬 Incubation
+      Incubation
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'ventes'" (click)="setTab('ventes')">
-      💰 Ventes
+      Ventes
     </button>
   </div>
 
@@ -123,13 +123,13 @@
 
     <!-- Schéma du processus -->
     <div class="process-diagram">
-      <div class="process-step">🥚 Œuf</div>
-      <div class="process-arrow">→</div>
-      <div class="process-step">🔬 Incubation<br><small>(durée selon race)</small></div>
-      <div class="process-arrow">→</div>
-      <div class="process-step">🐣 Poussin</div>
-      <div class="process-arrow">→</div>
-      <div class="process-step">📦 Nouveau lot</div>
+      <div class="process-step">Œuf</div>
+      <div class="process-arrow">-></div>
+      <div class="process-step">Incubation<br><small>(durée selon race)</small></div>
+      <div class="process-arrow">-></div>
+      <div class="process-step">Poussin</div>
+      <div class="process-arrow">-></div>
+      <div class="process-step">Nouveau lot</div>
     </div>
 
     <!-- Formulaire incubation -->

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LotService } from '../../services/lot.service';
@@ -21,6 +21,7 @@ export class LotListComponent implements OnInit {
   error: string | null = null;
   showCreateForm = false;
   showEditForm = false;
+  selectedDate: string = '';
 
   newLot: Partial<Lot> = {
     id_race: 0,
@@ -35,12 +36,13 @@ export class LotListComponent implements OnInit {
     private lotService: LotService,
     private raceService: RaceService,
     private oeufService: OeufService,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      this.setToday();
       setTimeout(() => {
         this.loadLots();
         this.loadRaces();
@@ -56,11 +58,13 @@ export class LotListComponent implements OnInit {
           this.lots = response.data;
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement des lots';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -71,9 +75,11 @@ export class LotListComponent implements OnInit {
         if (response.success && response.data) {
           this.races = response.data;
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Erreur lors du chargement des races:', err);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -102,11 +108,13 @@ export class LotListComponent implements OnInit {
           this.closeCreateForm();
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors de la création';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -132,11 +140,13 @@ export class LotListComponent implements OnInit {
           this.closeEditForm();
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors de la mise à jour';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -150,11 +160,13 @@ export class LotListComponent implements OnInit {
             this.loadLots();
           }
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.error = 'Erreur lors de la suppression';
           console.error(err);
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     }
@@ -163,30 +175,36 @@ export class LotListComponent implements OnInit {
   viewDetails(lot: Lot) {
     this.loading = true;
     this.oeufsLot = [];
-    this.lotService.getPoidsActuel(lot.id_lot).subscribe({
+    
+    // Utiliser la date sélectionnée pour le calcul de la situation
+    this.lotService.getPoidsActuel(lot.id_lot, this.selectedDate).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.selectedLot = response.data;
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement des détails';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
-    // Charger les récoltes d'œufs du lot (relation LOT ↔ ŒUFS)
+    
+    // Charger les récoltes d'œufs du lot jusqu'à la date sélectionnée
     this.oeufService.getByLot(lot.id_lot).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          // Trier par date ascendante pour affichage chronologique
-          this.oeufsLot = response.data.sort(
-            (a, b) => new Date(a.date_recolte).getTime() - new Date(b.date_recolte).getTime()
-          );
+          // Filtrer les œufs jusqu'à la date sélectionnée et trier par date ascendante
+          this.oeufsLot = response.data
+            .filter(oeuf => new Date(oeuf.date_recolte) <= new Date(this.selectedDate))
+            .sort((a, b) => new Date(a.date_recolte).getTime() - new Date(b.date_recolte).getTime());
         }
+        this.cdr.detectChanges();
       },
-      error: () => { this.oeufsLot = []; }
+      error: () => { this.oeufsLot = []; this.cdr.detectChanges(); }
     });
   }
 
@@ -209,5 +227,55 @@ export class LotListComponent implements OnInit {
 
   formatNumber(num: number): string {
     return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  setToday() {
+    this.selectedDate = new Date().toISOString().split('T')[0];
+    if (this.selectedLot) {
+      this.refreshLotDetails();
+    }
+  }
+
+  onDateChange() {
+    if (this.selectedLot) {
+      this.refreshLotDetails();
+    }
+  }
+
+  refreshLotDetails() {
+    if (!this.selectedLot) return;
+    
+    const lotId = this.selectedLot.id_lot;
+    this.loading = true;
+    // Recharger les détails avec la nouvelle date
+    this.lotService.getPoidsActuel(lotId, this.selectedDate).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.selectedLot = response.data;
+        }
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = 'Erreur lors du rechargement des détails';
+        console.error(err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+    
+    // Recharger aussi les œufs filtrés jusqu'à la date sélectionnée
+    this.oeufService.getByLot(lotId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          // Filtrer les œufs jusqu'à la date sélectionnée
+          this.oeufsLot = response.data
+            .filter(oeuf => new Date(oeuf.date_recolte) <= new Date(this.selectedDate))
+            .sort((a, b) => new Date(a.date_recolte).getTime() - new Date(b.date_recolte).getTime());
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => { this.oeufsLot = []; this.cdr.detectChanges(); }
+    });
   }
 }

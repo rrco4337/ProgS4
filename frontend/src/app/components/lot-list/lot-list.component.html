@@ -1,9 +1,17 @@
 <div class="container">
   <div class="header-section">
-    <h1>🐔 Gestion des Lots de Poulets</h1>
-    <button *ngIf="!selectedLot && !showCreateForm && !showEditForm" class="btn-primary" (click)="openCreateForm()">
-      + Nouveau Lot
-    </button>
+    <h1>Gestion des Lots de Poulets</h1>
+    <div class="header-controls">
+      <div class="date-filter">
+        <label for="dateFilter">Date de situation :</label>
+        <input type="date" id="dateFilter" [(ngModel)]="selectedDate" name="dateFilter" 
+               (ngModelChange)="onDateChange()" class="date-input">
+        <button class="btn-today" (click)="setToday()">Aujourd'hui</button>
+      </div>
+      <button *ngIf="!selectedLot && !showCreateForm && !showEditForm" class="btn-primary" (click)="openCreateForm()">
+        + Nouveau Lot
+      </button>
+    </div>
   </div>
 
   <div *ngIf="loading" class="loading">
@@ -113,9 +121,9 @@
         <p><strong>Coût d'achat:</strong> {{ formatNumber(lot.cout_achat) }} Ar</p>
       </div>
       <div class="lot-actions">
-        <button class="btn-details" (click)="viewDetails(lot)">Voir détails →</button>
-        <button class="btn-edit" (click)="openEditForm(lot); $event.stopPropagation()">✏️</button>
-        <button class="btn-delete" (click)="deleteLot(lot.id_lot); $event.stopPropagation()">🗑️</button>
+        <button class="btn-details" (click)="viewDetails(lot)">Voir détails</button>
+        <button class="btn-edit" (click)="openEditForm(lot); $event.stopPropagation()">Modifier</button>
+        <button class="btn-delete" (click)="deleteLot(lot.id_lot); $event.stopPropagation()">Supprimer</button>
       </div>
     </div>
   </div>
@@ -126,6 +134,32 @@
 
     <div class="details-header">
       <h2>{{ selectedLot.nom_race }} — Lot #{{ selectedLot.id_lot }}</h2>
+      <div class="date-badge">
+        <span class="date-label">📅 Situation au :</span>
+        <span class="date-value">{{ formatDate(selectedDate) }}</span>
+      </div>
+    </div>
+
+    <!-- ══════════ CHIFFRE D'AFFAIRES ══════════ -->
+    <div class="finance-highlight">
+      <div class="finance-card ca-card">
+        <div class="finance-icon">💰</div>
+        <div class="finance-label">Chiffre d'Affaires</div>
+        <div class="finance-amount">{{ formatNumber(selectedLot.valeur_poulets + selectedLot.valeur_oeufs) }} Ar</div>
+        <div class="finance-detail">Poulets {{ formatNumber(selectedLot.valeur_poulets) }} + Œufs {{ formatNumber(selectedLot.valeur_oeufs) }}</div>
+      </div>
+      <div class="finance-card cost-card">
+        <div class="finance-icon">📊</div>
+        <div class="finance-label">Coûts Totaux</div>
+        <div class="finance-amount">{{ formatNumber(selectedLot.cout_nourriture_total + selectedLot.cout_achat) }} Ar</div>
+        <div class="finance-detail">Nourriture {{ formatNumber(selectedLot.cout_nourriture_total) }} + Achat {{ formatNumber(selectedLot.cout_achat) }}</div>
+      </div>
+      <div class="finance-card" [class.benefice-card]="selectedLot.benefice >= 0" [class.perte-card]="selectedLot.benefice < 0">
+        <div class="finance-icon">{{ selectedLot.benefice >= 0 ? '📈' : '📉' }}</div>
+        <div class="finance-label">{{ selectedLot.benefice >= 0 ? 'Bénéfice Net' : 'Perte Nette' }}</div>
+        <div class="finance-amount">{{ formatNumber(selectedLot.benefice) }} Ar</div>
+        <div class="finance-detail">CA − Coûts totaux</div>
+      </div>
     </div>
 
     <!-- ══════════ SITUATION DU LOT ══════════ -->
@@ -145,52 +179,52 @@
         </thead>
         <tbody>
           <tr>
-            <td>📦 Lot</td>
+            <td>Lot</td>
             <td><strong>#{{ selectedLot.id_lot }}</strong></td>
             <td>Race : {{ selectedLot.nom_race }} — Entrée le {{ formatDate(selectedLot.date_entree) }}</td>
           </tr>
           <tr>
-            <td>🐔 Nombre de poulets</td>
+            <td>Nombre de poulets</td>
             <td><strong>{{ selectedLot.nombre_actuel }}</strong></td>
             <td>{{ selectedLot.nombre_initial }} initial − {{ selectedLot.mortalites }} morts</td>
           </tr>
           <tr class="row-warning">
-            <td>💀 Morts</td>
+            <td>Morts</td>
             <td><strong>{{ selectedLot.mortalites }}</strong></td>
             <td>Taux : {{ selectedLot.nombre_initial > 0 ? formatNumber(selectedLot.mortalites / selectedLot.nombre_initial * 100) : 0 }}%</td>
           </tr>
           <tr>
-            <td>⚖️ Poids moyen</td>
+            <td>Poids moyen</td>
             <td><strong>{{ selectedLot.poids_unitaire }} g</strong></td>
-            <td>À {{ selectedLot.age_semaines }} semaines selon modèle de croissance</td>
+            <td>À {{ selectedLot.age_semaines }} sem. et {{ selectedLot.jours_dans_semaine }} j ({{ selectedLot.age_jours }} jours) — interpolé au jour</td>
           </tr>
           <tr>
-            <td>📦 Poids total du lot</td>
+            <td>Poids total du lot</td>
             <td><strong>{{ formatNumber(selectedLot.poids_total / 1000) }} kg</strong></td>
             <td>{{ selectedLot.nombre_actuel }} poulets × {{ selectedLot.poids_unitaire }} g</td>
           </tr>
           <tr class="row-cost">
-            <td>🌾 Nourriture consommée</td>
+            <td>Nourriture consommée</td>
             <td><strong>{{ formatNumber(selectedLot.cout_nourriture_total) }} Ar</strong></td>
             <td>{{ formatNumber(selectedLot.nourriture_totale_g / 1000) }} kg — {{ selectedLot.pu_sakafo_g }} Ar/g</td>
           </tr>
           <tr>
-            <td>🥚 Nombre d'œufs</td>
+            <td>Nombre d'œufs</td>
             <td><strong>{{ selectedLot.total_oeufs }}</strong></td>
             <td>Total récolté depuis l'entrée du lot</td>
           </tr>
           <tr class="row-revenue">
-            <td>🥚 Valeur des œufs</td>
+            <td>Valeur des œufs</td>
             <td><strong>{{ formatNumber(selectedLot.valeur_oeufs) }} Ar</strong></td>
             <td>{{ selectedLot.total_oeufs }} œufs × {{ selectedLot.pv_oeuf }} Ar/œuf</td>
           </tr>
           <tr class="row-revenue">
-            <td>💰 Valeur des poulets</td>
+            <td>Valeur des poulets</td>
             <td><strong>{{ formatNumber(selectedLot.valeur_poulets) }} Ar</strong></td>
             <td>{{ selectedLot.nombre_actuel }} × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g }} Ar/g</td>
           </tr>
           <tr [class.row-benefice-positif]="selectedLot.benefice >= 0" [class.row-benefice-negatif]="selectedLot.benefice < 0">
-            <td>📈 Bénéfice estimé</td>
+            <td>Bénéfice estimé</td>
             <td>
               <strong>{{ formatNumber(selectedLot.benefice) }} Ar</strong>
               <span class="benefice-badge" [class.positif]="selectedLot.benefice >= 0" [class.negatif]="selectedLot.benefice < 0">
@@ -211,7 +245,7 @@
     <!-- ══════════ RELATION LOT ↔ ŒUFS ══════════ -->
     <div *ngIf="oeufsLot.length > 0" class="oeufs-lot-section">
       <div class="oeufs-lot-header">
-        <h3>🥚 Récoltes d'œufs — Lot #{{ selectedLot.id_lot }}</h3>
+        <h3>Récoltes d'œufs — Lot #{{ selectedLot.id_lot }}</h3>
         <span class="oeufs-lot-badge">{{ selectedLot.total_oeufs }} œufs au total</span>
       </div>
 
@@ -303,11 +337,13 @@
           </thead>
           <tbody>
             <tr *ngFor="let detail of selectedLot.detail_croissance" 
-                [class.current]="detail.semaine === selectedLot.age_semaines">
+                [class.current]="detail.semaine === selectedLot.age_semaines"
+                [class.futur]="detail.est_futur">
               <td>
                 <strong>{{ detail.semaine }}</strong>
                 <span *ngIf="detail.semaine === 0" class="badge-small">Naissance</span>
                 <span *ngIf="detail.semaine === selectedLot.age_semaines" class="badge-small current">Actuel</span>
+                <span *ngIf="detail.est_futur" class="badge-small futur">A venir</span>
               </td>
               <td>
                 <span *ngIf="detail.semaine === 0">{{ detail.gain_poids }} g (initial)</span>
@@ -351,7 +387,7 @@
           <strong>{{ formatNumber(selectedLot.poids_total / 1000) }} kg</strong>
         </p>
 
-        <hr style="margin: 12px 0; border-color: #e0e0e0;">
+        <hr style="margin: 12px 0; border-color: #4a5568;">
         <p><strong>Calcul de la nourriture (Sakafo):</strong></p>
         <p>Prix unitaire : <strong>{{ selectedLot.pu_sakafo_g }} Ar/g</strong></p>
         <ul>

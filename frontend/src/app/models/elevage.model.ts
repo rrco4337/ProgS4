@@ -70,6 +70,8 @@ export interface PoidsActuelResponse {
   date_entree: string;
   date_situation: string;
   age_semaines: number;
+  age_jours: number;
+  jours_dans_semaine: number;
   nombre_initial: number;
   nombre_actuel: number;
   mortalites: number;
@@ -127,6 +129,7 @@ export interface DetailCroissance {
   nourriture_lot: number;
   cout_nourriture_semaine: number;
   cout_nourriture_cumulee: number;
+  est_futur: boolean;
 }
 
 export interface ApiResponse<T> {

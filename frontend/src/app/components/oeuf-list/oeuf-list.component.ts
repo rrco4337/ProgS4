@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OeufService } from '../../services/oeuf.service';
@@ -45,7 +45,8 @@ export class OeufListComponent implements OnInit {
     private incubationService: IncubationService,
     private venteService: VenteOeufService,
     private lotService: LotService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -69,8 +70,8 @@ export class OeufListComponent implements OnInit {
 
   loadLots() {
     this.lotService.getAll().subscribe({
-      next: (res) => { if (res.success && res.data) this.lots = res.data; },
-      error: (err) => console.error('Erreur chargement lots:', err)
+      next: (res) => { if (res.success && res.data) this.lots = res.data; this.cdr.detectChanges(); },
+      error: (err) => { console.error('Erreur chargement lots:', err); this.cdr.detectChanges(); }
     });
   }
 
@@ -80,22 +81,23 @@ export class OeufListComponent implements OnInit {
       next: (res) => {
         if (res.success && res.data) this.oeufs = res.data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: (err) => { this.error = 'Erreur chargement récoltes'; this.loading = false; }
+      error: (err) => { this.error = 'Erreur chargement récoltes'; this.loading = false; this.cdr.detectChanges(); }
     });
   }
 
   loadIncubations() {
     this.incubationService.getAll().subscribe({
-      next: (res) => { if (res.success && res.data) this.incubations = res.data; },
-      error: (err) => console.error('Erreur chargement incubations:', err)
+      next: (res) => { if (res.success && res.data) this.incubations = res.data; this.cdr.detectChanges(); },
+      error: (err) => { console.error('Erreur chargement incubations:', err); this.cdr.detectChanges(); }
     });
   }
 
   loadVentes() {
     this.venteService.getAll().subscribe({
-      next: (res) => { if (res.success && res.data) this.ventes = res.data; },
-      error: (err) => console.error('Erreur chargement ventes:', err)
+      next: (res) => { if (res.success && res.data) this.ventes = res.data; this.cdr.detectChanges(); },
+      error: (err) => { console.error('Erreur chargement ventes:', err); this.cdr.detectChanges(); }
     });
   }
 
@@ -123,19 +125,20 @@ export class OeufListComponent implements OnInit {
           this.loadOeufs();
           this.showRecolteForm = false;
           this.successMessage = 'Récolte enregistrée !';
-          setTimeout(() => this.successMessage = null, 3000);
+          setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 3000);
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: (err) => { this.error = 'Erreur création récolte'; this.loading = false; }
+      error: (err) => { this.error = 'Erreur création récolte'; this.loading = false; this.cdr.detectChanges(); }
     });
   }
 
   deleteRecolte(id: number) {
     if (confirm('Supprimer cette récolte ?')) {
       this.oeufService.delete(id).subscribe({
-        next: () => this.loadOeufs(),
-        error: (err) => { this.error = 'Erreur suppression'; }
+        next: () => { this.loadOeufs(); this.cdr.detectChanges(); },
+        error: (err) => { this.error = 'Erreur suppression'; this.cdr.detectChanges(); }
       });
     }
   }
@@ -168,13 +171,15 @@ export class OeufListComponent implements OnInit {
           this.loadIncubations();
           this.showIncubationForm = false;
           this.successMessage = 'Incubation démarrée !';
-          setTimeout(() => this.successMessage = null, 3000);
+          setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 3000);
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = err?.error?.error || 'Erreur création incubation';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -187,10 +192,11 @@ export class OeufListComponent implements OnInit {
             this.loadIncubations();
             this.loadLots();
             this.successMessage = `✅ Éclosion confirmée ! Lot #${res.data.id_lot_resultat} créé avec ${res.data.nombre_poussins} poussins.`;
-            setTimeout(() => this.successMessage = null, 6000);
+            setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 6000);
           }
+          this.cdr.detectChanges();
         },
-        error: (err) => { this.error = 'Erreur lors de l\'éclosion'; }
+        error: (err) => { this.error = 'Erreur lors de l\'\u00e9closion'; this.cdr.detectChanges(); }
       });
     }
   }
@@ -198,8 +204,8 @@ export class OeufListComponent implements OnInit {
   deleteIncubation(id: number) {
     if (confirm('Supprimer cette incubation ?')) {
       this.incubationService.delete(id).subscribe({
-        next: () => this.loadIncubations(),
-        error: (err) => { this.error = 'Erreur suppression'; }
+        next: () => { this.loadIncubations(); this.cdr.detectChanges(); },
+        error: (err) => { this.error = 'Erreur suppression'; this.cdr.detectChanges(); }
       });
     }
   }
@@ -234,13 +240,15 @@ export class OeufListComponent implements OnInit {
           this.showVenteForm = false;
           const revenu = this.newVente.nombre_oeufs * this.newVente.prix_unitaire;
           this.successMessage = `Vente enregistrée ! Revenu : ${revenu.toLocaleString('fr-FR')} Ar`;
-          setTimeout(() => this.successMessage = null, 4000);
+          setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 4000);
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = err?.error?.error || 'Erreur création vente';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -248,8 +256,8 @@ export class OeufListComponent implements OnInit {
   deleteVente(id: number) {
     if (confirm('Supprimer cette vente ?')) {
       this.venteService.delete(id).subscribe({
-        next: () => this.loadVentes(),
-        error: (err) => { this.error = 'Erreur suppression'; }
+        next: () => { this.loadVentes(); this.cdr.detectChanges(); },
+        error: (err) => { this.error = 'Erreur suppression'; this.cdr.detectChanges(); }
       });
     }
   }
