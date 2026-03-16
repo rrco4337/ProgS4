@@ -20,6 +20,7 @@ router.delete('/races/:id', raceController.delete);
 // Routes pour les lots
 router.get('/lots', lotController.getAll);
 router.get('/lots/situation-globale', lotController.getSituationGlobale);
+router.get('/lots/poid-poule', lotController.getPoidPoule);
 router.get('/lots/:id', lotController.getById);
 router.get('/lots/:id/poids', lotController.getPoidsActuel);
 router.post('/lots', lotController.create);
@@ -51,6 +52,10 @@ router.get('/incubations', incubationController.getAll);
 router.post('/incubations', incubationController.create);
 router.post('/incubations/:id/ecloter', incubationController.ecloter);
 router.delete('/incubations/:id', incubationController.delete);
+
+// Routes pour l'éclosion automatique
+router.post('/incubations/auto-eclosion', incubationController.processAutoEclosions);
+router.get('/incubations/auto-eclosion/status', incubationController.getAutoIncubationStatus);
 
 // Routes pour les ventes d'œufs
 router.get('/ventes-oeufs', venteOeufController.getAll);

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { LotService } from '../../services/lot.service';
@@ -18,7 +18,8 @@ export class HomeComponent implements OnInit {
   constructor(
     private router: Router,
     private lotService: LotService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -35,10 +36,12 @@ export class HomeComponent implements OnInit {
           this.situation = response.data;
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Impossible de charger la situation financière';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

@@ -17,9 +17,9 @@ export class IncubationService {
     return this.api.post<ApiResponse<Incubation>>(this.endpoint, incubation);
   }
 
-  ecloter(id: number): Observable<ApiResponse<{ id_lot_resultat: number; nombre_poussins: number }>> {
-    return this.api.post<ApiResponse<{ id_lot_resultat: number; nombre_poussins: number }>>(
-      `${this.endpoint}/${id}/ecloter`, {}
+  ecloter(id: number, data: { oeufs_pourris: number; pourcentage_male: number }): Observable<ApiResponse<{ id_lot_resultat: number; nombre_poussins: number; nb_femelles: number; nb_males: number; oeufs_pourris: number; pourcentage_male: number }>> {
+    return this.api.post<ApiResponse<{ id_lot_resultat: number; nombre_poussins: number; nb_femelles: number; nb_males: number; oeufs_pourris: number; pourcentage_male: number }>>(
+      `${this.endpoint}/${id}/ecloter`, data
     );
   }
 

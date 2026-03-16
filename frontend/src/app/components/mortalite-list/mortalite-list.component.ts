@@ -49,11 +49,13 @@ export class MortaliteListComponent implements OnInit {
           this.mortalites = response.data;
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement des mortalités';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -64,9 +66,11 @@ export class MortaliteListComponent implements OnInit {
         if (response.success && response.data) {
           this.lots = response.data;
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Erreur lors du chargement des lots:', err);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -94,11 +98,13 @@ export class MortaliteListComponent implements OnInit {
           this.closeCreateForm();
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors de la création';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -112,11 +118,13 @@ export class MortaliteListComponent implements OnInit {
             this.loadMortalites();
           }
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.error = 'Erreur lors de la suppression';
           console.error(err);
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     }

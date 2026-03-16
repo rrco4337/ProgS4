@@ -52,9 +52,11 @@ export class CroissanceListComponent implements OnInit {
         if (response.success && response.data) {
           this.races = response.data;
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Erreur lors du chargement des races:', err);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -69,11 +71,13 @@ export class CroissanceListComponent implements OnInit {
           this.groupByRace();
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement des données';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -120,11 +124,13 @@ export class CroissanceListComponent implements OnInit {
           this.closeCreateForm();
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors de la création';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -150,11 +156,13 @@ export class CroissanceListComponent implements OnInit {
           this.closeEditForm();
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors de la mise à jour';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -168,11 +176,13 @@ export class CroissanceListComponent implements OnInit {
             this.loadCroissances();
           }
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.error = 'Erreur lors de la suppression';
           console.error(err);
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     }

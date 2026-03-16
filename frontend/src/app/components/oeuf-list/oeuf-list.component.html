@@ -2,7 +2,7 @@
 
   <!-- En-tête -->
   <div class="header-section">
-    <h1>🥚 Gestion des Œufs</h1>
+    <h1>Gestion des Œufs</h1>
   </div>
 
   <!-- Messages -->
@@ -33,13 +33,16 @@
   <!-- Onglets -->
   <div class="tabs">
     <button class="tab-btn" [class.active]="activeTab === 'recolte'" (click)="setTab('recolte')">
-      🪺 Récolte
+      Récolte
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'incubation'" (click)="setTab('incubation')">
-      🔬 Incubation
+      Incubation
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'ventes'" (click)="setTab('ventes')">
-      💰 Ventes
+      Ventes
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'auto-eclosion'" (click)="setTab('auto-eclosion')">
+      🤖 Auto-éclosion
     </button>
   </div>
 
@@ -123,13 +126,13 @@
 
     <!-- Schéma du processus -->
     <div class="process-diagram">
-      <div class="process-step">🥚 Œuf</div>
-      <div class="process-arrow">→</div>
-      <div class="process-step">🔬 Incubation<br><small>(durée selon race)</small></div>
-      <div class="process-arrow">→</div>
-      <div class="process-step">🐣 Poussin</div>
-      <div class="process-arrow">→</div>
-      <div class="process-step">📦 Nouveau lot</div>
+      <div class="process-step">Œuf</div>
+      <div class="process-arrow">-></div>
+      <div class="process-step">Incubation<br><small>(durée selon race)</small></div>
+      <div class="process-arrow">-></div>
+      <div class="process-step">Poussin</div>
+      <div class="process-arrow">-></div>
+      <div class="process-step">Nouveau lot</div>
     </div>
 
     <!-- Formulaire incubation -->
@@ -208,7 +211,7 @@
             <td>
               <button *ngIf="inc.statut === 'en_cours'"
                       class="btn-success-sm"
-                      (click)="ecloterIncubation(inc.id_incubation)"
+                      (click)="openEclosionForm(inc)"
                       title="Confirmer l'éclosion et créer le lot de poussins">
                 🐣 Éclore
               </button>
@@ -221,6 +224,96 @@
     <div *ngIf="incubations.length === 0 && !loading" class="empty-state">
       <p>Aucune incubation en cours. Sélectionnez une récolte d'œufs pour démarrer.</p>
     </div>
+
+    <!-- ── Formulaire d'éclosion (sexage + œufs pourris) ── -->
+    <div *ngIf="showEclosionForm" class="eclosion-overlay">
+      <div class="eclosion-modal">
+        <div class="eclosion-modal-header">
+          <h3>🐣 Confirmer l'éclosion</h3>
+          <button class="btn-close" (click)="cancelEclosionForm()">✕</button>
+        </div>
+        <p class="eclosion-info">
+          Race : <strong>{{ eclosionData.nom_race }}</strong> —
+          Œufs en incubation : <strong>{{ eclosionData.nombre_oeufs }}</strong>
+        </p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Œufs pourris 🥚💀</label>
+            
+            <!-- Sélecteur mode: nombre ou pourcentage -->
+            <div class="mode-selector">
+              <button type="button" 
+                      [class.active]="eclosionMode === 'nombre'"
+                      (click)="eclosionMode = 'nombre'"
+                      class="mode-btn">
+                Nombre
+              </button>
+              <button type="button" 
+                      [class.active]="eclosionMode === 'pourcentage'"
+                      (click)="eclosionMode = 'pourcentage'"
+                      class="mode-btn">
+                %
+              </button>
+            </div>
+
+            <!-- Saisie en nombre absolu -->
+            <input *ngIf="eclosionMode === 'nombre'" 
+                   type="number" [(ngModel)]="eclosionData.oeufs_pourris"
+                   min="0" [max]="eclosionData.nombre_oeufs"
+                   (ngModelChange)="updateOeufsPourris()"
+                   class="form-control" />
+
+            <!-- Saisie en pourcentage -->
+            <div *ngIf="eclosionMode === 'pourcentage'" class="pourcent-input-group">
+              <input type="number" [(ngModel)]="eclosionPourcentagePourris"
+                     min="0" max="100" step="0.1"
+                     (ngModelChange)="updateOeufsPourris()"
+                     class="form-control" />
+              <span class="pourcent-sign">%</span>
+              <span class="pourcent-calc">= {{ nbOeufsPourrisAffecte }} œuf(s)</span>
+            </div>
+
+            <small class="form-hint">Ces œufs seront enregistrés en pertes à la date d'éclosion prévue.</small>
+          </div>
+          <div class="form-group">
+            <label>% Mâles 🐓</label>
+            <input type="number" [(ngModel)]="eclosionData.pourcentage_male"
+                   min="0" max="100" step="1"
+                   class="form-control" />
+            <small class="form-hint">Femelles = {{ 100 - eclosionData.pourcentage_male }}% — seules elles pondront.</small>
+          </div>
+        </div>
+
+        <!-- Récapitulatif calculé -->
+        <div class="eclosion-recap">
+          <div class="recap-row">
+            <span>Poussins vivants</span>
+            <strong>{{ nbPoussinsEclosion }}</strong>
+          </div>
+          <div class="recap-row femelles">
+            <span>♀ Femelles (pondeuses)</span>
+            <strong>{{ nbFemelles }}</strong>
+          </div>
+          <div class="recap-row males">
+            <span>♂ Mâles</span>
+            <strong>{{ nbMales }}</strong>
+          </div>
+          <div class="recap-row pertes" *ngIf="eclosionData.oeufs_pourris > 0">
+            <span>Pertes (pourris)</span>
+            <strong>{{ eclosionData.oeufs_pourris }}</strong>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" (click)="confirmEclosion()" [disabled]="loading || nbPoussinsEclosion <= 0">
+            ✅ Confirmer l'éclosion
+          </button>
+          <button class="btn-secondary" (click)="cancelEclosionForm()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ─────────────────── ONGLET VENTES ─────────────────── -->
@@ -321,6 +414,159 @@
     </div>
     <div *ngIf="ventes.length === 0 && !loading" class="empty-state">
       <p>Aucune vente enregistrée.</p>
+    </div>
+  </div>
+
+  <!-- ─────────────────── ONGLET AUTO-ÉCLOSION ─────────────────── -->
+  <div *ngIf="activeTab === 'auto-eclosion'" class="tab-content">
+    
+    <div class="section-header">
+      <h2>🤖 Éclosion Automatique</h2>
+      <p class="section-description">
+        Gestion automatique des éclosions basée sur la durée d'incubation configurée pour chaque race.
+      </p>
+    </div>
+
+    <!-- Statut du service -->
+    <div class="auto-status-card">
+      <div class="auto-status-header">
+        <h3>📊 Statut du Service</h3>
+        <button class="btn-secondary" (click)="loadAutoEclosionStatus()" [disabled]="loading">
+          🔄 Actualiser
+        </button>
+      </div>
+      
+      <div class="auto-status-content">
+        <div class="status-item">
+          <span class="status-label">Service d'auto-éclosion :</span>
+          <span class="status-value" [ngClass]="getAutoEclosionStatusClass()">
+            {{ getAutoEclosionStatusText() }}
+          </span>
+        </div>
+        
+        <div *ngIf="autoEclosionStatus?.cronJobActive" class="status-item">
+          <span class="status-label">Horaires de vérification :</span>
+          <span class="status-value">
+            {{ autoEclosionStatus.nextRuns.join(', ') }} (heure locale)
+          </span>
+        </div>
+        
+        <div *ngIf="autoEclosionStatus?.nextEclosionsCount > 0" class="status-item">
+          <span class="status-label">Éclosions à traiter :</span>
+          <span class="status-value text-orange-600">
+            {{ autoEclosionStatus.nextEclosionsCount }} incubation(s) prête(s)
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions manuelles -->
+    <div class="action-section">
+      <h3>⚡ Actions Manuelles</h3>
+      <button 
+        class="btn-primary" 
+        (click)="processAutoEclosions()" 
+        [disabled]="autoEclosionProcessing || loading"
+      >
+        {{ autoEclosionProcessing ? '🔄 Traitement en cours...' : '🚀 Déclencher l\'éclosion automatique' }}
+      </button>
+      <p class="action-description">
+        Déclenche immédiatement la vérification et le traitement de toutes les incubations qui ont atteint leur date d'éclosion prévue.
+      </p>
+    </div>
+
+    <!-- Incubations prêtes à éclore -->
+    <div *ngIf="autoEclosionStatus?.nextEclosions.length > 0" class="next-eclosions-section">
+      <h3>🎯 Incubations Prêtes</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Incubation</th>
+              <th>Race</th>
+              <th>Date prévue</th>
+              <th>Nb d'œufs</th>
+              <th>Lot origine</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inc of autoEclosionStatus.nextEclosions">
+              <td style="font-family: monospace;">#{{ inc.id_incubation }}</td>
+              <td>{{ inc.nom_race }}</td>
+              <td>{{ formatDate(inc.date_eclosion_prevue) }}</td>
+              <td>{{ inc.nombre_oeufs }}</td>
+              <td>
+                <span class="badge-lot">Lot #{{ inc.id_lot_origine }}</span>
+              </td>
+              <td>
+                <span [ngClass]="getEclosionStatusClass(inc)">
+                  {{ getEclosionStatusText(inc) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Résultats du dernier traitement -->
+    <div *ngIf="autoEclosionResults.length > 0" class="results-section">
+      <h3>📋 Résultats du Dernier Traitement</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Incubation</th>
+              <th>Race</th>
+              <th>Résultat</th>
+              <th>Nouveau Lot</th>
+              <th>Nb Poussins</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let result of autoEclosionResults">
+              <td style="font-family: monospace;">#{{ result.id_incubation }}</td>
+              <td>{{ result.race || '-' }}</td>
+              <td>
+                <span *ngIf="result.status === 'success'" class="text-green-600">✅ Réussi</span>
+                <span *ngIf="result.status === 'error'" class="text-red-600">❌ Échec</span>
+              </td>
+              <td>
+                <span *ngIf="result.id_lot_resultat" class="badge-lot">Lot #{{ result.id_lot_resultat }}</span>
+                <span *ngIf="!result.id_lot_resultat">-</span>
+              </td>
+              <td>{{ result.nombre_poussins || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Explication du processus -->
+    <div class="info-section">
+      <h3>ℹ️ Comment ça marche ?</h3>
+      <div class="info-content">
+        <ol>
+          <li><strong>Vérification automatique :</strong> Le système vérifie 4 fois par jour (0h, 6h, 12h, 18h) s'il y a des incubations qui ont atteint leur date d'éclosion prévue.</li>
+          <li><strong>Calcul de la date d'éclosion :</strong> Lors de la création d'une incubation, la date d'éclosion est calculée automatiquement en ajoutant la durée d'incubation (configurée dans la race) à la date de début.</li>
+          <li><strong>Éclosion automatique :</strong> Quand une incubation atteint sa date prévue, le système crée automatiquement un nouveau lot de poussins avec le nombre d'œufs incubés.</li>
+          <li><strong>Traçabilité :</strong> L'incubation est marquée comme "eclot_auto" et liée au nouveau lot créé pour maintenir la traçabilité.</li>
+        </ol>
+        
+        <div class="tips">
+          <h4>💡 Conseils :</h4>
+          <ul>
+            <li>Vous pouvez déclencher manuellement le traitement à tout moment avec le bouton ci-dessus.</li>
+            <li>Les incubations en retard seront traitées lors de la prochaine vérification.</li>
+            <li>Vérifiez régulièrement cette page pour surveiller les éclosions à venir.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="autoEclosionStatus?.nextEclosions.length === 0 && !loading" class="empty-state">
+      <p>✅ Aucune incubation prête à éclore pour le moment.</p>
     </div>
   </div>
 

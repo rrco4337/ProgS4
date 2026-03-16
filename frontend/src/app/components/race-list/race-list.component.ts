@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RaceService } from '../../services/race.service';
@@ -26,7 +26,8 @@ export class RaceListComponent implements OnInit {
     pv_g: 0,
     pv_oeuf: 0,
     semaine_debut_ponte: 0,
-    duree_incubation: 21
+    duree_incubation: 21,
+    capacite_ponte: 300
   };
 
   editRace: Partial<Race> = {};
@@ -34,32 +35,38 @@ export class RaceListComponent implements OnInit {
   constructor(
     private raceService: RaceService,
     private croissanceService: CroissanceService,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => {
-        this.loadRaces();
-      }, 0);
+      setTimeout(() => this.loadRaces(), 0);
     }
   }
 
   loadRaces() {
+    console.log('[RaceListComponent] Starting loadRaces...');
     this.loading = true;
     this.error = null;
     this.raceService.getAll().subscribe({
       next: (response) => {
+        console.log('[RaceListComponent] Received response:', response);
         if (response.success && response.data) {
           this.races = response.data;
+          console.log('[RaceListComponent] Loaded races:', this.races.length);
+        } else {
+          console.warn('[RaceListComponent] Response not successful or no data');
+          this.error = 'Aucune donnée reçue du serveur';
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        console.error('[RaceListComponent] Error loading races:', err);
         this.error = 'Erreur lors du chargement des races';
-        console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -73,11 +80,13 @@ export class RaceListComponent implements OnInit {
           this.croissanceData = response.data;
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors du chargement de la croissance';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -95,7 +104,8 @@ export class RaceListComponent implements OnInit {
       pv_g: 0,
       pv_oeuf: 0,
       semaine_debut_ponte: 20,
-      duree_incubation: 21
+      duree_incubation: 21,
+      capacite_ponte: 300
     };
   }
 
@@ -112,11 +122,13 @@ export class RaceListComponent implements OnInit {
           this.closeCreateForm();
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Erreur lors de la création de la race';
         console.error(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -140,11 +152,13 @@ export class RaceListComponent implements OnInit {
             this.closeEditForm();
           }
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.error = 'Erreur lors de la mise à jour';
           console.error(err);
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     }
@@ -159,11 +173,13 @@ export class RaceListComponent implements OnInit {
             this.loadRaces();
           }
           this.loading = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.error = 'Erreur lors de la suppression';
           console.error(err);
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     }

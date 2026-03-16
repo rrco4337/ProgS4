@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const { getConnection, closeConnection } = require('./config/database');
+const { autoIncubationService } = require('./services/autoIncubationService');
 const routes = require('./routes');
 
 const app = express();
@@ -48,11 +49,15 @@ const startServer = async () => {
         // Test de connexion à la base de données
         await getConnection();
         
+        // Démarrer le service d'éclosion automatique
+        autoIncubationService.startCronJob();
+        
         app.listen(PORT, () => {
             console.log(`\n🚀 Serveur démarré sur le port ${PORT}`);
             console.log(`📍 URL: http://localhost:${PORT}`);
             console.log(`🏥 Health check: http://localhost:${PORT}/health`);
-            console.log(`📡 API: http://localhost:${PORT}/api\n`);
+            console.log(`📡 API: http://localhost:${PORT}/api`);
+            console.log(`🥚 Service d'éclosion automatique: ACTIF\n`);
         });
     } catch (error) {
         console.error('❌ Impossible de démarrer le serveur:', error.message);
@@ -63,12 +68,14 @@ const startServer = async () => {
 // Gestion de l'arrêt gracieux
 process.on('SIGINT', async () => {
     console.log('\n⚠️  Arrêt du serveur...');
+    autoIncubationService.stopCronJob();
     await closeConnection();
     process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
     console.log('\n⚠️  Arrêt du serveur...');
+    autoIncubationService.stopCronJob();
     await closeConnection();
     process.exit(0);
 });

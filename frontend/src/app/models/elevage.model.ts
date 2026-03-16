@@ -6,6 +6,7 @@ export interface Race {
   pv_oeuf: number;
   semaine_debut_ponte: number;
   duree_incubation: number;
+  capacite_ponte: number;
 }
 
 export interface Lot {
@@ -15,6 +16,8 @@ export interface Lot {
   date_entree: string;
   nombre_initial: number;
   cout_achat: number;
+  nb_femelles?: number | null;
+  nb_males?: number | null;
 }
 
 export interface Croissance {
@@ -47,11 +50,13 @@ export interface Incubation {
   date_debut: string;
   nombre_oeufs: number;
   date_eclosion_prevue: string;
-  statut: 'en_cours' | 'eclot';
+  statut: 'en_cours' | 'eclot' | 'eclot_auto';
   id_lot_resultat: number | null;
   id_lot?: number;
   nom_race?: string;
   duree_incubation?: number;
+  oeufs_pourris?: number;
+  pourcentage_male?: number;
 }
 
 export interface VenteOeuf {
@@ -70,6 +75,8 @@ export interface PoidsActuelResponse {
   date_entree: string;
   date_situation: string;
   age_semaines: number;
+  age_jours: number;
+  jours_dans_semaine: number;
   nombre_initial: number;
   nombre_actuel: number;
   mortalites: number;
@@ -83,9 +90,13 @@ export interface PoidsActuelResponse {
   nourriture_totale_g: number;
   cout_nourriture_total: number;
   total_oeufs: number;
+  perte_oeufs?: number;
+  valeur_perte_oeufs?: number;
   valeur_poulets: number;
   valeur_oeufs: number;
   benefice: number;
+  nb_femelles?: number | null;
+  nb_males?: number | null;
   detail_croissance: DetailCroissance[];
 }
 
@@ -96,6 +107,8 @@ export interface SituationLotResume {
   nombre_actuel: number;
   mortalites: number;
   total_oeufs: number;
+  perte_oeufs?: number;
+  valeur_perte_oeufs?: number;
   valeur_poulets: number;
   valeur_oeufs: number;
   cout_nourriture_total: number;
@@ -127,6 +140,7 @@ export interface DetailCroissance {
   nourriture_lot: number;
   cout_nourriture_semaine: number;
   cout_nourriture_cumulee: number;
+  est_futur: boolean;
 }
 
 export interface ApiResponse<T> {
