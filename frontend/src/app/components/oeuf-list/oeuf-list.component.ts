@@ -39,6 +39,12 @@ export class OeufListComponent implements OnInit {
   showIncubationForm = false;
   showVenteForm = false;
 
+  // Formulaire d'éclosion avec sexage
+  showEclosionForm = false;
+  eclosionData: { id_incubation: number; nombre_oeufs: number; nom_race: string; oeufs_pourris: number; pourcentage_male: number } = {
+    id_incubation: 0, nombre_oeufs: 0, nom_race: '', oeufs_pourris: 0, pourcentage_male: 50
+  };
+
   newRecolte: Partial<Oeuf> = { id_lot: 0, date_recolte: '', nombre: 0 };
   newIncubation: { id_oeuf: number; date_debut: string; nombre_oeufs: number } = {
     id_oeuf: 0, date_debut: '', nombre_oeufs: 0
@@ -197,21 +203,74 @@ export class OeufListComponent implements OnInit {
     });
   }
 
-  ecloterIncubation(id: number) {
-    if (confirm('Confirmer l\'éclosion et créer le nouveau lot de poussins ?')) {
-      this.incubationService.ecloter(id).subscribe({
-        next: (res) => {
-          if (res.success && res.data) {
-            this.loadIncubations();
-            this.loadLots();
-            this.successMessage = `✅ Éclosion confirmée ! Lot #${res.data.id_lot_resultat} créé avec ${res.data.nombre_poussins} poussins.`;
-            setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 6000);
-          }
-          this.cdr.detectChanges();
-        },
-        error: (err) => { this.error = 'Erreur lors de l\'\u00e9closion'; this.cdr.detectChanges(); }
-      });
+  openEclosionForm(inc: any) {
+    this.eclosionData = {
+      id_incubation: inc.id_incubation,
+      nombre_oeufs: inc.nombre_oeufs,
+      nom_race: inc.nom_race,
+      oeufs_pourris: 0,
+      pourcentage_male: 50
+    };
+    this.showEclosionForm = true;
+    this.error = null;
+  }
+
+  cancelEclosionForm() {
+    this.showEclosionForm = false;
+  }
+
+  get nbPoussinsEclosion(): number {
+    return Math.max(0, this.eclosionData.nombre_oeufs - this.eclosionData.oeufs_pourris);
+  }
+
+  get nbFemelles(): number {
+    return Math.floor(this.nbPoussinsEclosion * (1 - this.eclosionData.pourcentage_male / 100));
+  }
+
+  get nbMales(): number {
+    return this.nbPoussinsEclosion - this.nbFemelles;
+  }
+
+  confirmEclosion() {
+    const nb = this.eclosionData.nombre_oeufs;
+    const pourris = this.eclosionData.oeufs_pourris;
+    if (pourris < 0 || pourris > nb) {
+      this.error = `Le nombre d'œufs pourris doit être entre 0 et ${nb}`;
+      return;
     }
+    if (this.eclosionData.pourcentage_male < 0 || this.eclosionData.pourcentage_male > 100) {
+      this.error = 'Le pourcentage mâle doit être entre 0 et 100';
+      return;
+    }
+    this.loading = true;
+    this.incubationService.ecloter(this.eclosionData.id_incubation, {
+      oeufs_pourris: pourris,
+      pourcentage_male: this.eclosionData.pourcentage_male
+    }).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.showEclosionForm = false;
+          this.loadIncubations();
+          this.loadLots();
+          const d = res.data;
+          const msgPourris = d.oeufs_pourris > 0 ? ` ${d.oeufs_pourris} œuf(s) pourri(s) enregistré(s) en pertes.` : '';
+          this.successMessage = `✅ Lot #${d.id_lot_resultat} créé : ${d.nombre_poussins} poussins (${d.nb_femelles}♀ + ${d.nb_males}♂).${msgPourris}`;
+          setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 8000);
+        }
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = err?.error?.error || 'Erreur lors de l\'éclosion';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Kept for compatibility but replaced by openEclosionForm
+  ecloterIncubation(inc: any) {
+    this.openEclosionForm(inc);
   }
 
   deleteIncubation(id: number) {

@@ -450,3 +450,65 @@ h1 {
   .process-diagram { justify-content: center; }
   .tabs { flex-wrap: wrap; }
 }
+
+/* ─── Modal d'éclosion (sexage) ──────────────────────── */
+.eclosion-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.eclosion-modal {
+  background: #1a1a2e;
+  border: 1px solid #3b82f6;
+  border-radius: 12px;
+  padding: 1.8rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.eclosion-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.eclosion-modal-header h3 {
+  margin: 0;
+  color: #f3f4f6;
+  font-size: 1.2rem;
+}
+.eclosion-info {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+.eclosion-info strong {
+  color: #f3f4f6;
+}
+.eclosion-recap {
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.recap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+.recap-row strong {
+  font-size: 1rem;
+  color: #f3f4f6;
+}
+.recap-row.femelles strong { color: #34d399; }
+.recap-row.males strong    { color: #60a5fa; }
+.recap-row.pertes strong   { color: #f87171; }

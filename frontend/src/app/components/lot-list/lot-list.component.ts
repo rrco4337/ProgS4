@@ -235,7 +235,12 @@ export class LotListComponent implements OnInit {
   getProductionMaximale(lot: Lot | PoidsActuelResponse): number {
     const race = this.getRaceForLot(lot);
     if (!race) return 0;
-    return lot.nombre_initial * race.capacite_ponte;
+    // Utiliser nb_femelles si disponible (lot issu d'incubation avec sexage)
+    // Sinon, utiliser nombre_initial (lot acheté, on suppose toutes pondeuses)
+    const nbPondeuses = (lot.nb_femelles != null && lot.nb_femelles > 0)
+      ? lot.nb_femelles
+      : lot.nombre_initial;
+    return nbPondeuses * race.capacite_ponte;
   }
 
   /** Calculer le total d'œufs récoltés pour un lot */

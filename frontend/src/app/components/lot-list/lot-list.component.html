@@ -169,7 +169,12 @@
         <div class="production-icon">🥚</div>
         <div class="production-label">Production Maximale</div>
         <div class="production-amount">{{ getProductionMaximale(selectedLot).toLocaleString('fr-FR') }} œufs</div>
-        <div class="production-detail">{{ selectedLot.nombre_initial }} poules × {{ getRaceForLot(selectedLot)?.capacite_ponte || 0 }} œufs/vie</div>
+        <div class="production-detail" *ngIf="selectedLot.nb_femelles != null">
+          {{ selectedLot.nb_femelles }}♀ × {{ getRaceForLot(selectedLot)?.capacite_ponte || 0 }} œufs/vie
+        </div>
+        <div class="production-detail" *ngIf="selectedLot.nb_femelles == null">
+          {{ selectedLot.nombre_initial }} poules × {{ getRaceForLot(selectedLot)?.capacite_ponte || 0 }} œufs/vie
+        </div>
       </div>
       <div class="production-card">
         <div class="production-icon">📦</div>
@@ -241,6 +246,11 @@
             <td><strong>{{ formatNumber(selectedLot.valeur_oeufs) }} Ar</strong></td>
             <td>{{ selectedLot.total_oeufs }} œufs × {{ selectedLot.pv_oeuf }} Ar/œuf</td>
           </tr>
+          <tr class="row-warning" *ngIf="(selectedLot.perte_oeufs || 0) > 0">
+            <td>Perte œufs</td>
+            <td><strong>{{ selectedLot.perte_oeufs }}</strong></td>
+            <td>{{ selectedLot.perte_oeufs }} œuf(s) pourri(s) × {{ selectedLot.pv_oeuf }} Ar/œuf = {{ formatNumber(selectedLot.valeur_perte_oeufs || 0) }} Ar</td>
+          </tr>
           <tr class="row-revenue">
             <td>Valeur des poulets</td>
             <td><strong>{{ formatNumber(selectedLot.valeur_poulets) }} Ar</strong></td>
@@ -256,6 +266,7 @@
             </td>
             <td>
               ({{ formatNumber(selectedLot.valeur_poulets) }} + {{ formatNumber(selectedLot.valeur_oeufs) }})
+              <span *ngIf="(selectedLot.valeur_perte_oeufs || 0) > 0"> − {{ formatNumber(selectedLot.valeur_perte_oeufs || 0) }} Ar perte œufs</span>
               − {{ formatNumber(selectedLot.cout_nourriture_total) }}
               − {{ formatNumber(selectedLot.cout_achat) }} Ar achat
             </td>
@@ -316,6 +327,12 @@
               <span class="term-label">Valeur œufs</span>
               <span class="term-detail">{{ selectedLot.total_oeufs }} œufs × {{ selectedLot.pv_oeuf }} Ar</span>
               <span class="term-value">{{ formatNumber(selectedLot.valeur_oeufs) }} Ar</span>
+            </div>
+            <span class="formula-op" *ngIf="(selectedLot.valeur_perte_oeufs || 0) > 0">−</span>
+            <div class="formula-term" *ngIf="(selectedLot.valeur_perte_oeufs || 0) > 0">
+              <span class="term-label">Perte œufs</span>
+              <span class="term-detail">{{ selectedLot.perte_oeufs || 0 }} œuf(s) pourri(s) × {{ selectedLot.pv_oeuf }} Ar</span>
+              <span class="term-value">{{ formatNumber(selectedLot.valeur_perte_oeufs || 0) }} Ar</span>
             </div>
             <span class="formula-op">−</span>
             <div class="formula-term">

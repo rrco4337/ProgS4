@@ -94,10 +94,20 @@ const create = async (req, res) => {
     }
 };
 
-// Confirmer l'éclosion → crée un nouveau lot de poussins
+// Confirmer l'éclosion → crée un nouveau lot de poussins avec sexage
 const ecloter = async (req, res) => {
     try {
         const { id } = req.params;
+        const { oeufs_pourris = 0, pourcentage_male = 50 } = req.body;
+
+        const nbPourris = parseInt(oeufs_pourris) || 0;
+        const pctMale   = parseFloat(pourcentage_male);
+        const pctMaleVal = isNaN(pctMale) ? 50 : Math.min(100, Math.max(0, pctMale));
+
+        if (nbPourris < 0) {
+            return res.status(400).json({ success: false, error: 'Le nombre d\'œufs pourris ne peut pas être négatif' });
+        }
+
         const pool = await getConnection();
 
         // Récupérer les infos de l'incubation
@@ -116,30 +126,61 @@ const ecloter = async (req, res) => {
         const inc = incResult.recordset[0];
         const today = new Date().toISOString().split('T')[0];
 
+        if (nbPourris > inc.nombre_oeufs) {
+            return res.status(400).json({
+                success: false,
+                error: `Le nombre d'œufs pourris (${nbPourris}) dépasse le total (${inc.nombre_oeufs})`
+            });
+        }
+
+        // Calcul sexage : seules les femelles pondent → impact sur production max
+        const nb_poussins = inc.nombre_oeufs - nbPourris;
+        const nb_femelles = Math.floor(nb_poussins * (1 - pctMaleVal / 100));
+        const nb_males    = nb_poussins - nb_femelles;
+
         // Créer le nouveau lot de poussins
+        // Le nouveau lot contient uniquement les poussins réellement éclos.
         const lotResult = await pool.request()
             .input('id_race', sql.Int, inc.id_race)
             .input('date_entree', sql.Date, today)
-            .input('nombre_initial', sql.Int, inc.nombre_oeufs)
+            .input('nombre_initial', sql.Int, nb_poussins)
             .input('cout_achat', sql.Decimal(12, 2), 0)
-            .query(`INSERT INTO Lot (id_race, date_entree, nombre_initial, cout_achat)
-                    VALUES (@id_race, @date_entree, @nombre_initial, @cout_achat);
+            .input('nb_femelles', sql.Int, nb_femelles)
+            .input('nb_males', sql.Int, nb_males)
+            .input('id_incubation', sql.Int, id)
+            .query(`INSERT INTO Lot (id_race, date_entree, nombre_initial, cout_achat, nb_femelles, nb_males, id_incubation)
+                    VALUES (@id_race, @date_entree, @nombre_initial, @cout_achat, @nb_femelles, @nb_males, @id_incubation);
                     SELECT SCOPE_IDENTITY() AS id`);
 
         const idLotResultat = lotResult.recordset[0].id;
 
-        // Mettre à jour l'incubation
+        // Mettre à jour l'incubation avec les infos de sexage
         await pool.request()
             .input('id', sql.Int, id)
             .input('id_lot_resultat', sql.Int, idLotResultat)
+            .input('oeufs_pourris', sql.Int, nbPourris)
+            .input('pourcentage_male', sql.Decimal(5, 2), pctMaleVal)
+            .input('date_eclosion_reelle', sql.Date, today)
             .query(`UPDATE Incubation
-                    SET statut = 'eclot', id_lot_resultat = @id_lot_resultat
+                    SET statut = 'eclot',
+                        id_lot_resultat = @id_lot_resultat,
+                        oeufs_pourris = @oeufs_pourris,
+                        pourcentage_male = @pourcentage_male,
+                        date_eclosion_reelle = @date_eclosion_reelle
                     WHERE id_incubation = @id`);
 
+        const msgPourris = nbPourris > 0 ? ` ${nbPourris} œuf(s) pourri(s) enregistré(s) en pertes.` : '';
         res.json({
             success: true,
-            message: `Éclosion confirmée ! Nouveau lot #${idLotResultat} créé avec ${inc.nombre_oeufs} poussins.`,
-            data: { id_lot_resultat: idLotResultat, nombre_poussins: inc.nombre_oeufs }
+            message: `Éclosion confirmée ! Lot #${idLotResultat} créé : ${nb_poussins} poussins (${nb_femelles}♀ + ${nb_males}♂).${msgPourris}`,
+            data: {
+                id_lot_resultat: idLotResultat,
+                nombre_poussins: nb_poussins,
+                nb_femelles,
+                nb_males,
+                oeufs_pourris: nbPourris,
+                pourcentage_male: pctMaleVal
+            }
         });
     } catch (error) {
         console.error('Erreur ecloter incubation:', error);

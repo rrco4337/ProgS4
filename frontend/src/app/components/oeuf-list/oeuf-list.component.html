@@ -211,7 +211,7 @@
             <td>
               <button *ngIf="inc.statut === 'en_cours'"
                       class="btn-success-sm"
-                      (click)="ecloterIncubation(inc.id_incubation)"
+                      (click)="openEclosionForm(inc)"
                       title="Confirmer l'éclosion et créer le lot de poussins">
                 🐣 Éclore
               </button>
@@ -224,6 +224,65 @@
     <div *ngIf="incubations.length === 0 && !loading" class="empty-state">
       <p>Aucune incubation en cours. Sélectionnez une récolte d'œufs pour démarrer.</p>
     </div>
+
+    <!-- ── Formulaire d'éclosion (sexage + œufs pourris) ── -->
+    <div *ngIf="showEclosionForm" class="eclosion-overlay">
+      <div class="eclosion-modal">
+        <div class="eclosion-modal-header">
+          <h3>🐣 Confirmer l'éclosion</h3>
+          <button class="btn-close" (click)="cancelEclosionForm()">✕</button>
+        </div>
+        <p class="eclosion-info">
+          Race : <strong>{{ eclosionData.nom_race }}</strong> —
+          Œufs en incubation : <strong>{{ eclosionData.nombre_oeufs }}</strong>
+        </p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Œufs pourris 🥚💀</label>
+            <input type="number" [(ngModel)]="eclosionData.oeufs_pourris"
+                   min="0" [max]="eclosionData.nombre_oeufs"
+                   class="form-control" />
+            <small class="form-hint">Ces œufs seront enregistrés en pertes à la date d'éclosion prévue.</small>
+          </div>
+          <div class="form-group">
+            <label>% Mâles 🐓</label>
+            <input type="number" [(ngModel)]="eclosionData.pourcentage_male"
+                   min="0" max="100" step="1"
+                   class="form-control" />
+            <small class="form-hint">Femelles = {{ 100 - eclosionData.pourcentage_male }}% — seules elles pondront.</small>
+          </div>
+        </div>
+
+        <!-- Récapitulatif calculé -->
+        <div class="eclosion-recap">
+          <div class="recap-row">
+            <span>Poussins vivants</span>
+            <strong>{{ nbPoussinsEclosion }}</strong>
+          </div>
+          <div class="recap-row femelles">
+            <span>♀ Femelles (pondeuses)</span>
+            <strong>{{ nbFemelles }}</strong>
+          </div>
+          <div class="recap-row males">
+            <span>♂ Mâles</span>
+            <strong>{{ nbMales }}</strong>
+          </div>
+          <div class="recap-row pertes" *ngIf="eclosionData.oeufs_pourris > 0">
+            <span>Pertes (pourris)</span>
+            <strong>{{ eclosionData.oeufs_pourris }}</strong>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" (click)="confirmEclosion()" [disabled]="loading || nbPoussinsEclosion <= 0">
+            ✅ Confirmer l'éclosion
+          </button>
+          <button class="btn-secondary" (click)="cancelEclosionForm()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ─────────────────── ONGLET VENTES ─────────────────── -->
