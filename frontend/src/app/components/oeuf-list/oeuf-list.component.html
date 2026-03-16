@@ -240,9 +240,40 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Œufs pourris 🥚💀</label>
-            <input type="number" [(ngModel)]="eclosionData.oeufs_pourris"
+            
+            <!-- Sélecteur mode: nombre ou pourcentage -->
+            <div class="mode-selector">
+              <button type="button" 
+                      [class.active]="eclosionMode === 'nombre'"
+                      (click)="eclosionMode = 'nombre'"
+                      class="mode-btn">
+                Nombre
+              </button>
+              <button type="button" 
+                      [class.active]="eclosionMode === 'pourcentage'"
+                      (click)="eclosionMode = 'pourcentage'"
+                      class="mode-btn">
+                %
+              </button>
+            </div>
+
+            <!-- Saisie en nombre absolu -->
+            <input *ngIf="eclosionMode === 'nombre'" 
+                   type="number" [(ngModel)]="eclosionData.oeufs_pourris"
                    min="0" [max]="eclosionData.nombre_oeufs"
+                   (ngModelChange)="updateOeufsPourris()"
                    class="form-control" />
+
+            <!-- Saisie en pourcentage -->
+            <div *ngIf="eclosionMode === 'pourcentage'" class="pourcent-input-group">
+              <input type="number" [(ngModel)]="eclosionPourcentagePourris"
+                     min="0" max="100" step="0.1"
+                     (ngModelChange)="updateOeufsPourris()"
+                     class="form-control" />
+              <span class="pourcent-sign">%</span>
+              <span class="pourcent-calc">= {{ nbOeufsPourrisAffecte }} œuf(s)</span>
+            </div>
+
             <small class="form-hint">Ces œufs seront enregistrés en pertes à la date d'éclosion prévue.</small>
           </div>
           <div class="form-group">

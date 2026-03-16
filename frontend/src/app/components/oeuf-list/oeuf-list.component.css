@@ -512,3 +512,52 @@ h1 {
 .recap-row.femelles strong { color: #34d399; }
 .recap-row.males strong    { color: #60a5fa; }
 .recap-row.pertes strong   { color: #f87171; }
+
+/* ─── Mode sélecteur (nombre/pourcentage) ──────────────── */
+.mode-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+.mode-btn {
+  flex: 1;
+  padding: 0.5rem;
+  background: #0f172a;
+  border: 1px solid #475569;
+  color: #9ca3af;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.mode-btn:hover {
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+.mode-btn.active {
+  background: #1e40af;
+  border-color: #3b82f6;
+  color: #f3f4f6;
+}
+
+/* ─── Pourcentage input group ──────────────── */
+.pourcent-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.pourcent-input-group .form-control {
+  flex: 1;
+}
+.pourcent-sign {
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.pourcent-calc {
+  color: #34d399;
+  font-size: 0.9rem;
+  font-weight: 500;
+}

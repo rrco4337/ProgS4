@@ -41,9 +41,11 @@ export class OeufListComponent implements OnInit {
 
   // Formulaire d'éclosion avec sexage
   showEclosionForm = false;
+  eclosionMode: 'nombre' | 'pourcentage' = 'nombre';  // Mode de saisie des œufs pourris
   eclosionData: { id_incubation: number; nombre_oeufs: number; nom_race: string; oeufs_pourris: number; pourcentage_male: number } = {
     id_incubation: 0, nombre_oeufs: 0, nom_race: '', oeufs_pourris: 0, pourcentage_male: 50
   };
+  eclosionPourcentagePourris: number = 0;  // Pourcentage d'œufs pourris saisi
 
   newRecolte: Partial<Oeuf> = { id_lot: 0, date_recolte: '', nombre: 0 };
   newIncubation: { id_oeuf: number; date_debut: string; nombre_oeufs: number } = {
@@ -204,6 +206,7 @@ export class OeufListComponent implements OnInit {
   }
 
   openEclosionForm(inc: any) {
+    this.eclosionMode = 'nombre';
     this.eclosionData = {
       id_incubation: inc.id_incubation,
       nombre_oeufs: inc.nombre_oeufs,
@@ -211,8 +214,24 @@ export class OeufListComponent implements OnInit {
       oeufs_pourris: 0,
       pourcentage_male: 50
     };
+    this.eclosionPourcentagePourris = 0;
     this.showEclosionForm = true;
     this.error = null;
+  }
+
+  // Récupérer le nombre d'œufs pourris selon le mode de saisie
+  get nbOeufsPourrisAffecte(): number {
+    if (this.eclosionMode === 'pourcentage') {
+      return Math.floor(this.eclosionData.nombre_oeufs * (this.eclosionPourcentagePourris / 100));
+    }
+    return this.eclosionData.oeufs_pourris;
+  }
+
+  // Mettre à jour le nombre d'œufs pourris si on change le mode ou le pourcentage
+  updateOeufsPourris() {
+    if (this.eclosionMode === 'pourcentage') {
+      this.eclosionData.oeufs_pourris = this.nbOeufsPourrisAffecte;
+    }
   }
 
   cancelEclosionForm() {
@@ -220,7 +239,7 @@ export class OeufListComponent implements OnInit {
   }
 
   get nbPoussinsEclosion(): number {
-    return Math.max(0, this.eclosionData.nombre_oeufs - this.eclosionData.oeufs_pourris);
+    return Math.max(0, this.eclosionData.nombre_oeufs - this.nbOeufsPourrisAffecte);
   }
 
   get nbFemelles(): number {
@@ -232,8 +251,9 @@ export class OeufListComponent implements OnInit {
   }
 
   confirmEclosion() {
+    this.updateOeufsPourris();  // Mettre à jour selon le mode
     const nb = this.eclosionData.nombre_oeufs;
-    const pourris = this.eclosionData.oeufs_pourris;
+    const pourris = this.nbOeufsPourrisAffecte;
     if (pourris < 0 || pourris > nb) {
       this.error = `Le nombre d'œufs pourris doit être entre 0 et ${nb}`;
       return;
