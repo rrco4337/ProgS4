@@ -56,8 +56,8 @@
                 </span>
               </td>
               <td>
-                <button class="btn-icon" (click)="openEditForm(crois)" title="Modifier">✏️</button>
-                <button class="btn-icon-delete" (click)="deleteCroissance(crois.id_croissance)" title="Supprimer">🗑️</button>
+                <button class="btn-icon" (click)="openEditForm(crois)" title="Modifier"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-icon-delete" (click)="deleteCroissance(crois.id_croissance)" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
               </td>
             </tr>
             <tr *ngIf="!croissancesByRace[race.id_race] || croissancesByRace[race.id_race].length === 0">

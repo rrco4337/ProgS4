@@ -27,7 +27,9 @@ export class LotListComponent implements OnInit {
     id_race: 0,
     date_entree: '',
     nombre_initial: 0,
-    cout_achat: 0
+    cout_achat: 0,
+    nb_femelles: 0,
+    nb_males: 0
   };
 
   editingLot: Lot | null = null;
@@ -91,7 +93,9 @@ export class LotListComponent implements OnInit {
       id_race: this.races.length > 0 ? this.races[0].id_race : 0,
       date_entree: today,
       nombre_initial: 100,
-      cout_achat: 5000
+      cout_achat: 5000,
+      nb_femelles: 100,
+      nb_males: 0
     };
   }
 
@@ -100,6 +104,12 @@ export class LotListComponent implements OnInit {
   }
 
   createLot() {
+    if (!this.isSexeRepartitionValide(this.newLot)) {
+      this.error = 'La somme femelles + mâles doit être égale au nombre initial';
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.loading = true;
     this.lotService.create(this.newLot).subscribe({
       next: (response) => {
@@ -120,7 +130,11 @@ export class LotListComponent implements OnInit {
   }
 
   openEditForm(lot: Lot) {
-    this.editingLot = { ...lot };
+    this.editingLot = {
+      ...lot,
+      nb_femelles: lot.nb_femelles != null ? lot.nb_femelles : lot.nombre_initial,
+      nb_males: lot.nb_males != null ? lot.nb_males : 0
+    };
     this.showEditForm = true;
   }
 
@@ -131,6 +145,12 @@ export class LotListComponent implements OnInit {
 
   updateLot() {
     if (!this.editingLot) return;
+
+    if (!this.isSexeRepartitionValide(this.editingLot)) {
+      this.error = 'La somme femelles + mâles doit être égale au nombre initial';
+      this.cdr.detectChanges();
+      return;
+    }
 
     this.loading = true;
     this.lotService.update(this.editingLot.id_lot, this.editingLot).subscribe({
@@ -266,6 +286,15 @@ export class LotListComponent implements OnInit {
     const lotId = ('id_lot' in lot) ? lot.id_lot : 0;
     const totalRecolte = this.getTotalOeufsRecoltes(lotId);
     return Math.max(0, productionMax - totalRecolte);
+  }
+
+  isSexeRepartitionValide(lot: Partial<Lot>): boolean {
+    const nombreInitial = Number(lot.nombre_initial ?? 0);
+    const nbFemelles = Number(lot.nb_femelles ?? 0);
+    const nbMales = Number(lot.nb_males ?? 0);
+
+    if (nombreInitial <= 0 || nbFemelles < 0 || nbMales < 0) return false;
+    return nbFemelles + nbMales === nombreInitial;
   }
 
   formatDate(dateString: string): string {
