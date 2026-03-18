@@ -1,0 +1,50 @@
+<div class="app-shell">
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <div class="brand-row">
+      <a routerLink="/dashboard" class="brand-link" (click)="closeSidebar()">
+        <span class="brand-title">ETU003123</span>
+      </a>
+      <button class="close-sidebar" (click)="closeSidebar()">✕</button>
+    </div>
+
+    <nav class="nav-groups">
+      <div class="nav-group">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">Tableau de bord</a>
+      </div>
+
+      <div class="nav-group">
+        <p class="group-title">Production</p>
+        <a routerLink="/production/lots" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">Lots</a>
+        <a routerLink="/production/growth" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">Suivi de croissance</a>
+      </div>
+
+      <div class="nav-group">
+        <p class="group-title">Santé</p>
+        <a routerLink="/health/mortalities" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">Mortalités</a>
+      </div>
+
+      <div class="nav-group">
+        <p class="group-title">Œufs & stock</p>
+        <a routerLink="/eggs/collection" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">Gestion des œufs</a>
+      </div>
+
+      <div class="nav-group">
+        <p class="group-title">Paramètres</p>
+        <a routerLink="/settings/races" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">Races</a>
+        <a routerLink="/settings/growth-models" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">Modèles de croissance</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="content-wrapper">
+    <header class="topbar">
+      <button class="menu-button" (click)="toggleSidebar()">☰</button>
+      <div class="topbar-title">Pilotage de l'élevage</div>
+
+    </header>
+
+    <main class="content-area" (click)="closeSidebar()">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

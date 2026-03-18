@@ -1,1108 +1,284 @@
 .container {
-  max-width: 1400px;
+  max-width: 1220px;
   margin: 0 auto;
-  padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 1.25rem;
 }
 
 .header-section {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+  align-items: end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
-  gap: 1rem;
+}
+
+.header-section h1 {
+  margin: 0;
+  font-size: 1.6rem;
 }
 
 .header-controls {
   display: flex;
+  gap: 0.7rem;
   align-items: center;
-  gap: 1.5rem;
   flex-wrap: wrap;
 }
 
-h1 {
-  color: #f3f4f6;
-  font-size: 2.5rem;
-  margin: 0;
-}
-
-/* Filtre de date */
 .date-filter {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: #1a1a1e;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #2a2a2f;
+  gap: 0.45rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 0.4rem 0.5rem;
 }
 
 .date-filter label {
-  font-weight: 600;
-  color: #e5e7eb;
-  white-space: nowrap;
+  color: #cbd5e1;
+  font-size: 0.82rem;
 }
 
-.date-input {
-  padding: 0.5rem;
-  border: 1px solid #2a2a2f;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  transition: border-color 0.3s ease;
-  background: #111114;
-  color: #f3f4f6;
+.date-input,
+input,
+select,
+textarea {
+  background: #111827;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  border-radius: 8px;
+  padding: 0.4rem 0.5rem;
 }
 
-.date-input:focus {
-  outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-}
-
+.btn-primary,
+.btn-secondary,
+.btn-details,
+.btn-edit,
+.btn-delete,
+.btn-back,
 .btn-today {
-  background: #1e40af;
-  color: #93c5fd;
-  border: 1px solid #3b82f6;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  white-space: nowrap;
-}
-
-.btn-today:hover {
-  background: #2563eb;
-  color: white;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
+  border: 1px solid #334155;
   border-radius: 8px;
-  font-size: 1rem;
+  padding: 0.4rem 0.7rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+.btn-primary,
+.btn-details,
+.btn-today {
+  background: #1d4ed8;
+  border-color: #1e40af;
+  color: #f8fafc;
 }
 
-.loading, .error {
-  padding: 1rem;
-  border-radius: 8px;
+.btn-edit {
+  background: #0f766e;
+  border-color: #115e59;
+  color: #ecfeff;
+}
+
+.btn-delete {
+  background: #7f1d1d;
+  border-color: #991b1b;
+  color: #fee2e2;
+}
+
+.btn-secondary,
+.btn-back {
+  background: #111827;
+  color: #e2e8f0;
+}
+
+.loading,
+.error {
+  border-radius: 10px;
+  padding: 0.75rem;
   margin-bottom: 1rem;
 }
 
 .loading {
-  background: #111827;
-  color: #60a5fa;
+  background: #0f172a;
+  border: 1px solid #1e293b;
 }
 
 .error {
-  background: #1f1418;
-  color: #f87171;
+  background: #3f1d20;
+  border: 1px solid #7f1d1d;
+  color: #fecaca;
 }
 
-/* Formulaire */
-.form-container {
-  background: #141416;
-  border-radius: 12px;
-  padding: 2rem;
-  border: 1px solid #2a2a2f;
-  max-width: 700px;
-  margin: 2rem auto;
-}
-
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #2a2a2f;
-}
-
-.form-header h2 {
-  margin: 0;
-  color: #f3f4f6;
-}
-
-.btn-close {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-}
-
-.btn-close:hover {
-  background: #c0392b;
-  transform: rotate(90deg);
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 0.5rem;
-  color: #e5e7eb;
-  font-weight: 600;
-}
-
-.form-group input,
-.form-group select {
-  padding: 0.75rem;
-  border: 1px solid #2a2a2f;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #111114;
-  color: #f3f4f6;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-
-.btn-secondary {
-  background: #374151;
-  color: #e5e7eb;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-}
-
-.btn-secondary:hover {
-  background: #4b5563;
-}
-
-/* Liste des lots */
 .lots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
 }
 
 .lot-card {
-  background: #141416;
+  background: #111827;
+  border: 1px solid #334155;
   border-radius: 12px;
-  padding: 1.5rem;
-  border: 1px solid #2a2a2f;
-  transition: all 0.3s ease;
-}
-
-.lot-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  border-color: #4caf50;
+  padding: 0.9rem;
 }
 
 .lot-header {
   display: flex;
   justify-content: space-between;
+  gap: 0.5rem;
   align-items: center;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #2a2a2f;
-  padding-bottom: 0.5rem;
-  cursor: pointer;
 }
 
 .lot-header h2 {
   margin: 0;
-  font-size: 1.3rem;
-  color: #f3f4f6;
+  font-size: 1.05rem;
 }
 
 .badge {
-  background: #4caf50;
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: bold;
+  border: 1px solid #334155;
+  background: #0f172a;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  color: #cbd5e1;
 }
 
 .lot-info {
-  cursor: pointer;
+  margin-top: 0.55rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
 }
 
 .lot-info p {
-  margin: 0.5rem 0;
-  color: #d1d5db;
+  margin: 0.3rem 0;
 }
 
 .lot-actions {
+  margin-top: 0.7rem;
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 0.45rem;
+  flex-wrap: wrap;
 }
 
-.btn-details {
-  flex: 1;
-  padding: 0.75rem;
-  background: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.btn-details:hover {
-  background: #45a049;
-}
-
-.btn-edit, .btn-delete {
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 45px;
-  background: #1a1a1e;
-}
-
-.btn-edit {
-  border: 2px solid #3b82f6;
-  color: #93c5fd;
-}
-
-.btn-edit:hover {
-  background: #3b82f6;
-  color: white;
-  transform: scale(1.1);
-}
-
-.btn-delete {
-  border: 2px solid #ef4444;
-  color: #fca5a5;
-}
-
-.btn-delete:hover {
-  background: #ef4444;
-  color: white;
-  transform: scale(1.1);
-}
-
-/* Détails du lot */
-.lot-details {
-  background: #1a202c;
+.form-container,
+.lot-details,
+.situation-card,
+.oeufs-lot-section,
+.benefice-formula-box {
+  background: #111827;
+  border: 1px solid #334155;
   border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  padding: 0.9rem;
 }
 
-.btn-back {
-  background: #757575;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
-  transition: background 0.3s ease;
-}
-
-.btn-back:hover {
-  background: #616161;
-}
-
-.details-header h2 {
-  color: #e2e8f0;
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-}
-
-.date-badge {
+.form-header,
+.details-header,
+.oeufs-lot-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  background: #2d3748;
-  padding: 0.75rem 1.2rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-  border-left: 4px solid #4caf50;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
 }
 
-.date-label {
-  font-size: 0.9rem;
-  color: #cbd5e0;
-  font-weight: 600;
+.form,
+.mortalite-form,
+.race-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
 }
 
-.date-value {
-  font-size: 1.1rem;
-  color: #e2e8f0;
-  font-weight: 700;
-  background: #4a5568;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-}
-
-.stats {
+.form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin: 2rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.6rem;
 }
 
-.stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1.5rem;
-  border-radius: 12px;
-  text-align: center;
-  color: white;
-}
-
-.stat-card.success {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-}
-
-.stat-card.warning {
-  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-}
-
-.stat-card.info {
-  background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
-}
-
-.stat-card.danger {
-  background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
-}
-
-.stat-label {
+.form-group label {
   display: block;
-  font-size: 0.85rem;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+  color: #cbd5e1;
 }
 
-.stat-value {
-  display: block;
-  font-size: 1.8rem;
-  font-weight: bold;
+.form-actions,
+.production-highlight,
+.finance-highlight,
+.totaux-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
-/* Tableau de croissance */
-.croissance-section {
-  margin-top: 2rem;
+.finance-card,
+.production-card,
+.total-box {
+  flex: 1;
+  min-width: 190px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 0.75rem;
 }
 
-.croissance-section h3 {
-  color: #e2e8f0;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+.finance-label,
+.production-label,
+.total-label {
+  color: #9ca3af;
+  font-size: 0.8rem;
 }
 
-.table-container {
+.finance-amount,
+.production-amount,
+.total-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+.table-container,
+.oeufs-table-wrap {
   overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  background: #1a202c;
 }
 
-.croissance-table {
+table {
   width: 100%;
   border-collapse: collapse;
-  background: #1a202c;
 }
 
-.croissance-table thead {
-  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-  color: #e2e8f0;
-}
-
-.croissance-table th {
-  padding: 1rem;
+th,
+td {
+  border-bottom: 1px solid #1f2937;
+  padding: 0.6rem;
   text-align: left;
-  font-weight: 600;
-  color: #cbd5e0;
 }
 
-.croissance-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #4a5568;
-  color: #e2e8f0;
+th {
+  background: #0f172a;
+  color: #cbd5e1;
 }
 
-.croissance-table tbody tr:hover {
-  background: #2d3748;
-}
+.row-cost { color: #fca5a5; }
+.row-revenue { color: #bfdbfe; }
+.row-warning { color: #fde68a; }
+.row-benefice-positif { color: #86efac; }
+.row-benefice-negatif { color: #fca5a5; }
 
-.croissance-table tbody tr.current {
-  background: #14532d;
-  font-weight: bold;
-  color: #bbf7d0;
-}
-
-.badge-small {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
-  background: #1e40af;
-  color: #dbeafe;
-}
-
-.badge-small.current {
-  background: #059669;
-  color: #d1fae5;
-  animation: pulse 2s infinite;
-}
-
-.badge-small.futur {
-  background: #6b7280;
-  color: #e5e7eb;
-}
-
-.croissance-table tbody tr.futur {
-  opacity: 0.5;
-}
-
-.croissance-table tbody tr.futur td {
-  color: #9ca3af;
-  font-style: italic;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-/* Explication */
-.explanation {
-  margin-top: 2rem;
-  background: #1a1a1e;
-  padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid #2a2a2f;
-  border-left: 4px solid #f59e0b;
-}
-
-.explanation h4 {
-  margin-top: 0;
-  color: #fbbf24;
-  font-size: 1.3rem;
-}
-
-.explanation-content {
-  color: #e2e8f0;
-  line-height: 1.8;
-}
-
-.explanation-content ul {
-  margin: 1rem 0;
-  padding-left: 1.5rem;
-}
-
-.explanation-content li {
-  margin: 0.5rem 0;
-}
-
-.result {
-  background: #111114;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-  border-left: 4px solid #4caf50;
-  color: #e2e8f0;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
-
   .header-section {
-    flex-direction: column;
-    gap: 1rem;
     align-items: stretch;
   }
 
   .header-controls {
-    justify-content: center;
+    width: 100%;
   }
 
   .date-filter {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-    gap: 0.75rem;
+    width: 100%;
+    justify-content: space-between;
   }
-
-  h1 {
-    font-size: 1.8rem;
-  }
-
-  .lots-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .croissance-table {
-    font-size: 0.85rem;
-  }
-
-  .croissance-table th,
-  .croissance-table td {
-    padding: 0.5rem;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ══════════ Financial highlight cards ══════════ */
-.finance-highlight {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.2rem;
-  margin-bottom: 2rem;
-}
-
-.finance-card {
-  border-radius: 16px;
-  padding: 1.8rem;
-  text-align: center;
-  border: 1px solid #2a2a2f;
-  transition: transform 0.2s ease;
-}
-
-.finance-card:hover {
-  transform: translateY(-3px);
-}
-
-.finance-icon {
-  font-size: 2.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.finance-label {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #9ca3af;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.finance-amount {
-  font-size: 2.2rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.3rem;
-}
-
-.finance-detail {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
-
-.ca-card {
-  background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
-  border-color: #3b82f6;
-}
-.ca-card .finance-amount { color: #93c5fd; }
-.ca-card .finance-label { color: #bfdbfe; }
-.ca-card .finance-detail { color: #93c5fd; }
-
-.cost-card {
-  background: linear-gradient(135deg, #4a1d1d 0%, #7f1d1d 100%);
-  border-color: #ef4444;
-}
-.cost-card .finance-amount { color: #fca5a5; }
-.cost-card .finance-label { color: #fecaca; }
-.cost-card .finance-detail { color: #fca5a5; }
-
-.benefice-card {
-  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-  border-color: #10b981;
-}
-.benefice-card .finance-amount { color: #6ee7b7; }
-.benefice-card .finance-label { color: #a7f3d0; }
-.benefice-card .finance-detail { color: #6ee7b7; }
-
-.perte-card {
-  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
-  border-color: #ef4444;
-}
-.perte-card .finance-amount { color: #fca5a5; }
-.perte-card .finance-label { color: #fecaca; }
-.perte-card .finance-detail { color: #fca5a5; }
-
-@media (max-width: 768px) {
-  .finance-highlight {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ══════════ Production highlight cards ══════════ */
-.production-highlight {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.2rem;
-  margin-bottom: 2rem;
-}
-
-.production-card {
-  border-radius: 16px;
-  padding: 1.8rem;
-  text-align: center;
-  border: 1px solid #2a2a2f;
-  transition: transform 0.2s ease;
-  background: linear-gradient(135deg, #2d1b69 0%, #5b21b6 100%);
-  border-color: #8b5cf6;
-}
-
-.production-card:hover {
-  transform: translateY(-3px);
-}
-
-.production-icon {
-  font-size: 2.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.production-label {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #c4b5fd;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.production-amount {
-  font-size: 2.2rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.3rem;
-  color: #ddd6fe;
-}
-
-.production-detail {
-  font-size: 0.8rem;
-  color: #c4b5fd;
-}
-
-@media (max-width: 768px) {
-  .production-highlight {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ══════════ Situation du lot ══════════ */
-
-.situation-card {
-  background: #1a202c;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  margin-bottom: 2rem;
-  border-top: 5px solid #4caf50;
-}
-
-.situation-title {
-  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-  color: #e2e8f0;
-  padding: 1.1rem 1.6rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  letter-spacing: 0.03em;
-}
-
-.situation-icon {
-  font-size: 1.4rem;
-}
-
-.situation-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: transparent;
-}
-
-.situation-table thead th {
-  background: #2d3748;
-  padding: 0.75rem 1.2rem;
-  text-align: left;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #cbd5e0;
-  border-bottom: 2px solid #4a5568;
-}
-
-.situation-table tbody tr {
-  border-bottom: 1px solid #4a5568;
-  transition: background 0.15s;
-}
-
-.situation-table tbody tr:hover {
-  background: #2d3748;
-}
-
-.situation-table td {
-  padding: 0.85rem 1.2rem;
-  font-size: 0.95rem;
-  color: #e2e8f0;
-  vertical-align: middle;
-}
-
-.situation-table td:first-child {
-  font-weight: 600;
-  width: 22%;
-  white-space: nowrap;
-}
-
-.situation-table td:nth-child(2) {
-  width: 22%;
-  font-size: 1.05rem;
-  color: #f7fafc;
-}
-
-.situation-table td:last-child {
-  color: #cbd5e0;
-  font-size: 0.87rem;
-}
-
-/* Lignes colorées */
-.row-warning td {
-  background: #744210;
-  color: #fef3c7;
-}
-
-.row-cost td {
-  background: #7c2d12;
-  color: #fecaca;
-}
-
-.row-revenue td {
-  background: #14532d;
-  color: #d1fae5;
-}
-
-.row-benefice-positif td {
-  background: #14532d;
-  font-weight: 700;
-  color: #bbf7d0;
-}
-
-.row-benefice-positif td:first-child,
-.row-benefice-positif td:nth-child(2) {
-  color: #bbf7d0;
-}
-
-.row-benefice-negatif td {
-  background: #7f1d1d;
-  font-weight: 700;
-  color: #fecaca;
-}
-
-.row-benefice-negatif td:first-child,
-.row-benefice-negatif td:nth-child(2) {
-  color: #fecaca;
-}
-
-.benefice-badge {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.benefice-badge.positif {
-  background: #065f46;
-  color: #d1fae5;
-  border: 1px solid #10b981;
-}
-
-.benefice-badge.negatif {
-  background: #991b1b;
-  color: #fecaca;
-  border: 1px solid #f87171;
-}
-
-@media (max-width: 768px) {
-  .situation-table td:last-child { display: none; }
-  .situation-table thead th:last-child { display: none; }
-  .situation-table td:first-child { width: 40%; }
-}
-
-/* ══════════ Relation LOT ↔ ŒUFS + Formule bénéfice ══════════ */
-
-.oeufs-lot-section {
-  background: #1a202c;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  margin-bottom: 2rem;
-  border-top: 5px solid #fbc02d;
-}
-
-.oeufs-lot-header {
-  background: linear-gradient(135deg, #e65100 0%, #f57c00 100%);
-  color: white;
-  padding: 1rem 1.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.oeufs-lot-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.oeufs-lot-badge {
-  background: rgba(255,255,255,0.2);
-  padding: 0.2rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.oeufs-lot-body {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  align-items: start;
-  background: #1a202c;
-}
-
-/* ── Tableau récoltes ── */
-.oeufs-lot-table {
-  border-collapse: collapse;
-  min-width: 260px;
-  background: transparent;
-}
-
-.oeufs-lot-table th {
-  background: #2d3748;
-  padding: 0.55rem 0.9rem;
-  text-align: left;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #fed7aa;
-  border-bottom: 2px solid #f59e0b;
-}
-
-.oeufs-lot-table td {
-  padding: 0.6rem 0.9rem;
-  font-size: 0.93rem;
-  border-bottom: 1px solid #4a5568;
-  color: #e2e8f0;
-}
-
-.oeufs-lot-table tbody tr:hover td {
-  background: #2d3748;
-}
-
-.lot-tag {
-  display: inline-block;
-  background: #1e3a8a;
-  color: #dbeafe;
-  border-radius: 6px;
-  padding: 0.1rem 0.45rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-
-.cumul-cell {
-  font-weight: 700;
-  color: #fed7aa;
-}
-
-.oeufs-lot-table tfoot .total-row td {
-  background: #2d3748;
-  font-size: 0.95rem;
-  border-top: 2px solid #f59e0b;
-  padding: 0.65rem 0.9rem;
-  color: #f7fafc;
-}
-
-/* ── Formule bénéfice ── */
-.benefice-formula-box {
-  background: #2d3748;
-  border: 1px solid #68d391;
-  border-radius: 12px;
-  padding: 1.2rem 1.4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.formula-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #c6f6d5;
-}
-
-.formula-equation {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.formula-term {
-  background: transparent;
-  border: 1px solid #4a5568;
-  border-radius: 10px;
-  padding: 0.5rem 0.9rem;
-  display: flex;
-  flex-direction: column;
-  min-width: 140px;
-}
-
-.term-label {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #cbd5e0;
-}
-
-.term-detail {
-  font-size: 0.78rem;
-  color: #a0aec0;
-  margin-top: 0.1rem;
-}
-
-.term-value {
-  font-size: 0.97rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  margin-top: 0.25rem;
-}
-
-.formula-op {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #cbd5e0;
-  padding: 0 0.1rem;
-  align-self: center;
-}
-
-/* Assure un contraste fort dans les zones colorees de la table */
-.row-warning td:last-child {
-  color: #fef3c7;
-}
-
-.row-cost td:last-child {
-  color: #fecaca;
-}
-
-.row-revenue td:last-child {
-  color: #d1fae5;
-}
-
-.row-benefice-positif td:last-child {
-  color: #bbf7d0;
-}
-
-.row-benefice-negatif td:last-child {
-  color: #fecaca;
-}
-
-.formula-result {
-  border-radius: 12px;
-  padding: 0.6rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 130px;
-}
-
-.formula-result.positif {
-  background: #c8e6c9;
-  border: 2px solid #4caf50;
-}
-
-.formula-result.negatif {
-  background: #ffcdd2;
-  border: 2px solid #e53935;
-}
-
-.result-label {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.formula-result.positif .result-label { color: #1b5e20; }
-.formula-result.negatif .result-label { color: #b71c1c; }
-
-.result-value {
-  font-size: 1.2rem;
-  font-weight: 900;
-  margin-top: 0.15rem;
-}
-
-.formula-result.positif .result-value { color: #1b5e20; }
-.formula-result.negatif .result-value { color: #b71c1c; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .oeufs-lot-body { grid-template-columns: 1fr; }
-  .formula-equation { flex-direction: column; align-items: stretch; }
-  .formula-op { text-align: center; }
 }

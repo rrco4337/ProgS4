@@ -1,0 +1,158 @@
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #0b0b0c;
+  color: #f3f4f6;
+}
+
+.sidebar {
+  width: 280px;
+  background: #111114;
+  border-right: 1px solid #2a2a2f;
+  padding: 1rem;
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 1001;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.brand-link {
+  text-decoration: none;
+  color: #f9fafb;
+}
+
+.brand-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.close-sidebar {
+  background: transparent;
+  border: 1px solid #2f2f35;
+  color: #d1d5db;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.nav-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.group-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin: 0 0 0.45rem;
+}
+
+.nav-item {
+  display: block;
+  color: #d1d5db;
+  text-decoration: none;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+}
+
+.nav-item:hover {
+  background: #1b1b20;
+}
+
+.nav-item.active {
+  background: #1f2937;
+  color: #f9fafb;
+}
+
+.content-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar {
+  height: 64px;
+  border-bottom: 1px solid #2a2a2f;
+  background: #101014;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.menu-button {
+  border: 1px solid #2f2f35;
+  background: #141419;
+  color: #e5e7eb;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.topbar-title {
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quick-action {
+  border: 1px solid #2f2f35;
+  background: #16161b;
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+
+.quick-action:hover {
+  background: #1d1d24;
+}
+
+.content-area {
+  padding: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    transform: translateX(0);
+  }
+
+  .close-sidebar,
+  .menu-button {
+    display: none;
+  }
+
+  .content-wrapper {
+    margin-left: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar-actions {
+    display: none;
+  }
+}

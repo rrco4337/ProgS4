@@ -2,7 +2,7 @@ services:
   # Azure SQL Edge — compatible T-SQL, nécessite ~1 Go RAM (vs 2 Go pour SQL Server)
   sqlserver:
     image: mcr.microsoft.com/azure-sql-edge:latest
-    container_name: sqlserver
+    command: ["/bin/bash", "/docker-entrypoint-initdb.d/entrypoint.sh"]
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=MotDePasseFort123!
@@ -10,6 +10,7 @@ services:
       - "1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
+      - ./database:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "MotDePasseFort123!" -Q "SELECT 1" || exit 1
       interval: 10s

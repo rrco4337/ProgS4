@@ -1,0 +1,107 @@
+<section class="sales-page">
+  <div class="page-header">
+    <div>
+      <h1>Ventes d'œufs</h1>
+      <p>Suivi des ventes d’œufs avec contrôle du stock.</p>
+    </div>
+    <button type="button" (click)="openCreateForm()">+ Nouvelle vente</button>
+  </div>
+
+  <div *ngIf="loading" class="state">Chargement…</div>
+  <div *ngIf="error" class="state error">{{ error }}</div>
+  <div *ngIf="successMessage" class="state success">{{ successMessage }}</div>
+
+  <div class="panel filters">
+    <div>
+      <label for="lotFilter">Lot</label>
+      <select id="lotFilter" [(ngModel)]="filterLot">
+        <option value="all">Tous les lots</option>
+        <option *ngFor="let lot of lots" [value]="lot.id_lot">
+          Lot #{{ lot.id_lot }} — {{ lot.nom_race }}
+        </option>
+      </select>
+    </div>
+    <div>
+      <label for="dateFrom">Depuis</label>
+      <input id="dateFrom" type="date" [(ngModel)]="filterDateFrom" />
+    </div>
+    <div class="total-box">
+      <span>Revenu filtré</span>
+      <strong>{{ formatNumber(totalRevenue) }} Ar</strong>
+    </div>
+  </div>
+
+  <div *ngIf="showCreateForm" class="panel form-panel">
+    <h2>Nouvelle vente</h2>
+    <div class="form-grid">
+      <div>
+        <label>Lot</label>
+        <select [(ngModel)]="newSale.id_lot" (ngModelChange)="loadStock()">
+          <option *ngFor="let lot of lots" [value]="lot.id_lot">
+            Lot #{{ lot.id_lot }} — {{ lot.nom_race }}
+          </option>
+        </select>
+      </div>
+      <div>
+        <label>Date de vente</label>
+        <input type="date" [(ngModel)]="newSale.date_vente" />
+      </div>
+      <div>
+        <label>Quantité (œufs)</label>
+        <input type="number" min="1" [(ngModel)]="newSale.nombre_oeufs" />
+      </div>
+      <div>
+        <label>Prix unitaire (Ar)</label>
+        <input type="number" min="1" [(ngModel)]="newSale.prix_unitaire" />
+      </div>
+    </div>
+
+    <div class="stock-box" *ngIf="stockInfo">
+      <span>Stock disponible:</span>
+      <strong>{{ stockInfo.stock_disponible }} œuf(s)</strong>
+      <span class="warn" *ngIf="stockInsuffisant">Stock insuffisant pour cette vente.</span>
+    </div>
+
+    <div class="preview-box">
+      Revenu prévisionnel: <strong>{{ formatNumber(newSale.nombre_oeufs * newSale.prix_unitaire) }} Ar</strong>
+    </div>
+
+    <div class="actions">
+      <button type="button" (click)="createSale()" [disabled]="stockInsuffisant">Enregistrer</button>
+      <button type="button" class="secondary" (click)="showCreateForm = false">Annuler</button>
+    </div>
+  </div>
+
+  <div class="panel table-panel" *ngIf="filteredSales.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Lot</th>
+          <th>Date</th>
+          <th>Nb œufs</th>
+          <th>Prix unitaire</th>
+          <th>Revenu total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sale of filteredSales">
+          <td>{{ sale.id_vente }}</td>
+          <td>Lot #{{ sale.id_lot }} — {{ sale.nom_race }}</td>
+          <td>{{ formatDate(sale.date_vente) }}</td>
+          <td>{{ sale.nombre_oeufs }}</td>
+          <td>{{ formatNumber(sale.prix_unitaire) }} Ar</td>
+          <td><strong>{{ formatNumber(sale.revenu_total || 0) }} Ar</strong></td>
+          <td>
+            <button type="button" class="danger" (click)="deleteSale(sale.id_vente)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" *ngIf="filteredSales.length === 0 && !loading">
+    Aucune vente à afficher pour les filtres courants.
+  </div>
+</section>

@@ -3,7 +3,8 @@
 -- Description: Ajouter les champs nécessaires pour l'éclosion automatique
 
 -- 1. Ajouter la colonne date_eclosion_reelle à la table Incubation
-IF NOT EXISTS (
+IF OBJECT_ID('dbo.Incubation', 'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
     WHERE TABLE_NAME = 'Incubation' 
     AND COLUMN_NAME = 'date_eclosion_reelle'
@@ -19,7 +20,8 @@ BEGIN
 END
 
 -- 2. Ajouter la colonne id_incubation à la table Lot (pour référencer l'incubation d'origine)
-IF NOT EXISTS (
+IF OBJECT_ID('dbo.Lot', 'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
     WHERE TABLE_NAME = 'Lot' 
     AND COLUMN_NAME = 'id_incubation'
@@ -35,7 +37,9 @@ BEGIN
 END
 
 -- 3. Ajouter la contrainte de clé étrangère pour id_incubation (optionnelle)
-IF NOT EXISTS (
+IF OBJECT_ID('dbo.Lot', 'U') IS NOT NULL
+AND OBJECT_ID('dbo.Incubation', 'U') IS NOT NULL
+AND NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
     WHERE CONSTRAINT_NAME = 'FK_Lot_Incubation'
 )
@@ -63,10 +67,17 @@ BEGIN
 END
 
 -- 5. Mettre à jour les incubations existantes qui sont écloses manuellement
-UPDATE Incubation 
-SET date_eclosion_reelle = CAST(GETDATE() AS DATE)
-WHERE statut = 'eclot' 
-AND date_eclosion_reelle IS NULL;
+IF OBJECT_ID('dbo.Incubation', 'U') IS NOT NULL
+AND COL_LENGTH('dbo.Incubation', 'statut') IS NOT NULL
+AND COL_LENGTH('dbo.Incubation', 'date_eclosion_reelle') IS NOT NULL
+BEGIN
+    EXEC(N'
+        UPDATE Incubation 
+        SET date_eclosion_reelle = CAST(GETDATE() AS DATE)
+        WHERE statut = ''eclot'' 
+        AND date_eclosion_reelle IS NULL;
+    ');
+END
 
 PRINT 'Migration terminée avec succès !';
 PRINT 'Nouvelles fonctionnalités activées :';

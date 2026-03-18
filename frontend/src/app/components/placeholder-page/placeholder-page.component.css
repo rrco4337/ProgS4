@@ -1,0 +1,22 @@
+.placeholder-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.placeholder-page h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.6rem;
+}
+
+.placeholder-page p {
+  color: #cbd5e1;
+}
+
+.placeholder-card {
+  margin-top: 1.25rem;
+  border: 1px solid #334155;
+  background: #111827;
+  border-radius: 12px;
+  padding: 1rem;
+}

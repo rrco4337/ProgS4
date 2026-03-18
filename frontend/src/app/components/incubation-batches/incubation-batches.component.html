@@ -1,0 +1,103 @@
+<section class="incubation-page">
+  <div class="page-header">
+    <div>
+      <h1>Lots d'incubation</h1>
+      <p>Suivi des incubations, échéances et éclosions.</p>
+    </div>
+    <button type="button" (click)="openCreateForm()">+ Nouveau batch</button>
+  </div>
+
+  <div *ngIf="loading" class="state">Chargement…</div>
+  <div *ngIf="error" class="state error">{{ error }}</div>
+  <div *ngIf="successMessage" class="state success">{{ successMessage }}</div>
+
+  <div class="filters">
+    <label for="statusFilter">Statut</label>
+    <select id="statusFilter" [(ngModel)]="filterStatus">
+      <option value="all">Tous</option>
+      <option value="en_cours">En cours</option>
+      <option value="eclot">Éclos</option>
+      <option value="eclot_auto">Éclos auto</option>
+    </select>
+  </div>
+
+  <div *ngIf="showCreateForm" class="panel form-panel">
+    <h2>Créer un batch</h2>
+    <div class="form-grid">
+      <div>
+        <label>Récolte source</label>
+        <select [(ngModel)]="newBatch.id_oeuf">
+          <option *ngFor="let o of oeufs" [value]="o.id_oeuf">
+            #{{ o.id_oeuf }} — Lot #{{ o.id_lot }} ({{ o.nombre }} œufs)
+          </option>
+        </select>
+      </div>
+      <div>
+        <label>Date début</label>
+        <input type="date" [(ngModel)]="newBatch.date_debut" />
+      </div>
+      <div>
+        <label>Nombre d'œufs</label>
+        <input type="number" min="1" [(ngModel)]="newBatch.nombre_oeufs" />
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" (click)="createBatch()">Créer</button>
+      <button type="button" class="secondary" (click)="showCreateForm = false">Annuler</button>
+    </div>
+  </div>
+
+  <div *ngIf="showHatchForm" class="panel form-panel">
+    <h2>Confirmer une éclosion</h2>
+    <div class="form-grid">
+      <div>
+        <label>Œufs pourris</label>
+        <input type="number" min="0" [(ngModel)]="hatchData.oeufs_pourris" />
+      </div>
+      <div>
+        <label>% mâles</label>
+        <input type="number" min="0" max="100" [(ngModel)]="hatchData.pourcentage_male" />
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" (click)="confirmHatch()">Valider éclosion</button>
+      <button type="button" class="secondary" (click)="showHatchForm = false">Annuler</button>
+    </div>
+  </div>
+
+  <div class="panel table-panel" *ngIf="filteredIncubations.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Lot/Race</th>
+          <th>Début</th>
+          <th>Éclosion prévue</th>
+          <th>Nb œufs</th>
+          <th>Statut</th>
+          <th>Lot résultat</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of filteredIncubations">
+          <td>{{ b.id_incubation }}</td>
+          <td>Lot #{{ b.id_lot }} — {{ b.nom_race }}</td>
+          <td>{{ formatDate(b.date_debut) }}</td>
+          <td>{{ formatDate(b.date_eclosion_prevue) }}</td>
+          <td>{{ b.nombre_oeufs }}</td>
+          <td>{{ b.statut }}</td>
+          <td>{{ b.id_lot_resultat || '—' }}</td>
+          <td class="actions-cell">
+            <button type="button" *ngIf="b.statut === 'en_cours'" (click)="openHatchForm(b)">Éclore</button>
+            <button type="button" class="danger" (click)="deleteBatch(b.id_incubation)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel" *ngIf="filteredIncubations.length === 0 && !loading">
+    Aucun batch à afficher pour ce filtre.
+  </div>
+</section>

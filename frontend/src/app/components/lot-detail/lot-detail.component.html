@@ -1,0 +1,84 @@
+<section class="lot-detail-page">
+  <div class="page-header">
+    <div>
+      <a routerLink="/production/lots" class="back-link">← Retour aux lots</a>
+      <h1>Détail du lot</h1>
+      <p *ngIf="lot">Lot #{{ lot.id_lot }} — {{ lot.nom_race }}</p>
+    </div>
+
+    <div class="header-actions">
+      <label for="dateSituation">Date de situation</label>
+      <input id="dateSituation" type="date" [(ngModel)]="selectedDate" />
+      <button type="button" (click)="reload()">Actualiser</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="state-block">Chargement en cours…</div>
+  <div *ngIf="error" class="state-block error">{{ error }}</div>
+
+  <ng-container *ngIf="lot as data">
+    <div class="kpi-grid">
+      <article class="kpi-card">
+        <span>Poulets actuels</span>
+        <strong>{{ data.nombre_actuel }}</strong>
+        <small>{{ data.nombre_initial }} initiaux · {{ data.mortalites }} mortalités</small>
+      </article>
+
+      <article class="kpi-card">
+        <span>Poids unitaire</span>
+        <strong>{{ formatNumber(data.poids_unitaire) }} g</strong>
+        <small>{{ data.age_semaines }} semaines</small>
+      </article>
+
+      <article class="kpi-card">
+        <span>Œufs récoltés</span>
+        <strong>{{ data.total_oeufs }}</strong>
+        <small>Valeur: {{ formatNumber(data.valeur_oeufs) }} Ar</small>
+      </article>
+
+      <article class="kpi-card" [class.alert]="data.benefice < 0">
+        <span>{{ data.benefice >= 0 ? 'Bénéfice' : 'Perte' }}</span>
+        <strong>{{ formatNumber(data.benefice) }} Ar</strong>
+        <small>Situation au {{ formatDate(data.date_situation) }}</small>
+      </article>
+    </div>
+
+    <div class="panel">
+      <h2>Résumé financier</h2>
+      <div class="summary-grid">
+        <div><span>Valeur poulets</span><strong>{{ formatNumber(data.valeur_poulets) }} Ar</strong></div>
+        <div><span>Valeur œufs</span><strong>{{ formatNumber(data.valeur_oeufs) }} Ar</strong></div>
+        <div><span>Coût nourriture</span><strong>{{ formatNumber(data.cout_nourriture_total) }} Ar</strong></div>
+        <div><span>Coût achat</span><strong>{{ formatNumber(data.cout_achat) }} Ar</strong></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Détail de croissance hebdomadaire</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Semaine</th>
+              <th>Gain (g)</th>
+              <th>Poids cumulé (g)</th>
+              <th>Nourriture (g)</th>
+              <th>Coût semaine (Ar)</th>
+              <th>Coût cumulé (Ar)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of data.detail_croissance" [class.future]="row.est_futur">
+              <td>{{ row.semaine }}</td>
+              <td>{{ formatNumber(row.gain_poids) }}</td>
+              <td>{{ formatNumber(row.poids_cumule) }}</td>
+              <td>{{ formatNumber(row.nourriture) }}</td>
+              <td>{{ formatNumber(row.cout_nourriture_semaine) }}</td>
+              <td>{{ formatNumber(row.cout_nourriture_cumulee) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+</section>

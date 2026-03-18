@@ -5,6 +5,14 @@
 USE elevage;
 GO
 
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+GO
+
 -- Si une erreur arrive, on annule tout automatiquement
 SET XACT_ABORT ON;
 -- On commence une transaction (tout se passe en meme temps ou rien du tout)
@@ -27,22 +35,28 @@ PRINT 'Suppression des donnees de mortalite...'
 DELETE FROM Mortalite;
 
 PRINT 'Suppression des donnees de vente d oeufs...'
-DELETE FROM VenteOeuf;
+IF OBJECT_ID('dbo.VenteOeuf', 'U') IS NOT NULL
+    DELETE FROM VenteOeuf;
 
 PRINT 'Suppression des donnees d oeufs...'
-DELETE FROM Oeuf;
+IF OBJECT_ID('dbo.Oeuf', 'U') IS NOT NULL
+    DELETE FROM Oeuf;
 
 PRINT 'Suppression des donnees d incubation...'
-DELETE FROM Incubation;
+IF OBJECT_ID('dbo.Incubation', 'U') IS NOT NULL
+    DELETE FROM Incubation;
 
 PRINT 'Suppression des donnees de croissance...'
-DELETE FROM Croissance;
+IF OBJECT_ID('dbo.Croissance', 'U') IS NOT NULL
+    DELETE FROM Croissance;
 
 PRINT 'Suppression des lots...'
-DELETE FROM Lot;
+IF OBJECT_ID('dbo.Lot', 'U') IS NOT NULL
+    DELETE FROM Lot;
 
 PRINT 'Suppression des races...'
-DELETE FROM Race;
+IF OBJECT_ID('dbo.Race', 'U') IS NOT NULL
+    DELETE FROM Race;
 
 -- ETAPE 3: On remet tous les compteurs automatiques a zero
 -- Reinitialise les compteurs IDENTITY pour un jeu propre
@@ -84,22 +98,27 @@ IF EXISTS (SELECT * FROM sys.tables WHERE name = 'Race')
 
 -- ETAPE 4: Verification finale
 PRINT 'Verification du nettoyage...'
-SELECT 
-    'Distribution_Nourriture' as TableName, COUNT(*) as NombreLignes FROM Distribution_Nourriture
-UNION ALL
-SELECT 'Mortalite', COUNT(*) FROM Mortalite
-UNION ALL
-SELECT 'VenteOeuf', COUNT(*) FROM VenteOeuf
-UNION ALL
-SELECT 'Oeuf', COUNT(*) FROM Oeuf
-UNION ALL
-SELECT 'Incubation', COUNT(*) FROM Incubation
-UNION ALL
-SELECT 'Croissance', COUNT(*) FROM Croissance
-UNION ALL
-SELECT 'Lot', COUNT(*) FROM Lot
-UNION ALL
-SELECT 'Race', COUNT(*) FROM Race;
+CREATE TABLE #Verification (TableName VARCHAR(100), NombreLignes INT);
+
+IF OBJECT_ID('dbo.Distribution_Nourriture', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'Distribution_Nourriture', COUNT(*) FROM Distribution_Nourriture;
+IF OBJECT_ID('dbo.Mortalite', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'Mortalite', COUNT(*) FROM Mortalite;
+IF OBJECT_ID('dbo.VenteOeuf', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'VenteOeuf', COUNT(*) FROM VenteOeuf;
+IF OBJECT_ID('dbo.Oeuf', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'Oeuf', COUNT(*) FROM Oeuf;
+IF OBJECT_ID('dbo.Incubation', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'Incubation', COUNT(*) FROM Incubation;
+IF OBJECT_ID('dbo.Croissance', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'Croissance', COUNT(*) FROM Croissance;
+IF OBJECT_ID('dbo.Lot', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'Lot', COUNT(*) FROM Lot;
+IF OBJECT_ID('dbo.Race', 'U') IS NOT NULL
+    INSERT INTO #Verification SELECT 'Race', COUNT(*) FROM Race;
+
+SELECT * FROM #Verification;
+DROP TABLE #Verification;
 
 -- On valide tous les changements d'un coup
 PRINT 'Nettoyage termine avec succes!'
