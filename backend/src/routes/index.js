@@ -53,6 +53,10 @@ router.post('/incubations', incubationController.create);
 router.post('/incubations/:id/ecloter', incubationController.ecloter);
 router.delete('/incubations/:id', incubationController.delete);
 
+// Routes pour l'éclosion automatique
+router.post('/incubations/auto-eclosion', incubationController.processAutoEclosions);
+router.get('/incubations/auto-eclosion/status', incubationController.getAutoIncubationStatus);
+
 // Routes pour les ventes d'œufs
 router.get('/ventes-oeufs', venteOeufController.getAll);
 router.get('/ventes-oeufs/lot/:id_lot', venteOeufController.getByLot);

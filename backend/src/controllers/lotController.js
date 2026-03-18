@@ -115,6 +115,30 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
     // Le nombre actuel = nombre initial - les morts (a cette date)
     const nombreActuel = lot.nombre_initial - totalMorts;
 
+    // ETAPE 4B: Calculer les pertes d'oeufs issues de l'incubation d'origine
+    // Elles ne sont pas des mortalites animales. Elles deviennent une perte financiere
+    // a partir de la date d'eclosion de l'incubation qui a genere le lot.
+    let perteOeufs = 0;
+    let valeurPerteOeufs = 0;
+    if (lot.id_incubation) {
+        const perteOeufsResult = await pool.request()
+            .input('id_incubation', sql.Int, lot.id_incubation)
+            .input('dateSituation', sql.Date, dateCalcul)
+            .query(`SELECT
+                        ISNULL(oeufs_pourris, 0) AS oeufs_pourris,
+                        CASE
+                            WHEN COALESCE(date_eclosion_reelle, date_eclosion_prevue) <= @dateSituation THEN 1
+                            ELSE 0
+                        END AS perte_active
+                    FROM Incubation
+                    WHERE id_incubation = @id_incubation`);
+
+        if (perteOeufsResult.recordset.length && perteOeufsResult.recordset[0].perte_active === 1) {
+            perteOeufs = perteOeufsResult.recordset[0].oeufs_pourris || 0;
+            valeurPerteOeufs = perteOeufs * (lot.pv_oeuf || 0);
+        }
+    }
+
     // ETAPE 5: Variables pour calculer les totaux au fil des semaines
     let poidsCumule = 0;          // Poids total accumule
     let nourritureCumulee = 0;    // Nourriture totale donnee
@@ -203,7 +227,7 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
     // Valeur des oeufs = nombre d'oeufs x prix par oeuf
     const valeurOeufs   = totalOeufs   * (lot.pv_oeuf || 0);
     // Benefice = ce qu'on peut vendre - ce qu'on a depense
-    const benefice      = valeurPoulets + valeurOeufs - coutNourritureCumulee - (lot.cout_achat || 0);
+    const benefice      = valeurPoulets + valeurOeufs - valeurPerteOeufs - coutNourritureCumulee - (lot.cout_achat || 0);
 
     // ETAPE 10: On renvoie toutes les informations calculees dans un objet
     return {
@@ -227,9 +251,13 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
         nourriture_totale_g: nourritureTotaleG, // Nourriture pour tout le lot
         cout_nourriture_total: coutNourritureCumulee, // Cout total nourriture
         total_oeufs: totalOeufs,              // Nombre total d'oeufs pondus
+        perte_oeufs: perteOeufs,              // Oeufs pourris a l'eclosion
+        valeur_perte_oeufs: valeurPerteOeufs, // Valorisation financiere de la perte d'oeufs
         valeur_poulets: valeurPoulets,        // Valeur de vente des poulets
         valeur_oeufs: valeurOeufs,            // Valeur de vente des oeufs
         benefice,                             // Benefice ou perte
+        nb_femelles: lot.nb_femelles ?? null, // Nb femelles (si lot issu d'incubation avec sexage)
+        nb_males: lot.nb_males ?? null,       // Nb mâles
         detail_croissance: detail             // Detail semaine par semaine
     };
 }
@@ -307,6 +335,8 @@ const getSituationGlobale = async (req, res) => {
             nombre_actuel:        l.nombre_actuel,
             mortalites:           l.mortalites,
             total_oeufs:          l.total_oeufs,
+            perte_oeufs:           l.perte_oeufs,
+            valeur_perte_oeufs:    l.valeur_perte_oeufs,
             valeur_poulets:       l.valeur_poulets,
             valeur_oeufs:         l.valeur_oeufs,
             cout_nourriture_total:l.cout_nourriture_total,
@@ -341,15 +371,35 @@ const getSituationGlobale = async (req, res) => {
 // Créer un nouveau lot
 const create = async (req, res) => {
     try {
-        const { id_race, date_entree, nombre_initial, cout_achat } = req.body;
+        const { id_race, date_entree, nombre_initial, cout_achat, nb_femelles, nb_males } = req.body;
+        const nombreInitialVal = parseInt(nombre_initial, 10);
+        const nbFemellesVal = nb_femelles != null ? parseInt(nb_femelles, 10) : nombreInitialVal;
+        const nbMalesVal = nb_males != null ? parseInt(nb_males, 10) : 0;
+
+        if (nbFemellesVal < 0 || nbMalesVal < 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Le nombre de femelles et de mâles doit être positif'
+            });
+        }
+
+        if (nbFemellesVal + nbMalesVal !== nombreInitialVal) {
+            return res.status(400).json({
+                success: false,
+                error: 'La somme femelles + mâles doit être égale au nombre initial'
+            });
+        }
+
         const pool = await getConnection();
         const result = await pool.request()
             .input('id_race', sql.Int, id_race)
             .input('date_entree', sql.Date, date_entree)
-            .input('nombre_initial', sql.Int, nombre_initial)
+            .input('nombre_initial', sql.Int, nombreInitialVal)
             .input('cout_achat', sql.Decimal(12, 2), cout_achat)
-            .query(`INSERT INTO Lot (id_race, date_entree, nombre_initial, cout_achat) 
-                    VALUES (@id_race, @date_entree, @nombre_initial, @cout_achat); 
+            .input('nb_femelles', sql.Int, nbFemellesVal)
+            .input('nb_males', sql.Int, nbMalesVal)
+            .query(`INSERT INTO Lot (id_race, date_entree, nombre_initial, cout_achat, nb_femelles, nb_males) 
+                    VALUES (@id_race, @date_entree, @nombre_initial, @cout_achat, @nb_femelles, @nb_males); 
                     SELECT SCOPE_IDENTITY() AS id`);
         
         res.status(201).json({
@@ -358,8 +408,10 @@ const create = async (req, res) => {
                 id_lot: result.recordset[0].id,
                 id_race,
                 date_entree,
-                nombre_initial,
-                cout_achat
+                nombre_initial: nombreInitialVal,
+                cout_achat,
+                nb_femelles: nbFemellesVal,
+                nb_males: nbMalesVal
             }
         });
     } catch (error) {
@@ -375,19 +427,41 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_race, date_entree, nombre_initial, cout_achat } = req.body;
+        const { id_race, date_entree, nombre_initial, cout_achat, nb_femelles, nb_males } = req.body;
+        const nombreInitialVal = parseInt(nombre_initial, 10);
+        const nbFemellesVal = nb_femelles != null ? parseInt(nb_femelles, 10) : nombreInitialVal;
+        const nbMalesVal = nb_males != null ? parseInt(nb_males, 10) : 0;
+
+        if (nbFemellesVal < 0 || nbMalesVal < 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Le nombre de femelles et de mâles doit être positif'
+            });
+        }
+
+        if (nbFemellesVal + nbMalesVal !== nombreInitialVal) {
+            return res.status(400).json({
+                success: false,
+                error: 'La somme femelles + mâles doit être égale au nombre initial'
+            });
+        }
+
         const pool = await getConnection();
         const result = await pool.request()
             .input('id', sql.Int, id)
             .input('id_race', sql.Int, id_race)
             .input('date_entree', sql.Date, date_entree)
-            .input('nombre_initial', sql.Int, nombre_initial)
+            .input('nombre_initial', sql.Int, nombreInitialVal)
             .input('cout_achat', sql.Decimal(12, 2), cout_achat)
+            .input('nb_femelles', sql.Int, nbFemellesVal)
+            .input('nb_males', sql.Int, nbMalesVal)
             .query(`UPDATE Lot 
                     SET id_race = @id_race, 
                         date_entree = @date_entree, 
                         nombre_initial = @nombre_initial, 
-                        cout_achat = @cout_achat
+                        cout_achat = @cout_achat,
+                        nb_femelles = @nb_femelles,
+                        nb_males = @nb_males
                     WHERE id_lot = @id`);
         
         if (result.rowsAffected[0] === 0) {
@@ -399,7 +473,15 @@ const update = async (req, res) => {
         
         res.json({
             success: true,
-            data: { id_lot: id, id_race, date_entree, nombre_initial, cout_achat }
+            data: {
+                id_lot: id,
+                id_race,
+                date_entree,
+                nombre_initial: nombreInitialVal,
+                cout_achat,
+                nb_femelles: nbFemellesVal,
+                nb_males: nbMalesVal
+            }
         });
     } catch (error) {
         console.error('Erreur update lot:', error);

@@ -27,7 +27,9 @@ export class LotListComponent implements OnInit {
     id_race: 0,
     date_entree: '',
     nombre_initial: 0,
-    cout_achat: 0
+    cout_achat: 0,
+    nb_femelles: 0,
+    nb_males: 0
   };
 
   editingLot: Lot | null = null;
@@ -91,7 +93,9 @@ export class LotListComponent implements OnInit {
       id_race: this.races.length > 0 ? this.races[0].id_race : 0,
       date_entree: today,
       nombre_initial: 100,
-      cout_achat: 5000
+      cout_achat: 5000,
+      nb_femelles: 100,
+      nb_males: 0
     };
   }
 
@@ -100,6 +104,12 @@ export class LotListComponent implements OnInit {
   }
 
   createLot() {
+    if (!this.isSexeRepartitionValide(this.newLot)) {
+      this.error = 'La somme femelles + mâles doit être égale au nombre initial';
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.loading = true;
     this.lotService.create(this.newLot).subscribe({
       next: (response) => {
@@ -120,7 +130,11 @@ export class LotListComponent implements OnInit {
   }
 
   openEditForm(lot: Lot) {
-    this.editingLot = { ...lot };
+    this.editingLot = {
+      ...lot,
+      nb_femelles: lot.nb_femelles != null ? lot.nb_femelles : lot.nombre_initial,
+      nb_males: lot.nb_males != null ? lot.nb_males : 0
+    };
     this.showEditForm = true;
   }
 
@@ -131,6 +145,12 @@ export class LotListComponent implements OnInit {
 
   updateLot() {
     if (!this.editingLot) return;
+
+    if (!this.isSexeRepartitionValide(this.editingLot)) {
+      this.error = 'La somme femelles + mâles doit être égale au nombre initial';
+      this.cdr.detectChanges();
+      return;
+    }
 
     this.loading = true;
     this.lotService.update(this.editingLot.id_lot, this.editingLot).subscribe({
@@ -218,6 +238,63 @@ export class LotListComponent implements OnInit {
     return this.oeufsLot
       .slice(0, upToIndex + 1)
       .reduce((sum, o) => sum + o.nombre, 0);
+  }
+
+  /** Obtenir la race d'un lot */
+  getRaceForLot(lot: Lot | PoidsActuelResponse): Race | undefined {
+    if ('id_race' in lot) {
+      // C'est un objet Lot
+      return this.races.find(r => r.id_race === lot.id_race);
+    } else {
+      // C'est un PoidsActuelResponse, on utilise nom_race
+      return this.races.find(r => r.nom_race === lot.nom_race);
+    }
+  }
+
+  /** Calculer la production maximale d'œufs pour un lot */
+  getProductionMaximale(lot: Lot | PoidsActuelResponse): number {
+    const race = this.getRaceForLot(lot);
+    if (!race) return 0;
+    // Utiliser nb_femelles si disponible (lot issu d'incubation avec sexage)
+    // Sinon, utiliser nombre_initial (lot acheté, on suppose toutes pondeuses)
+    const nbPondeuses = (lot.nb_femelles != null && lot.nb_femelles > 0)
+      ? lot.nb_femelles
+      : lot.nombre_initial;
+    return nbPondeuses * race.capacite_ponte;
+  }
+
+  /** Calculer le total d'œufs récoltés pour un lot */
+  getTotalOeufsRecoltes(lotId: number): number {
+    return this.oeufsLot
+      .filter(oeuf => oeuf.id_lot === lotId)
+      .reduce((sum, oeuf) => sum + oeuf.nombre, 0);
+  }
+
+  /** Calculer le pourcentage de production actuelle par rapport au maximum */
+  getPourcentageProduction(lot: Lot | PoidsActuelResponse): number {
+    const productionMax = this.getProductionMaximale(lot);
+    if (productionMax === 0) return 0;
+    
+    const lotId = ('id_lot' in lot) ? lot.id_lot : 0;
+    const totalRecolte = this.getTotalOeufsRecoltes(lotId);
+    return (totalRecolte / productionMax) * 100;
+  }
+
+  /** Estimer les œufs restants à produire */
+  getOeufsRestants(lot: Lot | PoidsActuelResponse): number {
+    const productionMax = this.getProductionMaximale(lot);
+    const lotId = ('id_lot' in lot) ? lot.id_lot : 0;
+    const totalRecolte = this.getTotalOeufsRecoltes(lotId);
+    return Math.max(0, productionMax - totalRecolte);
+  }
+
+  isSexeRepartitionValide(lot: Partial<Lot>): boolean {
+    const nombreInitial = Number(lot.nombre_initial ?? 0);
+    const nbFemelles = Number(lot.nb_femelles ?? 0);
+    const nbMales = Number(lot.nb_males ?? 0);
+
+    if (nombreInitial <= 0 || nbFemelles < 0 || nbMales < 0) return false;
+    return nbFemelles + nbMales === nombreInitial;
   }
 
   formatDate(dateString: string): string {

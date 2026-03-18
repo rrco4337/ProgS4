@@ -3,8 +3,8 @@
   margin: 0 auto;
   padding: 2rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0b0b0c;
-  color: #f3f4f6;
+  background: var(--light-color);
+  color: var(--dark-color);
   min-height: 100vh;
 }
 
@@ -16,7 +16,7 @@
 }
 
 h1 {
-  color: #f3f4f6;
+  color: var(--dark-color);
   font-size: 2.5rem;
   margin: 0;
 }
@@ -45,7 +45,7 @@ h1 {
 }
 
 .loading {
-  background: #111827;
+  background: #ffffff;
   color: #60a5fa;
 }
 
@@ -62,12 +62,12 @@ h1 {
 }
 
 .race-card {
-  background: #141416;
+  background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   overflow: hidden;
   transition: all 0.3s ease;
-  border: 1px solid #2a2a2f;
+  border: 1px solid #e9d5ff;
 }
 
 .race-card:hover {
@@ -150,7 +150,7 @@ h1 {
 /* Table de croissance */
 .croissance-table-container {
   padding: 1.5rem;
-  background: #111114;
+  background: #ffffff;
   animation: slideDown 0.3s ease;
 }
 
@@ -168,10 +168,10 @@ h1 {
 .croissance-table {
   width: 100%;
   border-collapse: collapse;
-  background: #141416;
+  background: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #2a2a2f;
+  border: 1px solid #e9d5ff;
 }
 
 .croissance-table thead {
@@ -185,17 +185,17 @@ h1 {
   font-weight: 600;
   font-size: 0.9rem;
   background: #1a1a1d;
-  color: #f9fafb;
+  color: #3b2845;
 }
 
 .croissance-table td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #2c2c31;
-  color: #e5e7eb;
+  color: #4a3556;
 }
 
 .croissance-table tbody tr:hover {
-  background: #1f2937;
+  background: #f3e8ff;
 }
 
 .empty-state {
@@ -248,10 +248,10 @@ h1 {
 
 /* Formulaire */
 .form-container {
-  background: #141416;
+  background: #ffffff;
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid #2a2a2f;
+  border: 1px solid #e9d5ff;
   max-width: 700px;
   margin: 0 auto;
 }
@@ -262,12 +262,12 @@ h1 {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #2a2a2f;
+  border-bottom: 2px solid #e9d5ff;
 }
 
 .form-header h2 {
   margin: 0;
-  color: #f3f4f6;
+  color: var(--dark-color);
 }
 
 .btn-close {
@@ -306,19 +306,19 @@ h1 {
 
 .form-group label {
   margin-bottom: 0.5rem;
-  color: #e5e7eb;
+  color: #4a3556;
   font-weight: 600;
 }
 
 .form-group input,
 .form-group select {
   padding: 0.75rem;
-  border: 1px solid #2a2a2f;
+  border: 1px solid #e9d5ff;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #111114;
-  color: #f3f4f6;
+  background: #ffffff;
+  color: var(--dark-color);
 }
 
 .form-group input:focus,
@@ -329,7 +329,7 @@ h1 {
 }
 
 .form-group input:disabled {
-  background: #1a1a1e;
+  background: #ffffff;
   cursor: not-allowed;
   color: #6b7280;
 }
@@ -342,8 +342,8 @@ h1 {
 }
 
 .btn-secondary {
-  background: #374151;
-  color: #e5e7eb;
+  background: #e9d5ff;
+  color: #4a3556;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
