@@ -58,25 +58,9 @@
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Femelles *</label>
-          <input type="number" [(ngModel)]="newLot.nb_femelles" name="nb_femelles" min="0" required>
-        </div>
-
-        <div class="form-group">
-          <label>Mâles *</label>
-          <input type="number" [(ngModel)]="newLot.nb_males" name="nb_males" min="0" required>
-        </div>
-      </div>
-
-      <div class="error" *ngIf="!isSexeRepartitionValide(newLot)">
-        Répartition invalide : femelles + mâles doit être égal au nombre initial.
-      </div>
-
       <div class="form-actions">
         <button type="button" class="btn-secondary" (click)="closeCreateForm()">Annuler</button>
-        <button type="submit" class="btn-primary" [disabled]="!isSexeRepartitionValide(newLot)">Créer</button>
+        <button type="submit" class="btn-primary">Créer</button>
       </div>
     </form>
   </div>
@@ -117,25 +101,9 @@
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Femelles *</label>
-          <input type="number" [(ngModel)]="editingLot.nb_femelles" name="edit_nb_femelles" min="0" required>
-        </div>
-
-        <div class="form-group">
-          <label>Mâles *</label>
-          <input type="number" [(ngModel)]="editingLot.nb_males" name="edit_nb_males" min="0" required>
-        </div>
-      </div>
-
-      <div class="error" *ngIf="!isSexeRepartitionValide(editingLot)">
-        Répartition invalide : femelles + mâles doit être égal au nombre initial.
-      </div>
-
       <div class="form-actions">
         <button type="button" class="btn-secondary" (click)="closeEditForm()">Annuler</button>
-        <button type="submit" class="btn-primary" [disabled]="!isSexeRepartitionValide(editingLot)">Mettre à jour</button>
+        <button type="submit" class="btn-primary">Mettre à jour</button>
       </div>
     </form>
   </div>
@@ -150,14 +118,12 @@
       <div class="lot-info" (click)="viewDetails(lot)">
         <p><strong>Date d'entrée:</strong> {{ formatDate(lot.date_entree) }}</p>
         <p><strong>Nombre initial:</strong> {{ lot.nombre_initial }} poulets</p>
-        <p><strong>Sexe:</strong> {{ (lot.nb_femelles ?? lot.nombre_initial) }}♀ / {{ (lot.nb_males ?? 0) }}♂</p>
         <p><strong>Coût d'achat:</strong> {{ formatNumber(lot.cout_achat) }} Ar</p>
-        <p><strong>Production max:</strong> {{ getProductionMaximale(lot).toLocaleString('fr-FR') }} œufs</p>
       </div>
       <div class="lot-actions">
-        <button class="btn-details" (click)="viewDetails(lot)" title="Voir détails"><i class="fa-solid fa-eye"></i></button>
-        <button class="btn-edit" (click)="openEditForm(lot); $event.stopPropagation()" title="Modifier"><i class="fa-solid fa-pen"></i></button>
-        <button class="btn-delete" (click)="deleteLot(lot.id_lot); $event.stopPropagation()" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+        <button class="btn-details" (click)="viewDetails(lot)">Voir détails</button>
+        <button class="btn-edit" (click)="openEditForm(lot); $event.stopPropagation()">Modifier</button>
+        <button class="btn-delete" (click)="deleteLot(lot.id_lot); $event.stopPropagation()">Supprimer</button>
       </div>
     </div>
   </div>
@@ -196,33 +162,6 @@
       </div>
     </div>
 
-    <!-- ══════════ PRODUCTION D'ŒUFS ══════════ -->
-    <div class="production-highlight">
-      <div class="production-card">
-        <div class="production-icon">🥚</div>
-        <div class="production-label">Production Maximale</div>
-        <div class="production-amount">{{ getProductionMaximale(selectedLot).toLocaleString('fr-FR') }} œufs</div>
-        <div class="production-detail" *ngIf="selectedLot.nb_femelles != null">
-          {{ selectedLot.nb_femelles }}♀ × {{ getRaceForLot(selectedLot)?.capacite_ponte || 0 }} œufs/vie
-        </div>
-        <div class="production-detail" *ngIf="selectedLot.nb_femelles == null">
-          {{ selectedLot.nombre_initial }} poules × {{ getRaceForLot(selectedLot)?.capacite_ponte || 0 }} œufs/vie
-        </div>
-      </div>
-      <div class="production-card">
-        <div class="production-icon">📦</div>
-        <div class="production-label">Œufs Récoltés</div>
-        <div class="production-amount">{{ getTotalOeufsRecoltes(selectedLot.id_lot).toLocaleString('fr-FR') }} œufs</div>
-        <div class="production-detail">{{ getPourcentageProduction(selectedLot).toFixed(1) }}% du potentiel</div>
-      </div>
-      <div class="production-card">
-        <div class="production-icon">⏳</div>
-        <div class="production-label">Potentiel Restant</div>
-        <div class="production-amount">{{ getOeufsRestants(selectedLot).toLocaleString('fr-FR') }} œufs</div>
-        <div class="production-detail">{{ (100 - getPourcentageProduction(selectedLot)).toFixed(1) }}% restant</div>
-      </div>
-    </div>
-
     <!-- ══════════ SITUATION DU LOT ══════════ -->
     <div class="situation-card">
       <div class="situation-title">
@@ -248,11 +187,6 @@
             <td>Nombre de poulets</td>
             <td><strong>{{ selectedLot.nombre_actuel }}</strong></td>
             <td>{{ selectedLot.nombre_initial }} initial − {{ selectedLot.mortalites }} morts</td>
-          </tr>
-          <tr>
-            <td>Répartition du sexe</td>
-            <td><strong>{{ selectedLot.nb_femelles ?? selectedLot.nombre_initial }}♀ / {{ selectedLot.nb_males ?? 0 }}♂</strong></td>
-            <td>Seules les femelles contribuent à la ponte</td>
           </tr>
           <tr class="row-warning">
             <td>Morts</td>
@@ -284,11 +218,6 @@
             <td><strong>{{ formatNumber(selectedLot.valeur_oeufs) }} Ar</strong></td>
             <td>{{ selectedLot.total_oeufs }} œufs × {{ selectedLot.pv_oeuf }} Ar/œuf</td>
           </tr>
-          <tr class="row-warning" *ngIf="(selectedLot.perte_oeufs || 0) > 0">
-            <td>Perte œufs</td>
-            <td><strong>{{ selectedLot.perte_oeufs }}</strong></td>
-            <td>{{ selectedLot.perte_oeufs }} œuf(s) pourri(s) × {{ selectedLot.pv_oeuf }} Ar/œuf = {{ formatNumber(selectedLot.valeur_perte_oeufs || 0) }} Ar</td>
-          </tr>
           <tr class="row-revenue">
             <td>Valeur des poulets</td>
             <td><strong>{{ formatNumber(selectedLot.valeur_poulets) }} Ar</strong></td>
@@ -304,7 +233,6 @@
             </td>
             <td>
               ({{ formatNumber(selectedLot.valeur_poulets) }} + {{ formatNumber(selectedLot.valeur_oeufs) }})
-              <span *ngIf="(selectedLot.valeur_perte_oeufs || 0) > 0"> − {{ formatNumber(selectedLot.valeur_perte_oeufs || 0) }} Ar perte œufs</span>
               − {{ formatNumber(selectedLot.cout_nourriture_total) }}
               − {{ formatNumber(selectedLot.cout_achat) }} Ar achat
             </td>
@@ -365,12 +293,6 @@
               <span class="term-label">Valeur œufs</span>
               <span class="term-detail">{{ selectedLot.total_oeufs }} œufs × {{ selectedLot.pv_oeuf }} Ar</span>
               <span class="term-value">{{ formatNumber(selectedLot.valeur_oeufs) }} Ar</span>
-            </div>
-            <span class="formula-op" *ngIf="(selectedLot.valeur_perte_oeufs || 0) > 0">−</span>
-            <div class="formula-term" *ngIf="(selectedLot.valeur_perte_oeufs || 0) > 0">
-              <span class="term-label">Perte œufs</span>
-              <span class="term-detail">{{ selectedLot.perte_oeufs || 0 }} œuf(s) pourri(s) × {{ selectedLot.pv_oeuf }} Ar</span>
-              <span class="term-value">{{ formatNumber(selectedLot.valeur_perte_oeufs || 0) }} Ar</span>
             </div>
             <span class="formula-op">−</span>
             <div class="formula-term">
@@ -465,7 +387,7 @@
           <strong>{{ formatNumber(selectedLot.poids_total / 1000) }} kg</strong>
         </p>
 
-        <hr style="margin: 12px 0; border-color: #d8b4fe;">
+        <hr style="margin: 12px 0; border-color: #4a5568;">
         <p><strong>Calcul de la nourriture (Sakafo):</strong></p>
         <p>Prix unitaire : <strong>{{ selectedLot.pu_sakafo_g }} Ar/g</strong></p>
         <ul>

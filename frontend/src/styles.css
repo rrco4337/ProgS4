@@ -1,6 +1,6 @@
-/* Global pastel purple theme */
+/* Global dark/professional theme */
 :root {
-	color-scheme: light;
+	color-scheme: dark;
 }
 
 * {
@@ -13,18 +13,18 @@ body {
 	padding: 0;
 	min-height: 100%;
 	font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	background: #faf5ff;
-	color: #4a3556;
+	background: #0b0b0c;
+	color: #f3f4f6;
 }
 
 a {
-	color: #c084fc;
+	color: inherit;
 }
 
 /* Common containers */
 .container,
 .home-container {
-	color: #4a3556;
+	color: #f3f4f6;
 }
 
 /* Generic cards / panels */
@@ -38,9 +38,9 @@ a {
 .total-box,
 .lot-finance-card,
 .benefice-formula-box {
-	background: #ffffff !important;
-	border: 1px solid #e9d5ff !important;
-	box-shadow: 0 10px 24px rgba(192, 132, 252, 0.1) !important;
+	background: #141416 !important;
+	border: 1px solid #2a2a2f !important;
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Tables */
@@ -50,17 +50,17 @@ table,
 .mortalite-table,
 .situation-table,
 .oeufs-lot-table {
-	background: #ffffff;
-	color: #4a3556;
+	background: #121214;
+	color: #f3f4f6;
 }
 
 th {
-	background: #f3e8ff !important;
-	color: #4a3556 !important;
+	background: #1a1a1d !important;
+	color: #f9fafb !important;
 }
 
 td {
-	border-color: #e9d5ff !important;
+	border-color: #2c2c31 !important;
 }
 
 /* Inputs */
@@ -68,9 +68,9 @@ input,
 select,
 textarea,
 .form-control {
-	background: #ffffff !important;
-	color: #4a3556 !important;
-	border: 1px solid #d8b4fe !important;
+	background: #111114 !important;
+	color: #f3f4f6 !important;
+	border: 1px solid #2d2d33 !important;
 }
 
 input:focus,
@@ -78,17 +78,17 @@ select:focus,
 textarea:focus,
 .form-control:focus {
 	outline: none;
-	border-color: #c084fc !important;
-	box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.25) !important;
+	border-color: #4caf50 !important;
+	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15) !important;
 }
 
-/* Headings */
+/* Headings - dark theme defaults */
 h1, h2, h3, h4 {
-	color: #3b2845;
+	color: #e5e7eb;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #faf5ff; }
-::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #c084fc; }
+::-webkit-scrollbar-track { background: #0b0b0c; }
+::-webkit-scrollbar-thumb { background: #3a3a40; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4a4a50; }

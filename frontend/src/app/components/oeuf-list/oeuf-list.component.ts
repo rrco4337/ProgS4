@@ -5,7 +5,6 @@ import { OeufService } from '../../services/oeuf.service';
 import { IncubationService } from '../../services/incubation.service';
 import { VenteOeufService } from '../../services/vente-oeuf.service';
 import { LotService } from '../../services/lot.service';
-import { AutoIncubationService } from '../../services/auto-incubation.service';
 import { Oeuf, Incubation, VenteOeuf, Lot } from '../../models/elevage.model';
 
 @Component({
@@ -16,19 +15,13 @@ import { Oeuf, Incubation, VenteOeuf, Lot } from '../../models/elevage.model';
 })
 export class OeufListComponent implements OnInit {
   // Onglet actif
-  activeTab: 'recolte' | 'incubation' | 'ventes' | 'auto-eclosion' = 'recolte';
+  activeTab: 'recolte' | 'incubation' | 'ventes' = 'recolte';
 
   // Données
   oeufs: any[] = [];
   incubations: any[] = [];
   ventes: any[] = [];
   lots: Lot[] = [];
-
-  // Auto-éclosion
-  autoEclosionStatus: any = null;
-  autoEclosionProcessing = false;
-  autoEclosionResults: any[] = [];
-  showAutoEclosionSection = false;
 
   loading = false;
   error: string | null = null;
@@ -38,14 +31,6 @@ export class OeufListComponent implements OnInit {
   showRecolteForm = false;
   showIncubationForm = false;
   showVenteForm = false;
-
-  // Formulaire d'éclosion avec sexage
-  showEclosionForm = false;
-  eclosionMode: 'nombre' | 'pourcentage' = 'nombre';  // Mode de saisie des œufs pourris
-  eclosionData: { id_incubation: number; nombre_oeufs: number; nom_race: string; oeufs_pourris: number; pourcentage_male: number } = {
-    id_incubation: 0, nombre_oeufs: 0, nom_race: '', oeufs_pourris: 0, pourcentage_male: 50
-  };
-  eclosionPourcentagePourris: number = 0;  // Pourcentage d'œufs pourris saisi
 
   newRecolte: Partial<Oeuf> = { id_lot: 0, date_recolte: '', nombre: 0 };
   newIncubation: { id_oeuf: number; date_debut: string; nombre_oeufs: number } = {
@@ -60,7 +45,6 @@ export class OeufListComponent implements OnInit {
     private incubationService: IncubationService,
     private venteService: VenteOeufService,
     private lotService: LotService,
-    private autoIncubationService: AutoIncubationService,
     @Inject(PLATFORM_ID) private platformId: Object,
     private cdr: ChangeDetectorRef
   ) {}
@@ -76,15 +60,10 @@ export class OeufListComponent implements OnInit {
     }
   }
 
-  setTab(tab: 'recolte' | 'incubation' | 'ventes' | 'auto-eclosion') {
+  setTab(tab: 'recolte' | 'incubation' | 'ventes') {
     this.activeTab = tab;
     this.error = null;
     this.successMessage = null;
-    
-    // Charger le statut d'auto-éclosion si on va sur cet onglet
-    if (tab === 'auto-eclosion') {
-      this.loadAutoEclosionStatus();
-    }
   }
 
   // ─── Chargement ───────────────────────────────────────────
@@ -205,92 +184,21 @@ export class OeufListComponent implements OnInit {
     });
   }
 
-  openEclosionForm(inc: any) {
-    this.eclosionMode = 'nombre';
-    this.eclosionData = {
-      id_incubation: inc.id_incubation,
-      nombre_oeufs: inc.nombre_oeufs,
-      nom_race: inc.nom_race,
-      oeufs_pourris: 0,
-      pourcentage_male: 50
-    };
-    this.eclosionPourcentagePourris = 0;
-    this.showEclosionForm = true;
-    this.error = null;
-  }
-
-  // Récupérer le nombre d'œufs pourris selon le mode de saisie
-  get nbOeufsPourrisAffecte(): number {
-    if (this.eclosionMode === 'pourcentage') {
-      return Math.floor(this.eclosionData.nombre_oeufs * (this.eclosionPourcentagePourris / 100));
+  ecloterIncubation(id: number) {
+    if (confirm('Confirmer l\'éclosion et créer le nouveau lot de poussins ?')) {
+      this.incubationService.ecloter(id).subscribe({
+        next: (res) => {
+          if (res.success && res.data) {
+            this.loadIncubations();
+            this.loadLots();
+            this.successMessage = `✅ Éclosion confirmée ! Lot #${res.data.id_lot_resultat} créé avec ${res.data.nombre_poussins} poussins.`;
+            setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 6000);
+          }
+          this.cdr.detectChanges();
+        },
+        error: (err) => { this.error = 'Erreur lors de l\'\u00e9closion'; this.cdr.detectChanges(); }
+      });
     }
-    return this.eclosionData.oeufs_pourris;
-  }
-
-  // Mettre à jour le nombre d'œufs pourris si on change le mode ou le pourcentage
-  updateOeufsPourris() {
-    if (this.eclosionMode === 'pourcentage') {
-      this.eclosionData.oeufs_pourris = this.nbOeufsPourrisAffecte;
-    }
-  }
-
-  cancelEclosionForm() {
-    this.showEclosionForm = false;
-  }
-
-  get nbPoussinsEclosion(): number {
-    return Math.max(0, this.eclosionData.nombre_oeufs - this.nbOeufsPourrisAffecte);
-  }
-
-  get nbFemelles(): number {
-    return Math.floor(this.nbPoussinsEclosion * (1 - this.eclosionData.pourcentage_male / 100));
-  }
-
-  get nbMales(): number {
-    return this.nbPoussinsEclosion - this.nbFemelles;
-  }
-
-  confirmEclosion() {
-    this.updateOeufsPourris();  // Mettre à jour selon le mode
-    const nb = this.eclosionData.nombre_oeufs;
-    const pourris = this.nbOeufsPourrisAffecte;
-    if (pourris < 0 || pourris > nb) {
-      this.error = `Le nombre d'œufs pourris doit être entre 0 et ${nb}`;
-      return;
-    }
-    if (this.eclosionData.pourcentage_male < 0 || this.eclosionData.pourcentage_male > 100) {
-      this.error = 'Le pourcentage mâle doit être entre 0 et 100';
-      return;
-    }
-    this.loading = true;
-    this.incubationService.ecloter(this.eclosionData.id_incubation, {
-      oeufs_pourris: pourris,
-      pourcentage_male: this.eclosionData.pourcentage_male
-    }).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.showEclosionForm = false;
-          this.loadIncubations();
-          this.loadLots();
-          const d = res.data;
-          const msgPourris = d.oeufs_pourris > 0 ? ` ${d.oeufs_pourris} œuf(s) pourri(s) enregistré(s) en pertes.` : '';
-          this.successMessage = `✅ Lot #${d.id_lot_resultat} créé : ${d.nombre_poussins} poussins (${d.nb_femelles}♀ + ${d.nb_males}♂).${msgPourris}`;
-          setTimeout(() => { this.successMessage = null; this.cdr.detectChanges(); }, 8000);
-        }
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.error = err?.error?.error || 'Erreur lors de l\'éclosion';
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  // Kept for compatibility but replaced by openEclosionForm
-  ecloterIncubation(inc: any) {
-    this.openEclosionForm(inc);
   }
 
   deleteIncubation(id: number) {
@@ -427,131 +335,6 @@ export class OeufListComponent implements OnInit {
   isEclotRetard(dateEclosion: string): boolean {
     if (!dateEclosion) return false;
     return new Date(dateEclosion).getTime() < Date.now();
-  }
-
-  // ─── Auto-éclosion ────────────────────────────────────────────
-
-  loadAutoEclosionStatus() {
-    this.autoIncubationService.getAutoIncubationStatus().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.autoEclosionStatus = res.data;
-        }
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Erreur chargement statut auto-éclosion:', err);
-        this.error = 'Erreur chargement statut auto-éclosion';
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  processAutoEclosions() {
-    this.autoEclosionProcessing = true;
-    this.error = null;
-    this.successMessage = null;
-    
-    this.autoIncubationService.processAutoEclosions().subscribe({
-      next: (res) => {
-        this.autoEclosionProcessing = false;
-        
-        if (res.success && res.data) {
-          this.autoEclosionResults = res.data.results || [];
-          
-          if (res.data.processed > 0) {
-            this.successMessage = `✅ ${res.data.processed} éclosion(s) traitée(s) avec succès !`;
-            
-            // Recharger toutes les données car de nouveaux lots ont été créés
-            this.loadIncubations();
-            this.loadLots();
-            this.loadAutoEclosionStatus();
-          } else {
-            this.successMessage = 'ℹ️ Aucune incubation à traiter pour le moment.';
-          }
-          
-          if (res.data.failed > 0) {
-            this.error = `⚠️ ${res.data.failed} échec(s) lors du traitement.`;
-          }
-        }
-        
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.autoEclosionProcessing = false;
-        this.error = 'Erreur lors du traitement automatique des éclosions';
-        console.error('Erreur traitement auto-éclosion:', err);
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  getAutoEclosionStatusText(): string {
-    if (!this.autoEclosionStatus) return 'Chargement...';
-    
-    if (this.autoEclosionStatus.isProcessing) {
-      return '🔄 Traitement en cours...';
-    }
-    
-    if (this.autoEclosionStatus.cronJobActive) {
-      return '✅ Service actif - Vérification automatique 4 fois/jour';
-    }
-    
-    return '❌ Service inactif';
-  }
-
-  getAutoEclosionStatusClass(): string {
-    if (!this.autoEclosionStatus) return 'text-gray-500';
-    
-    if (this.autoEclosionStatus.isProcessing) {
-      return 'text-blue-500';
-    }
-    
-    if (this.autoEclosionStatus.cronJobActive) {
-      return 'text-green-600';
-    }
-    
-    return 'text-red-500';
-  }
-
-  isEclosionDue(dateEclosion: string): boolean {
-    if (!dateEclosion) return false;
-    const today = new Date().toISOString().split('T')[0];
-    return dateEclosion <= today;
-  }
-
-  getDaysUntilEclosion(dateEclosion: string): number {
-    if (!dateEclosion) return 0;
-    const diff = new Date(dateEclosion).getTime() - new Date().getTime();
-    return Math.ceil(diff / (24 * 60 * 60 * 1000));
-  }
-
-  getEclosionStatusText(incubation: any): string {
-    const diffDays = this.getDaysUntilEclosion(incubation.date_eclosion_prevue);
-    
-    if (diffDays < 0) {
-      return `⚠️ En retard (${Math.abs(diffDays)} jour${Math.abs(diffDays) > 1 ? 's' : ''})`;
-    } else if (diffDays === 0) {
-      return '🎯 Aujourd\'hui !';
-    } else if (diffDays === 1) {
-      return '🔜 Demain';
-    } else {
-      return `⏰ Dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
-    }
-  }
-
-  getEclosionStatusClass(incubation: any): string {
-    const diffDays = this.getDaysUntilEclosion(incubation.date_eclosion_prevue);
-    
-    if (diffDays < 0) {
-      return 'text-red-600 font-semibold';
-    } else if (diffDays === 0) {
-      return 'text-orange-600 font-semibold';
-    } else if (diffDays <= 2) {
-      return 'text-yellow-600 font-medium';
-    } else {
-      return 'text-green-600';
-    }
   }
 
   getLotLabel(idLot: number): string {

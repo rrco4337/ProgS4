@@ -13,7 +13,7 @@
 }
 
 h1 {
-  color: #3b2845;
+  color: #e2e8f0;
   font-size: 2.5rem;
   margin: 0;
 }
@@ -53,7 +53,7 @@ h1 {
 
 /* Table */
 .table-container {
-  background: #ffffff;
+  background: #1a202c;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   overflow-x: auto;
@@ -62,7 +62,7 @@ h1 {
 .mortalite-table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  background: #1a202c;
 }
 
 .mortalite-table thead {
@@ -79,8 +79,8 @@ h1 {
 
 .mortalite-table td {
   padding: 1rem;
-  border-bottom: 1px solid #d8b4fe;
-  color: #3b2845;
+  border-bottom: 1px solid #4a5568;
+  color: #e2e8f0;
 }
 
 .mortalite-table tbody tr:hover {
@@ -137,7 +137,7 @@ h1 {
 
 /* Formulaire */
 .form-container {
-  background: #ffffff;
+  background: #1a202c;
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -151,12 +151,12 @@ h1 {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #d8b4fe;
+  border-bottom: 2px solid #4a5568;
 }
 
 .form-header h2 {
   margin: 0;
-  color: #3b2845;
+  color: #e2e8f0;
 }
 
 .btn-close {
@@ -189,19 +189,19 @@ h1 {
 
 .form-group label {
   margin-bottom: 0.5rem;
-  color: #3b2845;
+  color: #e2e8f0;
   font-weight: 600;
 }
 
 .form-group input,
 .form-group select {
   padding: 0.75rem;
-  border: 2px solid #d8b4fe;
+  border: 2px solid #4a5568;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
   background: #2d3748;
-  color: #3b2845;
+  color: #e2e8f0;
 }
 
 .form-group input:focus,
@@ -213,7 +213,7 @@ h1 {
 
 .warning-box {
   background: #744210;
-  border-left: 4px solid var(--warning-color);
+  border-left: 4px solid #f59e0b;
   padding: 1rem;
   border-radius: 8px;
   color: #fef3c7;

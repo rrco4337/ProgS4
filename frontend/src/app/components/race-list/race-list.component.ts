@@ -26,8 +26,7 @@ export class RaceListComponent implements OnInit {
     pv_g: 0,
     pv_oeuf: 0,
     semaine_debut_ponte: 0,
-    duree_incubation: 21,
-    capacite_ponte: 300
+    duree_incubation: 21
   };
 
   editRace: Partial<Race> = {};
@@ -104,8 +103,7 @@ export class RaceListComponent implements OnInit {
       pv_g: 0,
       pv_oeuf: 0,
       semaine_debut_ponte: 20,
-      duree_incubation: 21,
-      capacite_ponte: 300
+      duree_incubation: 21
     };
   }
 

@@ -13,13 +13,13 @@
 }
 
 h1 {
-  color: var(--dark-color);
+  color: #f3f4f6;
   font-size: 2.5rem;
   margin: 0;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #45a049 100%);
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -42,7 +42,7 @@ h1 {
 }
 
 .loading {
-  background: #ffffff;
+  background: #111827;
   color: #60a5fa;
 }
 
@@ -70,7 +70,7 @@ h1 {
 .race-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  border-color: var(--secondary-color);
+  border-color: #10b981;
 }
 
 .race-header {
@@ -79,13 +79,13 @@ h1 {
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e9d5ff;
+  border-bottom: 2px solid #2a2a2f;
 }
 
 .race-header h2 {
   margin: 0;
   font-size: 1.4rem;
-  color: var(--dark-color);
+  color: #f3f4f6;
 }
 
 .badge {
@@ -105,16 +105,16 @@ h1 {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e9d5ff;
+  border-bottom: 1px solid #2a2a2f;
 }
 
 .info-row .label {
-  color: #7a6685;
+  color: #9ca3af;
   font-weight: 500;
 }
 
 .info-row .value {
-  color: var(--dark-color);
+  color: #f3f4f6;
   font-weight: 600;
 }
 
@@ -157,7 +157,7 @@ h1 {
 
 .btn-delete {
   background: #7f1d1d;
-  color: #fecaca;
+  color: #fca5a5;
 }
 
 .btn-delete:hover {
@@ -167,10 +167,10 @@ h1 {
 
 /* Formulaires */
 .form-container {
-  background: #ffffff;
+  background: #141416;
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #2a2a2f;
   max-width: 800px;
   margin: 0 auto;
 }
@@ -181,12 +181,12 @@ h1 {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #e9d5ff;
+  border-bottom: 2px solid #2a2a2f;
 }
 
 .form-header h2 {
   margin: 0;
-  color: var(--dark-color);
+  color: #f3f4f6;
 }
 
 .btn-close {
@@ -225,23 +225,23 @@ h1 {
 
 .form-group label {
   margin-bottom: 0.5rem;
-  color: #4a3556;
+  color: #e5e7eb;
   font-weight: 600;
 }
 
 .form-group input {
   padding: 0.75rem;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #2a2a2f;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #ffffff;
-  color: var(--dark-color);
+  background: #111114;
+  color: #f3f4f6;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #4caf50;
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
@@ -253,8 +253,8 @@ h1 {
 }
 
 .btn-secondary {
-  background: #e9d5ff;
-  color: #4a3556;
+  background: #374151;
+  color: #e5e7eb;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -270,10 +270,10 @@ h1 {
 
 /* Détails */
 .details-container {
-  background: #ffffff;
+  background: #141416;
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #2a2a2f;
 }
 
 .btn-back {
@@ -296,13 +296,13 @@ h1 {
   overflow-x: auto;
   border-radius: 8px;
   margin-top: 1rem;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #2a2a2f;
 }
 
 .croissance-table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  background: #141416;
 }
 
 .croissance-table thead {
@@ -319,12 +319,12 @@ h1 {
 
 .croissance-table td {
   padding: 1rem;
-  border-bottom: 1px solid #e9d5ff;
-  color: #3b2845;
+  border-bottom: 1px solid #2a2a2f;
+  color: #e2e8f0;
 }
 
 .croissance-table tbody tr:hover {
-  background: #f3e8ff;
+  background: #1f2937;
 }
 
 @media (max-width: 768px) {
