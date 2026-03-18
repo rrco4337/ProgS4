@@ -103,7 +103,7 @@
             <td>{{ formatDate(oeuf.date_recolte) }}</td>
             <td><strong>{{ oeuf.nombre }}</strong> œufs</td>
             <td>
-              <button class="btn-danger-sm" (click)="deleteRecolte(oeuf.id_oeuf)">Supprimer</button>
+              <button class="btn-danger-sm" (click)="deleteRecolte(oeuf.id_oeuf)" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>
         </tbody>
@@ -215,7 +215,7 @@
                       title="Confirmer l'éclosion et créer le lot de poussins">
                 🐣 Éclore
               </button>
-              <button class="btn-danger-sm" (click)="deleteIncubation(inc.id_incubation)">Suppr.</button>
+              <button class="btn-danger-sm" (click)="deleteIncubation(inc.id_incubation)" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>
         </tbody>
@@ -399,7 +399,7 @@
             <td>{{ vente.prix_unitaire }} Ar</td>
             <td class="revenu-cell">{{ (vente.revenu_total || 0).toLocaleString('fr-FR') }} Ar</td>
             <td>
-              <button class="btn-danger-sm" (click)="deleteVente(vente.id_vente)">Supprimer</button>
+              <button class="btn-danger-sm" (click)="deleteVente(vente.id_vente)" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>
         </tbody>

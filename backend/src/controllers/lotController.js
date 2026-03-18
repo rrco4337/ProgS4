@@ -371,15 +371,35 @@ const getSituationGlobale = async (req, res) => {
 // Créer un nouveau lot
 const create = async (req, res) => {
     try {
-        const { id_race, date_entree, nombre_initial, cout_achat } = req.body;
+        const { id_race, date_entree, nombre_initial, cout_achat, nb_femelles, nb_males } = req.body;
+        const nombreInitialVal = parseInt(nombre_initial, 10);
+        const nbFemellesVal = nb_femelles != null ? parseInt(nb_femelles, 10) : nombreInitialVal;
+        const nbMalesVal = nb_males != null ? parseInt(nb_males, 10) : 0;
+
+        if (nbFemellesVal < 0 || nbMalesVal < 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Le nombre de femelles et de mâles doit être positif'
+            });
+        }
+
+        if (nbFemellesVal + nbMalesVal !== nombreInitialVal) {
+            return res.status(400).json({
+                success: false,
+                error: 'La somme femelles + mâles doit être égale au nombre initial'
+            });
+        }
+
         const pool = await getConnection();
         const result = await pool.request()
             .input('id_race', sql.Int, id_race)
             .input('date_entree', sql.Date, date_entree)
-            .input('nombre_initial', sql.Int, nombre_initial)
+            .input('nombre_initial', sql.Int, nombreInitialVal)
             .input('cout_achat', sql.Decimal(12, 2), cout_achat)
-            .query(`INSERT INTO Lot (id_race, date_entree, nombre_initial, cout_achat) 
-                    VALUES (@id_race, @date_entree, @nombre_initial, @cout_achat); 
+            .input('nb_femelles', sql.Int, nbFemellesVal)
+            .input('nb_males', sql.Int, nbMalesVal)
+            .query(`INSERT INTO Lot (id_race, date_entree, nombre_initial, cout_achat, nb_femelles, nb_males) 
+                    VALUES (@id_race, @date_entree, @nombre_initial, @cout_achat, @nb_femelles, @nb_males); 
                     SELECT SCOPE_IDENTITY() AS id`);
         
         res.status(201).json({
@@ -388,8 +408,10 @@ const create = async (req, res) => {
                 id_lot: result.recordset[0].id,
                 id_race,
                 date_entree,
-                nombre_initial,
-                cout_achat
+                nombre_initial: nombreInitialVal,
+                cout_achat,
+                nb_femelles: nbFemellesVal,
+                nb_males: nbMalesVal
             }
         });
     } catch (error) {
@@ -405,19 +427,41 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_race, date_entree, nombre_initial, cout_achat } = req.body;
+        const { id_race, date_entree, nombre_initial, cout_achat, nb_femelles, nb_males } = req.body;
+        const nombreInitialVal = parseInt(nombre_initial, 10);
+        const nbFemellesVal = nb_femelles != null ? parseInt(nb_femelles, 10) : nombreInitialVal;
+        const nbMalesVal = nb_males != null ? parseInt(nb_males, 10) : 0;
+
+        if (nbFemellesVal < 0 || nbMalesVal < 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Le nombre de femelles et de mâles doit être positif'
+            });
+        }
+
+        if (nbFemellesVal + nbMalesVal !== nombreInitialVal) {
+            return res.status(400).json({
+                success: false,
+                error: 'La somme femelles + mâles doit être égale au nombre initial'
+            });
+        }
+
         const pool = await getConnection();
         const result = await pool.request()
             .input('id', sql.Int, id)
             .input('id_race', sql.Int, id_race)
             .input('date_entree', sql.Date, date_entree)
-            .input('nombre_initial', sql.Int, nombre_initial)
+            .input('nombre_initial', sql.Int, nombreInitialVal)
             .input('cout_achat', sql.Decimal(12, 2), cout_achat)
+            .input('nb_femelles', sql.Int, nbFemellesVal)
+            .input('nb_males', sql.Int, nbMalesVal)
             .query(`UPDATE Lot 
                     SET id_race = @id_race, 
                         date_entree = @date_entree, 
                         nombre_initial = @nombre_initial, 
-                        cout_achat = @cout_achat
+                        cout_achat = @cout_achat,
+                        nb_femelles = @nb_femelles,
+                        nb_males = @nb_males
                     WHERE id_lot = @id`);
         
         if (result.rowsAffected[0] === 0) {
@@ -429,7 +473,15 @@ const update = async (req, res) => {
         
         res.json({
             success: true,
-            data: { id_lot: id, id_race, date_entree, nombre_initial, cout_achat }
+            data: {
+                id_lot: id,
+                id_race,
+                date_entree,
+                nombre_initial: nombreInitialVal,
+                cout_achat,
+                nb_femelles: nbFemellesVal,
+                nb_males: nbMalesVal
+            }
         });
     } catch (error) {
         console.error('Erreur update lot:', error);
