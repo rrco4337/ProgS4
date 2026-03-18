@@ -9,7 +9,7 @@ const getAll = async (req, res) => {
         // On fait une requete pour recuperer tous les lots avec les infos de leur race
         // On joint la table Lot avec la table Race pour avoir toutes les infos
         const result = await pool.request()
-            .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf
+            .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf, r.pv_g_femelle, r.pv_g_male
                     FROM Lot l
                     INNER JOIN Race r ON l.id_race = r.id_race
                     ORDER BY l.date_entree DESC`);
@@ -39,7 +39,7 @@ const getById = async (req, res) => {
         // On cherche le lot avec ce numero specifique
         const result = await pool.request()
             .input('id', sql.Int, id)
-            .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf
+            .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf, r.pv_g_femelle, r.pv_g_male
                     FROM Lot l
                     INNER JOIN Race r ON l.id_race = r.id_race
                     WHERE l.id_lot = @id`);
@@ -72,7 +72,7 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
     // ETAPE 1: Recuperer les infos de base du lot
     const lotResult = await pool.request()
         .input('id', sql.Int, id)
-        .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf
+        .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf, r.pv_g_femelle, r.pv_g_male
                 FROM Lot l
                 INNER JOIN Race r ON l.id_race = r.id_race
                 WHERE l.id_lot = @id`);
@@ -222,8 +222,18 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
     const totalOeufs = oeufsResult.recordset[0].total_oeufs;
 
     // ETAPE 9: Calculs financiers - TRES IMPORTANT pour connaitre si on gagne ou perd
-    // Valeur des poulets = nombre x poids actuel x prix par gramme
-    const valeurPoulets = nombreActuel * poidsActuel * (lot.pv_g || 0);
+    // Valeur des poulets avec prix differencie par sexe
+    const nbFemellesBase = lot.nb_femelles != null ? lot.nb_femelles : lot.nombre_initial;
+    const nbMalesBase = lot.nb_males != null ? lot.nb_males : 0;
+    const totalSexeBase = nbFemellesBase + nbMalesBase;
+    const nbFemellesActuelles = totalSexeBase > 0
+        ? Math.round((nombreActuel * nbFemellesBase) / totalSexeBase)
+        : nombreActuel;
+    const nbMalesActuels = Math.max(0, nombreActuel - nbFemellesActuelles);
+    const prixFemelle = lot.pv_g_femelle != null ? lot.pv_g_femelle : (lot.pv_g || 0);
+    const prixMale = lot.pv_g_male != null ? lot.pv_g_male : (lot.pv_g || 0);
+    const valeurPoulets = (nbFemellesActuelles * poidsActuel * prixFemelle)
+        + (nbMalesActuels * poidsActuel * prixMale);
     // Valeur des oeufs = nombre d'oeufs x prix par oeuf
     const valeurOeufs   = totalOeufs   * (lot.pv_oeuf || 0);
     // Benefice = ce qu'on peut vendre - ce qu'on a depense
@@ -246,6 +256,8 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
         poids_total: poidsTotal,               // Poids total du lot
         pu_sakafo_g: lot.pu_sakafo_g,         // Prix de la nourriture par gramme
         pv_g: lot.pv_g || 0,                  // Prix de vente par gramme d'animal
+        pv_g_femelle: prixFemelle,            // Prix de vente par gramme femelle
+        pv_g_male: prixMale,                  // Prix de vente par gramme mâle
         pv_oeuf: lot.pv_oeuf || 0,            // Prix de vente d'un oeuf
         nourriture_cumulee: nourritureCumulee, // Nourriture par animal
         nourriture_totale_g: nourritureTotaleG, // Nourriture pour tout le lot
@@ -258,6 +270,8 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
         benefice,                             // Benefice ou perte
         nb_femelles: lot.nb_femelles ?? null, // Nb femelles (si lot issu d'incubation avec sexage)
         nb_males: lot.nb_males ?? null,       // Nb mâles
+        nb_femelles_actuelles: nbFemellesActuelles,
+        nb_males_actuels: nbMalesActuels,
         detail_croissance: detail             // Detail semaine par semaine
     };
 }
@@ -274,7 +288,7 @@ const getPoidsActuel = async (req, res) => {
         // On verifie d'abord que le lot existe
         const lotResult = await pool.request()
             .input('id', sql.Int, id)
-            .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf
+            .query(`SELECT l.*, r.nom_race, r.pu_sakafo_g, r.pv_g, r.pv_oeuf, r.pv_g_femelle, r.pv_g_male
                     FROM Lot l
                     INNER JOIN Race r ON l.id_race = r.id_race
                     WHERE l.id_lot = @id`);

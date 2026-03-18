@@ -292,7 +292,10 @@
           <tr class="row-revenue">
             <td>Valeur des poulets</td>
             <td><strong>{{ formatNumber(selectedLot.valeur_poulets) }} Ar</strong></td>
-            <td>{{ selectedLot.nombre_actuel }} × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g }} Ar/g</td>
+            <td>
+              {{ selectedLot.nb_femelles_actuelles || 0 }}♀ × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g_femelle ?? selectedLot.pv_g }} Ar/g
+              + {{ selectedLot.nb_males_actuels || 0 }}♂ × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g_male ?? selectedLot.pv_g }} Ar/g
+            </td>
           </tr>
           <tr [class.row-benefice-positif]="selectedLot.benefice >= 0" [class.row-benefice-negatif]="selectedLot.benefice < 0">
             <td>Bénéfice estimé</td>
@@ -357,7 +360,10 @@
           <div class="formula-equation">
             <div class="formula-term">
               <span class="term-label">Valeur poulets</span>
-              <span class="term-detail">{{ selectedLot.nombre_actuel }} × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g }} Ar/g</span>
+              <span class="term-detail">
+                {{ selectedLot.nb_femelles_actuelles || 0 }}♀ × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g_femelle ?? selectedLot.pv_g }}
+                + {{ selectedLot.nb_males_actuels || 0 }}♂ × {{ selectedLot.poids_unitaire }} g × {{ selectedLot.pv_g_male ?? selectedLot.pv_g }}
+              </span>
               <span class="term-value">{{ formatNumber(selectedLot.valeur_poulets) }} Ar</span>
             </div>
             <span class="formula-op">+</span>

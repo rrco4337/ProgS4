@@ -3,6 +3,8 @@ export interface Race {
   nom_race: string;
   pu_sakafo_g: number;
   pv_g: number;
+  pv_g_femelle?: number;
+  pv_g_male?: number;
   pv_oeuf: number;
   semaine_debut_ponte: number;
   duree_incubation: number;
@@ -85,6 +87,8 @@ export interface PoidsActuelResponse {
   poids_total: number;
   pu_sakafo_g: number;
   pv_g: number;
+  pv_g_femelle?: number;
+  pv_g_male?: number;
   pv_oeuf: number;
   nourriture_cumulee: number;
   nourriture_totale_g: number;
@@ -97,6 +101,8 @@ export interface PoidsActuelResponse {
   benefice: number;
   nb_femelles?: number | null;
   nb_males?: number | null;
+  nb_femelles_actuelles?: number;
+  nb_males_actuels?: number;
   detail_croissance: DetailCroissance[];
 }
 
