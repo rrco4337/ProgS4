@@ -5,6 +5,15 @@
 USE elevage;
 GO
 
+-- Options SQL requises pour manipuler les colonnes calculees/indexees
+SET ANSI_NULLS ON;
+SET ANSI_PADDING ON;
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET QUOTED_IDENTIFIER ON;
+SET NUMERIC_ROUNDABORT OFF;
+
 -- Si une erreur arrive, on annule tout automatiquement
 SET XACT_ABORT ON;
 -- On commence une transaction (tout se passe en meme temps ou rien du tout)
