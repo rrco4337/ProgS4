@@ -2,8 +2,9 @@
   <div class="navbar-container">
     <div class="navbar-brand">
       <a routerLink="/" class="brand-link">
-        <span class="brand-text">Gestion d'Élevage</span>
-        <span class="brand-number">ETU003330</span>
+        <i class="fa-solid fa-cow brand-icon" style="color: var(--primary-color);"></i>
+        <span class="brand-text">3209</span>
+        <span class="brand-number">3209</span>
       </a>
     </div>
 
@@ -15,21 +16,27 @@
 
     <div class="navbar-menu" [class.active]="menuOpen">
       <a routerLink="/home" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+        <i class="fa-solid fa-house"></i>
         <span>Accueil</span>
       </a>
       <a routerLink="/lots" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+        <i class="fa-solid fa-layer-group"></i>
         <span>Lots</span>
       </a>
       <a routerLink="/races" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+        <i class="fa-solid fa-dna"></i>
         <span>Races</span>
       </a>
       <a routerLink="/croissance" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+        <i class="fa-solid fa-chart-line"></i>
         <span>Croissance</span>
       </a>
       <a routerLink="/mortalites" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+        <i class="fa-solid fa-book-skull"></i>
         <span>Mortalités</span>
       </a>
       <a routerLink="/oeufs" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+        <i class="fa-solid fa-egg"></i>
         <span>Œufs</span>
       </a>
     </div>

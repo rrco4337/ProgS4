@@ -36,12 +36,16 @@
           <span class="label">Incubation:</span>
           <span class="value">{{ race.duree_incubation }} jours</span>
         </div>
+        <div class="info-row">
+          <span class="label">Capacité ponte:</span>
+          <span class="value">{{ race.capacite_ponte }} œufs/vie</span>
+        </div>
       </div>
 
       <div class="race-actions">
-        <button class="btn-view" (click)="viewCroissance(race)">Croissance</button>
-        <button class="btn-edit" (click)="openEditForm(race)">Modifier</button>
-        <button class="btn-delete" (click)="deleteRace(race.id_race)">Supprimer</button>
+        <button class="btn-view" (click)="viewCroissance(race)" title="Croissance"><i class="fa-solid fa-chart-line"></i></button>
+        <button class="btn-edit" (click)="openEditForm(race)" title="Modifier"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-delete" (click)="deleteRace(race.id_race)" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>
   </div>
@@ -83,9 +87,16 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Durée incubation (jours) *</label>
-        <input type="number" [(ngModel)]="newRace.duree_incubation" name="duree_incubation" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Durée incubation (jours) *</label>
+          <input type="number" [(ngModel)]="newRace.duree_incubation" name="duree_incubation" required>
+        </div>
+
+        <div class="form-group">
+          <label>Capacité ponte (œufs/vie) *</label>
+          <input type="number" [(ngModel)]="newRace.capacite_ponte" name="capacite_ponte" required>
+        </div>
       </div>
 
       <div class="form-actions">
@@ -132,9 +143,16 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Durée incubation (jours) *</label>
-        <input type="number" [(ngModel)]="editRace.duree_incubation" name="duree_incubation" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Durée incubation (jours) *</label>
+          <input type="number" [(ngModel)]="editRace.duree_incubation" name="duree_incubation" required>
+        </div>
+
+        <div class="form-group">
+          <label>Capacité ponte (œufs/vie) *</label>
+          <input type="number" [(ngModel)]="editRace.capacite_ponte" name="capacite_ponte" required>
+        </div>
       </div>
 
       <div class="form-actions">
