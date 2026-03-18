@@ -23,7 +23,9 @@ export class RaceListComponent implements OnInit {
   newRace: Partial<Race> = {
     nom_race: '',
     pu_sakafo_g: 0,
-    pv_g: 0,
+    pv_g: 15,
+    pv_g_femelle: 15,
+    pv_g_male: 20,
     pv_oeuf: 0,
     semaine_debut_ponte: 0,
     duree_incubation: 21,
@@ -101,7 +103,9 @@ export class RaceListComponent implements OnInit {
     this.newRace = {
       nom_race: '',
       pu_sakafo_g: 0,
-      pv_g: 0,
+      pv_g: 15,
+      pv_g_femelle: 15,
+      pv_g_male: 20,
       pv_oeuf: 0,
       semaine_debut_ponte: 20,
       duree_incubation: 21,

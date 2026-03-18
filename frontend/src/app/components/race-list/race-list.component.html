@@ -21,8 +21,12 @@
           <span class="value">{{ race.pu_sakafo_g }} Ar/g</span>
         </div>
         <div class="info-row">
-          <span class="label">Prix vente:</span>
-          <span class="value">{{ race.pv_g }} Ar/g</span>
+          <span class="label">Prix vente femelle:</span>
+          <span class="value">{{ race.pv_g_femelle ?? race.pv_g }} Ar/g</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Prix vente mâle:</span>
+          <span class="value">{{ race.pv_g_male ?? race.pv_g }} Ar/g</span>
         </div>
         <div class="info-row">
           <span class="label">Prix œuf:</span>
@@ -70,8 +74,13 @@
         </div>
 
         <div class="form-group">
-          <label>Prix vente (Ar/g) *</label>
-          <input type="number" step="0.01" [(ngModel)]="newRace.pv_g" name="pv_g" required>
+          <label>Prix vente femelle (Ar/g) *</label>
+          <input type="number" step="0.01" [(ngModel)]="newRace.pv_g_femelle" name="pv_g_femelle" required>
+        </div>
+
+        <div class="form-group">
+          <label>Prix vente mâle (Ar/g) *</label>
+          <input type="number" step="0.01" [(ngModel)]="newRace.pv_g_male" name="pv_g_male" required>
         </div>
       </div>
 
@@ -126,8 +135,13 @@
         </div>
 
         <div class="form-group">
-          <label>Prix vente (Ar/g) *</label>
-          <input type="number" step="0.01" [(ngModel)]="editRace.pv_g" name="pv_g" required>
+          <label>Prix vente femelle (Ar/g) *</label>
+          <input type="number" step="0.01" [(ngModel)]="editRace.pv_g_femelle" name="edit_pv_g_femelle" required>
+        </div>
+
+        <div class="form-group">
+          <label>Prix vente mâle (Ar/g) *</label>
+          <input type="number" step="0.01" [(ngModel)]="editRace.pv_g_male" name="edit_pv_g_male" required>
         </div>
       </div>
 
