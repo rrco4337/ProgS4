@@ -75,6 +75,8 @@ export interface PoidsActuelResponse {
   id_lot: number;
   nom_race: string;
   date_entree: string;
+  date_entree_reference?: string;
+  lot_parent_id?: number | null;
   date_situation: string;
   age_semaines: number;
   age_jours: number;

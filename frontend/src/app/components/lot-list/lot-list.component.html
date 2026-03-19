@@ -1,6 +1,6 @@
 <div class="container">
   <div class="header-section">
-    <h1>Gestion des Lots de Poulets</h1>
+    <h1>3209</h1>
     <div class="header-controls">
       <div class="date-filter">
         <label for="dateFilter">Date de situation :</label>
@@ -243,6 +243,11 @@
             <td>Lot</td>
             <td><strong>#{{ selectedLot.id_lot }}</strong></td>
             <td>Race : {{ selectedLot.nom_race }} — Entrée le {{ formatDate(selectedLot.date_entree) }}</td>
+          </tr>
+          <tr *ngIf="selectedLot.lot_parent_id">
+            <td>Héritage croissance</td>
+            <td><strong>Lot parent #{{ selectedLot.lot_parent_id }}</strong></td>
+            <td>Référence croissance depuis le {{ formatDate(selectedLot.date_entree_reference || selectedLot.date_entree) }}</td>
           </tr>
           <tr>
             <td>Nombre de poulets</td>

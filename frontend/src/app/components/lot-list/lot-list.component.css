@@ -1106,3 +1106,195 @@ h1 {
   .formula-equation { flex-direction: column; align-items: stretch; }
   .formula-op { text-align: center; }
 }
+
+/* ══════════ Brown Theme Override ══════════ */
+h1,
+.details-header h2,
+.croissance-section h3,
+.situation-title,
+.lot-header h2,
+.form-header h2 {
+  color: #4e342e;
+}
+
+.date-filter,
+.form-container,
+.lot-card,
+.table-container,
+.croissance-table,
+.situation-card,
+.oeufs-lot-section,
+.benefice-formula-box {
+  border-color: #d7ccc8;
+}
+
+.date-filter,
+.form-container,
+.lot-card,
+.lot-details,
+.table-container,
+.croissance-table,
+.situation-card,
+.oeufs-lot-section,
+.oeufs-lot-body,
+.explanation,
+.result {
+  background: #fffaf4;
+}
+
+.date-filter label,
+.date-label,
+.lot-info p,
+.situation-table td,
+.term-label,
+.formula-op,
+.croissance-table th,
+.croissance-table td,
+.situation-table thead th {
+  color: #5d4037;
+}
+
+.date-input,
+.form-group input,
+.form-group select {
+  border-color: #bcaaa4;
+  background: #fff;
+  color: #4e342e;
+}
+
+.btn-primary,
+.btn-details,
+.badge {
+  background: linear-gradient(135deg, #6d4c41 0%, #5d4037 100%);
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-details:hover {
+  background: #4e342e;
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.35);
+}
+
+.btn-secondary,
+.btn-today {
+  background: #d7ccc8;
+  color: #4e342e;
+  border-color: #8d6e63;
+}
+
+.btn-secondary:hover,
+.btn-today:hover {
+  background: #bcaaa4;
+  color: #3e2723;
+}
+
+.lot-header,
+.form-header,
+.situation-table tbody tr,
+.oeufs-lot-table td,
+.croissance-table td {
+  border-color: #d7ccc8;
+}
+
+.lot-card:hover {
+  border-color: #8d6e63;
+  box-shadow: 0 6px 18px rgba(93, 64, 55, 0.25);
+}
+
+.finance-card {
+  border-color: #bcaaa4;
+}
+
+.ca-card {
+  background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+  border-color: #6d4c41;
+}
+
+.cost-card {
+  background: linear-gradient(135deg, #6d4c41 0%, #5d4037 100%);
+  border-color: #4e342e;
+}
+
+.benefice-card {
+  background: linear-gradient(135deg, #7b5e57 0%, #5d4037 100%);
+  border-color: #6d4c41;
+}
+
+.perte-card {
+  background: linear-gradient(135deg, #5d4037 0%, #3e2723 100%);
+  border-color: #3e2723;
+}
+
+.production-card {
+  background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+  border-color: #8d6e63;
+}
+
+.production-label,
+.production-detail,
+.finance-label,
+.finance-detail {
+  color: #efebe9;
+}
+
+.production-amount,
+.finance-amount {
+  color: #fff;
+}
+
+.situation-title,
+.situation-table thead th,
+.croissance-table thead,
+.oeufs-lot-table th,
+.oeufs-lot-header,
+.oeufs-lot-table tfoot .total-row td {
+  background: #6d4c41;
+  color: #fff;
+}
+
+.date-value {
+  background: #d7ccc8;
+  color: #4e342e;
+}
+
+.row-warning td {
+  background: #8d6e63;
+  color: #fff3e0;
+}
+
+.row-cost td {
+  background: #6d4c41;
+  color: #fbe9e7;
+}
+
+.row-revenue td {
+  background: #795548;
+  color: #f5f5f5;
+}
+
+.row-benefice-positif td {
+  background: #5d4037;
+  color: #f5f5f5;
+}
+
+.row-benefice-negatif td {
+  background: #4e342e;
+  color: #ffebee;
+}
+
+.formula-result.positif {
+  background: #d7ccc8;
+  border-color: #8d6e63;
+}
+
+.formula-result.negatif {
+  background: #bcaaa4;
+  border-color: #6d4c41;
+}
+
+.formula-result.positif .result-label,
+.formula-result.positif .result-value,
+.formula-result.negatif .result-label,
+.formula-result.negatif .result-value {
+  color: #3e2723;
+}

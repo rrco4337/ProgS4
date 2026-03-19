@@ -38,11 +38,11 @@ DELETE FROM Mortalite;
 PRINT 'Suppression des donnees de vente d oeufs...'
 DELETE FROM VenteOeuf;
 
-PRINT 'Suppression des donnees d oeufs...'
-DELETE FROM Oeuf;
-
 PRINT 'Suppression des donnees d incubation...'
 DELETE FROM Incubation;
+
+PRINT 'Suppression des donnees d oeufs...'
+DELETE FROM Oeuf;
 
 PRINT 'Suppression des donnees de croissance...'
 DELETE FROM Croissance;

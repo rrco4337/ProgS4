@@ -82,7 +82,28 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
     const lot = lotResult.recordset[0];
 
     // ETAPE 2: Calculer l'age du lot en semaines
-    const dateEntree = new Date(lot.date_entree);
+    // Par defaut, on prend la date d'entree du lot lui-meme.
+    // Pour un lot issu d'eclosion, on herite la reference de croissance du lot source.
+    let dateEntreeReference = lot.date_entree;
+    let lotParentId = null;
+    if (lot.id_incubation) {
+        const parentResult = await pool.request()
+            .input('id_incubation', sql.Int, lot.id_incubation)
+            .query(`SELECT TOP 1 o.id_lot AS id_lot_parent, lsrc.date_entree AS date_entree_parent
+                    FROM Incubation i
+                    INNER JOIN Oeuf o ON i.id_oeuf = o.id_oeuf
+                    INNER JOIN Lot lsrc ON lsrc.id_lot = o.id_lot
+                    WHERE i.id_incubation = @id_incubation`);
+
+        if (parentResult.recordset.length) {
+            lotParentId = parentResult.recordset[0].id_lot_parent;
+            if (parentResult.recordset[0].date_entree_parent) {
+                dateEntreeReference = parentResult.recordset[0].date_entree_parent;
+            }
+        }
+    }
+
+    const dateEntree = new Date(dateEntreeReference);
     // Utiliser la date fournie ou aujourd'hui
     const dateCalcul = dateSituation ? new Date(dateSituation) : new Date();
     // IMPORTANT: Normaliser les deux dates en UTC pur (annee, mois, jour)
@@ -244,6 +265,8 @@ async function _calculerSituationLot(pool, id, dateSituation = null) {
         id_lot: lot.id_lot,                    // Numero du lot
         nom_race: lot.nom_race,                // Nom de la race
         date_entree: lot.date_entree,          // Quand les animaux sont arrives
+        date_entree_reference: dateEntreeReference, // Reference utilisee pour la croissance
+        lot_parent_id: lotParentId,
         date_situation: dateCalcul.toISOString().split('T')[0], // Date du calcul
         age_semaines: ageEnSemaines,           // Age en semaines entieres
         age_jours: diffJours,                  // Age total en jours
